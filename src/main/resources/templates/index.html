@@ -1,15 +1,586 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: layout(~{::title}, ~{::content})">
+<html lang="en">
 
 <head>
-    <title>Home Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Doctor Clinic - Quality Healthcare at Your Fingertips</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#2563EB',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 
-<body>
-    <div th:fragment="content">
-        <h2 class="text-3xl font-bold">Welcome to the Clinic</h2>
-        <p class="mt-4">This is your friendly online health check-in system.</p>
+<body class="font-inter antialiased">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-14 sm:h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-xl sm:text-2xl font-bold text-primary">MediCare+</h1>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-6 lg:space-x-8">
+                        <a href="#services"
+                            class="text-gray-700 hover:text-primary px-2 lg:px-3 py-2 text-sm font-medium transition-colors">Services</a>
+                        <a href="#how-it-works"
+                            class="text-gray-700 hover:text-primary px-2 lg:px-3 py-2 text-sm font-medium transition-colors">How
+                            It Works</a>
+                        <a href="#doctors"
+                            class="text-gray-700 hover:text-primary px-2 lg:px-3 py-2 text-sm font-medium transition-colors">Doctors</a>
+                        <a href="#contact"
+                            class="text-gray-700 hover:text-primary px-2 lg:px-3 py-2 text-sm font-medium transition-colors">Contact</a>
+                        <button
+                            class="bg-primary text-white px-4 lg:px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm">Login</button>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button"
+                        class="text-gray-700 hover:text-primary focus:outline-none focus:text-primary">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="md:hidden hidden">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
+                    <a href="#services"
+                        class="text-gray-700 hover:text-primary block px-3 py-2 text-base font-medium transition-colors">Services</a>
+                    <a href="#how-it-works"
+                        class="text-gray-700 hover:text-primary block px-3 py-2 text-base font-medium transition-colors">How
+                        It Works</a>
+                    <a href="#doctors"
+                        class="text-gray-700 hover:text-primary block px-3 py-2 text-base font-medium transition-colors">Doctors</a>
+                    <a href="#contact"
+                        class="text-gray-700 hover:text-primary block px-3 py-2 text-base font-medium transition-colors">Contact</a>
+                    <button
+                        class="bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors w-full text-left mt-2">Login</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-blue-50 to-indigo-100 py-12 sm:py-16 lg:py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                <div class="text-center lg:text-left">
+                    <h1
+                        class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 leading-tight mb-4 sm:mb-6">
+                        Quality Healthcare
+                        <span class="text-primary">At Your Fingertips</span>
+                    </h1>
+                    <p class="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                        Connect with certified doctors instantly through secure video consultations.
+                        Get expert medical advice from the comfort of your home, 24/7.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+                        <button
+                            class="bg-primary text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-blue-700 transition-colors shadow-lg w-full sm:w-auto">
+                            Book Consultation
+                        </button>
+                        <button
+                            class="border-2 border-gray-300 text-gray-700 px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:border-primary hover:text-primary transition-colors w-full sm:w-auto">
+                            Learn More
+                        </button>
+                    </div>
+                    <div
+                        class="mt-8 sm:mt-12 grid grid-cols-3 gap-4 sm:gap-8 max-w-md mx-auto lg:max-w-none lg:mx-0 lg:flex lg:items-center lg:space-x-8">
+                        <div class="text-center">
+                            <div class="text-2xl sm:text-3xl font-bold text-primary">50K+</div>
+                            <div class="text-sm sm:text-base text-gray-600">Happy Patients</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl sm:text-3xl font-bold text-primary">500+</div>
+                            <div class="text-sm sm:text-base text-gray-600">Expert Doctors</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl sm:text-3xl font-bold text-primary">24/7</div>
+                            <div class="text-sm sm:text-base text-gray-600">Available</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative mt-8 lg:mt-0">
+                    <img src="https://images.pexels.com/photos/6749778/pexels-photo-6749778.jpeg?auto=compress&cs=tinysrgb&w=800"
+                        alt="Doctor consultation" class="rounded-2xl shadow-2xl w-full h-auto">
+                    <div
+                        class="absolute -bottom-4 sm:-bottom-6 -left-4 sm:-left-6 bg-white p-4 sm:p-6 rounded-xl shadow-lg max-w-xs">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 bg-secondary rounded-full animate-pulse"></div>
+                            <span class="text-gray-700 font-medium text-sm sm:text-base">Doctor available
+                                now</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Our Medical Services</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Comprehensive healthcare services delivered through our secure telehealth platform
+                </p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                <div
+                    class="bg-white p-6 sm:p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+                    <div
+                        class="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-lg flex items-center justify-center mb-4 sm:mb-6">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 text-primary" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">General Consultation
+                    </h3>
+                    <p class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">Comprehensive medical
+                        consultations for common health concerns
+                        and preventive care.</p>
+                    <a href="#" class="text-primary font-medium hover:text-blue-700 text-sm sm:text-base">Learn
+                        more →</a>
+                </div>
+
+                <div
+                    class="bg-white p-6 sm:p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+                    <div
+                        class="w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-lg flex items-center justify-center mb-4 sm:mb-6">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 text-secondary" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">Mental Health
+                        Support</h3>
+                    <p class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">Professional counseling and
+                        mental health support from
+                        licensed therapists.</p>
+                    <a href="#" class="text-primary font-medium hover:text-blue-700 text-sm sm:text-base">Learn
+                        more →</a>
+                </div>
+
+                <div
+                    class="bg-white p-6 sm:p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+                    <div
+                        class="w-12 h-12 sm:w-16 sm:h-16 bg-yellow-100 rounded-lg flex items-center justify-center mb-4 sm:mb-6">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 text-accent" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">Specialist Referrals
+                    </h3>
+                    <p class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">Direct access to medical
+                        specialists for complex conditions
+                        and specialized care.</p>
+                    <a href="#" class="text-primary font-medium hover:text-blue-700 text-sm sm:text-base">Learn
+                        more →</a>
+                </div>
+
+                <div
+                    class="bg-white p-6 sm:p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+                    <div
+                        class="w-12 h-12 sm:w-16 sm:h-16 bg-purple-100 rounded-lg flex items-center justify-center mb-4 sm:mb-6">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v6a2 2 0 01-2 2H9m-2 0V7a2 2 0 012-2h2a2 2 0 012 2v6a2 2 0 01-2 2h-2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">Prescription
+                        Services</h3>
+                    <p class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">Digital prescriptions and
+                        medication management with home
+                        delivery options.</p>
+                    <a href="#" class="text-primary font-medium hover:text-blue-700 text-sm sm:text-base">Learn
+                        more →</a>
+                </div>
+
+                <div
+                    class="bg-white p-6 sm:p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+                    <div
+                        class="w-12 h-12 sm:w-16 sm:h-16 bg-red-100 rounded-lg flex items-center justify-center mb-4 sm:mb-6">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 text-red-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">Emergency Care</h3>
+                    <p class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">24/7 emergency consultation
+                        services for urgent medical
+                        situations.</p>
+                    <a href="#" class="text-primary font-medium hover:text-blue-700 text-sm sm:text-base">Learn
+                        more →</a>
+                </div>
+
+                <div
+                    class="bg-white p-6 sm:p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+                    <div
+                        class="w-12 h-12 sm:w-16 sm:h-16 bg-indigo-100 rounded-lg flex items-center justify-center mb-4 sm:mb-6">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">Health Monitoring
+                    </h3>
+                    <p class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">Ongoing health tracking and
+                        personalized wellness programs.
+                    </p>
+                    <a href="#" class="text-primary font-medium hover:text-blue-700 text-sm sm:text-base">Learn
+                        more →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-12 sm:py-16 lg:py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 sm:mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
+                <p class="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+                    Get quality healthcare in just three simple steps
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+                <div class="text-center">
+                    <div
+                        class="w-16 h-16 sm:w-20 sm:h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                        <span class="text-xl sm:text-2xl font-bold text-white">1</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Book Appointment
+                    </h3>
+                    <p class="text-sm sm:text-base text-gray-600">Choose your preferred doctor and schedule a
+                        convenient time for
+                        your consultation.</p>
+                </div>
+                <div class="text-center">
+                    <div
+                        class="w-16 h-16 sm:w-20 sm:h-20 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                        <span class="text-xl sm:text-2xl font-bold text-white">2</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Video Consultation
+                    </h3>
+                    <p class="text-sm sm:text-base text-gray-600">Connect with your doctor through our secure
+                        video platform from
+                        anywhere.</p>
+                </div>
+                <div class="text-center">
+                    <div
+                        class="w-16 h-16 sm:w-20 sm:h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                        <span class="text-xl sm:text-2xl font-bold text-white">3</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Get Treatment</h3>
+                    <p class="text-sm sm:text-base text-gray-600">Receive personalized treatment plans,
+                        prescriptions, and follow-up
+                        care.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Doctors Section -->
+    <section id="doctors" class="py-12 sm:py-16 lg:py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 sm:mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Meet Our Expert Doctors</h2>
+                <p class="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+                    Board-certified physicians dedicated to providing exceptional care
+                </p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                        alt="Dr. Priya Sharma" class="w-full h-56 sm:h-64 object-cover">
+                    <div class="p-4 sm:p-6">
+                        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Dr. Priyansh Sharma</h3>
+                        <p class="text-primary font-medium mb-2 text-sm sm:text-base">Internal Medicine</p>
+                        <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">15+ years experience in
+                            internal medicine and
+                            preventive care.</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-1">
+                                <span class="text-yellow-400 text-sm">★★★★★</span>
+                                <span class="text-gray-600 text-xs sm:text-sm">(4.9)</span>
+                            </div>
+                            <button class="text-primary font-medium hover:text-blue-700 text-sm sm:text-base">Book
+                                Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                    <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                        alt="Dr. Rajesh Kumar" class="w-full h-56 sm:h-64 object-cover">
+                    <div class="p-4 sm:p-6">
+                        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Dr. Rajesh Kumar</h3>
+                        <p class="text-primary font-medium mb-2 text-sm sm:text-base">Cardiology</p>
+                        <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">Specialized in cardiovascular
+                            health and heart
+                            disease prevention.</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-1">
+                                <span class="text-yellow-400 text-sm">★★★★★</span>
+                                <span class="text-gray-600 text-xs sm:text-sm">(4.8)</span>
+                            </div>
+                            <button class="text-primary font-medium hover:text-blue-700 text-sm sm:text-base">Book
+                                Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                        alt="Dr. Anita Patel" class="w-full h-56 sm:h-64 object-cover">
+                    <div class="p-4 sm:p-6">
+                        <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Dr. Anita Patel</h3>
+                        <p class="text-primary font-medium mb-2 text-sm sm:text-base">Mental Health</p>
+                        <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">Licensed therapist specializing
+                            in anxiety and
+                            depression treatment.</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-1">
+                                <span class="text-yellow-400 text-sm">★★★★★</span>
+                                <span class="text-gray-600 text-xs sm:text-sm">(5.0)</span>
+                            </div>
+                            <button class="text-primary font-medium hover:text-blue-700 text-sm sm:text-base">Book
+                                Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
     </div>
+    </div>
+    </div>
+    </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-12 sm:py-16 lg:py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 sm:mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">What Our Patients Say</h2>
+                <p class="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+                    Real stories from patients who've experienced our quality care
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+                    <div class="flex items-center space-x-1 mb-4">
+                        <span class="text-yellow-400 text-sm sm:text-base">★★★★★</span>
+                    </div>
+                    <p class="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">"The convenience of having a doctor
+                        consultation from home is
+                        incredible. Dr. Sharma was thorough and professional."</p>
+                    <div class="flex items-center space-x-3">
+                        <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
+                            alt="Patient" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover">
+                        <div>
+                            <h4 class="font-semibold text-gray-900 text-sm sm:text-base">Sneha Gupta</h4>
+                            <p class="text-gray-600 text-xs sm:text-sm">Patient since 2023</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+                    <div class="flex items-center space-x-1 mb-4">
+                        <span class="text-yellow-400 text-sm sm:text-base">★★★★★</span>
+                    </div>
+                    <p class="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">"Quick response time and excellent care.
+                        The prescription
+                        delivery service saved me a trip to the pharmacy."</p>
+                    <div class="flex items-center space-x-3">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
+                            alt="Patient" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover">
+                        <div>
+                            <h4 class="font-semibold text-gray-900 text-sm sm:text-base">Arjun Singh</h4>
+                            <p class="text-gray-600 text-xs sm:text-sm">Patient since 2022</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+                    <div class="flex items-center space-x-1 mb-4">
+                        <span class="text-yellow-400 text-sm sm:text-base">★★★★★</span>
+                    </div>
+                    <p class="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">"The mental health support I received was
+                        life-changing. Dr.
+                        Patel is an amazing therapist."</p>
+                    <div class="flex items-center space-x-3">
+                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
+                            alt="Patient" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover">
+                        <div>
+                            <h4 class="font-semibold text-gray-900 text-sm sm:text-base">Kavya Reddy</h4>
+                            <p class="text-gray-600 text-xs sm:text-sm">Patient since 2023</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-12 sm:py-16 lg:py-20 bg-primary">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to Get Started?</h2>
+            <p class="text-lg sm:text-xl text-blue-100 mb-6 sm:mb-8 max-w-3xl mx-auto">
+                Join thousands of patients who trust MediCare+ for their healthcare needs
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center max-w-md sm:max-w-none mx-auto">
+                <button
+                    class="bg-white text-primary px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-gray-100 transition-colors shadow-lg w-full sm:w-auto">
+                    Book Your First Consultation
+                </button>
+                <button
+                    class="border-2 border-white text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-white hover:text-primary transition-colors w-full sm:w-auto">
+                    Download Our App
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-gray-900 text-white py-12 sm:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+                <div class="col-span-1 sm:col-span-2 lg:col-span-1">
+                    <h3 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">MediCare+</h3>
+                    <p class="text-gray-400 mb-3 sm:mb-4 text-sm sm:text-base">Quality healthcare at your fingertips.
+                        Connect with certified
+                        doctors anytime, anywhere.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z" />
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Services</h4>
+                    <ul class="space-y-2 text-gray-400 text-sm sm:text-base">
+                        <li><a href="#" class="hover:text-white transition-colors">General Consultation</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Mental Health</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Specialist Care</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Emergency Care</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Company</h4>
+                    <ul class="space-y-2 text-gray-400 text-sm sm:text-base">
+                        <li><a href="#" class="hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-400 text-sm sm:text-base">
+                        <li>📞 +91-800-MEDICAL</li>
+                        <li>✉️ support@medicareplus.com</li>
+                        <li>📍 123 Health Street, Mumbai, Maharashtra</li>
+                        <li>🕒 24/7 Available</li>
+                    </ul>
+                </div>
+            </div>
+            <div
+                class="border-t border-gray-800 mt-8 sm:mt-12 pt-6 sm:pt-8 text-center text-gray-400 text-sm sm:text-base">
+                <p>&copy; 2025 MediCare+. All rights reserved. Licensed healthcare platform in India.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add scroll effect to navbar
+        window.addEventListener('scroll', function () {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 100) {
+                nav.classList.add('shadow-lg');
+            } else {
+                nav.classList.remove('shadow-lg');
+            }
+        });
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', function () {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', function () {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+    </script>
+
 </body>
 
 </html>
