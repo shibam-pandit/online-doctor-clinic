@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Doctors - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#2563EB',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="font-inter antialiased bg-gray-50 min-h-screen">
+    <!-- Navigation Bar -->
+    <nav class="bg-primary shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/admin" class="text-white text-xl font-bold flex items-center">
+                        <i class="fas fa-user-shield mr-2"></i>Admin Dashboard
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/admin"
+                        class="text-white hover:text-blue-200 transition-colors flex items-center px-3 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-home mr-1"></i>Dashboard
+                    </a>
+                    <form action="/logout" method="post" style="display: inline;">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit"
+                            class="text-white hover:text-blue-200 transition-colors flex items-center px-3 py-2 rounded-lg hover:bg-blue-700 bg-transparent border-none cursor-pointer">
+                            <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Alert Messages -->
+        <div th:if="${success}"
+            class="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span th:text="${success}"></span>
+            <button type="button" class="ml-auto text-green-600 hover:text-green-800"
+                onclick="this.parentElement.style.display='none'">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div th:if="${error}"
+            class="mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="ml-auto text-red-600 hover:text-red-800"
+                onclick="this.parentElement.style.display='none'">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div th:if="${warning}"
+            class="mb-6 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg flex items-center">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            <span th:text="${warning}"></span>
+            <button type="button" class="ml-auto text-yellow-600 hover:text-yellow-800"
+                onclick="this.parentElement.style.display='none'">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl lg:text-5xl font-bold text-gray-900 mb-2">Manage Doctors</h1>
+            <p class="text-xl text-gray-600">Review and approve doctor registrations</p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-xl shadow-lg p-6 text-white">
+                <h4 class="text-3xl font-bold mb-2" th:text="${pendingDoctors.size()}">0</h4>
+                <p class="text-yellow-100">Pending Approvals</p>
+            </div>
+            <div class="bg-gradient-to-r from-green-400 to-green-500 rounded-xl shadow-lg p-6 text-white">
+                <h4 class="text-3xl font-bold mb-2" th:text="${allDoctors.size() - pendingDoctors.size()}">0</h4>
+                <p class="text-green-100">Approved Doctors</p>
+            </div>
+            <div class="bg-gradient-to-r from-blue-400 to-blue-500 rounded-xl shadow-lg p-6 text-white">
+                <h4 class="text-3xl font-bold mb-2" th:text="${allDoctors.size()}">0</h4>
+                <p class="text-blue-100">Total Doctors</p>
+            </div>
+        </div>
+
+        <!-- Pending Doctors Section -->
+        <div th:if="${pendingDoctors.size() > 0}" class="mb-8">
+            <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-clock text-yellow-500 mr-3"></i>Pending Approvals
+                <span class="ml-3 bg-yellow-400 text-gray-900 px-3 py-1 rounded-full text-sm font-bold"
+                    th:text="${pendingDoctors.size()}"></span>
+            </h3>
+
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+                <div class="p-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200">
+                                    <th class="text-left py-4 px-4 font-semibold text-gray-900">Name</th>
+                                    <th class="text-left py-4 px-4 font-semibold text-gray-900">Email</th>
+                                    <th class="text-left py-4 px-4 font-semibold text-gray-900">Phone</th>
+                                    <th class="text-left py-4 px-4 font-semibold text-gray-900">Specialization</th>
+                                    <th class="text-left py-4 px-4 font-semibold text-gray-900">Qualification</th>
+                                    <th class="text-left py-4 px-4 font-semibold text-gray-900">Experience</th>
+                                    <th class="text-left py-4 px-4 font-semibold text-gray-900">Registration Date</th>
+                                    <th class="text-left py-4 px-4 font-semibold text-gray-900">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="doctor : ${pendingDoctors}"
+                                    class="border-b border-gray-100 hover:bg-gray-50">
+                                    <td class="py-4 px-4 text-gray-900 font-medium" th:text="${doctor.user.name}">Doctor
+                                        Name</td>
+                                    <td class="py-4 px-4 text-gray-600" th:text="${doctor.user.email}">doctor@email.com
+                                    </td>
+                                    <td class="py-4 px-4 text-gray-600" th:text="${doctor.user.phone}">+1234567890</td>
+                                    <td class="py-4 px-4 text-gray-600" th:text="${doctor.specialization}">
+                                        Specialization</td>
+                                    <td class="py-4 px-4 text-gray-600" th:text="${doctor.qualification}">Qualification
+                                    </td>
+                                    <td class="py-4 px-4 text-gray-600"><span th:text="${doctor.experience}">5</span>
+                                        years</td>
+                                    <td class="py-4 px-4 text-gray-600"
+                                        th:text="${#temporals.format(doctor.createdAt, 'MMM dd, yyyy HH:mm')}">Jan 01,
+                                        2024 10:30</td>
+                                    <td class="py-4 px-4">
+                                        <div class="flex space-x-2">
+                                            <form th:action="@{/admin/approve-doctor/{id}(id=${doctor.id})}"
+                                                method="post" class="inline">
+                                                <button type="submit"
+                                                    class="bg-green-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+                                                    onclick="return confirm('Are you sure you want to approve this doctor?')">
+                                                    <i class="fas fa-check mr-1"></i> Approve
+                                                </button>
+                                            </form>
+                                            <form th:action="@{/admin/reject-doctor/{id}(id=${doctor.id})}"
+                                                method="post" class="inline">
+                                                <button type="submit"
+                                                    class="bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
+                                                    onclick="return confirm('Are you sure you want to reject this doctor?')">
+                                                    <i class="fas fa-times mr-1"></i> Reject
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Pending Doctors Message -->
+        <div th:if="${pendingDoctors.size() == 0}"
+            class="mb-8 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg flex items-center">
+            <i class="fas fa-info-circle mr-2"></i>
+            No pending doctor approvals at this time.
+        </div>
+
+        <!-- All Doctors Section -->
+        <div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-users text-blue-500 mr-3"></i>All Doctors
+                <span class="ml-3 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold"
+                    th:text="${allDoctors.size()}"></span>
+            </h3>
+
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200">
+                                    <th class="text-left py-4 px-4 font-semibold text-gray-900">Name</th>
+                                    <th class="text-left py-4 px-4 font-semibold text-gray-900">Email</th>
+                                    <th class="text-left py-4 px-4 font-semibold text-gray-900">Specialization</th>
+                                    <th class="text-left py-4 px-4 font-semibold text-gray-900">Experience</th>
+                                    <th class="text-left py-4 px-4 font-semibold text-gray-900">Status</th>
+                                    <th class="text-left py-4 px-4 font-semibold text-gray-900">Registration Date</th>
+                                    <th class="text-left py-4 px-4 font-semibold text-gray-900">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="doctor : ${allDoctors}" class="border-b border-gray-100 hover:bg-gray-50">
+                                    <td class="py-4 px-4 text-gray-900 font-medium" th:text="${doctor.user.name}">Doctor
+                                        Name</td>
+                                    <td class="py-4 px-4 text-gray-600" th:text="${doctor.user.email}">doctor@email.com
+                                    </td>
+                                    <td class="py-4 px-4 text-gray-600" th:text="${doctor.specialization}">
+                                        Specialization</td>
+                                    <td class="py-4 px-4 text-gray-600"><span th:text="${doctor.experience}">5</span>
+                                        years</td>
+                                    <td class="py-4 px-4">
+                                        <span th:if="${doctor.approved}"
+                                            class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">Approved</span>
+                                        <span th:unless="${doctor.approved}"
+                                            class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">Pending</span>
+                                    </td>
+                                    <td class="py-4 px-4 text-gray-600"
+                                        th:text="${#temporals.format(doctor.createdAt, 'MMM dd, yyyy')}">Jan 01, 2024
+                                    </td>
+                                    <td class="py-4 px-4">
+                                        <div th:if="${doctor.approved}">
+                                            <form th:action="@{/admin/reject-doctor/{id}(id=${doctor.id})}"
+                                                method="post" class="inline">
+                                                <button type="submit"
+                                                    class="bg-yellow-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-yellow-600 transition-colors"
+                                                    onclick="return confirm('Are you sure you want to revoke approval for this doctor?')">
+                                                    <i class="fas fa-ban mr-1"></i> Revoke
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <div th:unless="${doctor.approved}">
+                                            <form th:action="@{/admin/approve-doctor/{id}(id=${doctor.id})}"
+                                                method="post" class="inline">
+                                                <button type="submit"
+                                                    class="bg-green-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+                                                    onclick="return confirm('Are you sure you want to approve this doctor?')">
+                                                    <i class="fas fa-check mr-1"></i> Approve
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

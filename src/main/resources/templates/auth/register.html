@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - MediCare+</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#2563EB',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="font-inter antialiased bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <!-- Success Message -->
+            <div th:if="${success}"
+                class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd"></path>
+                </svg>
+                <span th:text="${success}"></span>
+            </div>
+
+            <!-- Error Message -->
+            <div th:if="${error}"
+                class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clip-rule="evenodd"></path>
+                </svg>
+                <span th:text="${error}"></span>
+            </div>
+            <!-- Header -->
+            <div class="text-center">
+                <h1 class="text-3xl font-bold text-primary mb-2">MediCare+</h1>
+                <p class="text-gray-600">Create your account to get started</p>
+            </div>
+            <!-- Registration Form -->
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <form class="space-y-6" id="registerForm" method="POST" action="/register">
+                    <!-- Role Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">I am a</label>
+                        <div class="flex space-x-6">
+                            <label class="flex items-center">
+                                <input type="radio" name="role" value="patient" checked
+                                    class="h-4 w-4 text-primary focus:ring-primary border-gray-300">
+                                <span class="ml-2 text-sm text-gray-700">Patient</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="role" value="doctor"
+                                    class="h-4 w-4 text-primary focus:ring-primary border-gray-300">
+                                <span class="ml-2 text-sm text-gray-700">Doctor</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Name Field -->
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                        <input type="text" id="name" name="name" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                            placeholder="Enter your full name" aria-required="true" />
+                    </div>
+
+                    <!-- Email Field -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <input type="email" id="email" name="email" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                            placeholder="Enter your email address" aria-required="true"
+                            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" />
+                    </div>
+
+                    <!-- Phone Field -->
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                            placeholder="+91 98765 43210" aria-required="true" />
+                    </div>
+
+                    <!-- Password Field -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="password" name="password" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                            placeholder="Create a strong password" aria-required="true" minlength="8" />
+                    </div>
+
+                    <!-- Doctor-specific fields (hidden by default) -->
+                    <div id="doctorFields" class="space-y-6 hidden">
+                        <div class="border-t pt-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Professional Information</h3>
+
+                            <!-- Qualification Field -->
+                            <div class="mb-4">
+                                <label for="qualification"
+                                    class="block text-sm font-medium text-gray-700 mb-2">Qualification</label>
+                                <input type="text" id="qualification" name="qualification"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                                    placeholder="e.g., MBBS, MD, MS" required />
+                            </div>
+
+                            <!-- Specialization Field -->
+                            <div class="mb-4">
+                                <label for="specialization"
+                                    class="block text-sm font-medium text-gray-700 mb-2">Specialization</label>
+                                <select id="specialization" name="specialization"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors">
+                                    <option value="">Select your specialization</option>
+                                    <option value="general">General Medicine</option>
+                                    <option value="cardiology">Cardiology</option>
+                                    <option value="dermatology">Dermatology</option>
+                                    <option value="pediatrics">Pediatrics</option>
+                                    <option value="orthopedics">Orthopedics</option>
+                                    <option value="gynecology">Gynecology</option>
+                                    <option value="psychiatry">Psychiatry</option>
+                                    <option value="neurology">Neurology</option>
+                                    <option value="oncology">Oncology</option>
+                                    <option value="ophthalmology">Ophthalmology</option>
+                                    <option value="ent">ENT</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <!-- Experience Field -->
+                            <div>
+                                <label for="experience" class="block text-sm font-medium text-gray-700 mb-2">Years of
+                                    Experience</label>
+                                <input type="number" id="experience" name="experience" min="0" max="50"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                                    placeholder="Enter years of experience" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="pt-4">
+                        <button type="submit"
+                            class="w-full bg-primary text-white py-3 px-4 rounded-lg font-semibold text-lg hover:bg-blue-700 transition-colors shadow-lg">
+                            Create Account
+                        </button>
+                    </div>
+
+                    <!-- Login Link -->
+                    <div class="text-center">
+                        <p class="text-gray-600">
+                            Already have an account?
+                            <a href="login" class="text-primary font-medium hover:text-blue-700 transition-colors">
+                                Sign in
+                            </a>
+                        </p>
+                    </div>
+
+                    <!-- CSRF Token -->
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                </form>
+            </div>
+
+            <!-- Trust Indicators -->
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-6 text-sm text-gray-500">
+                    <div class="flex items-center space-x-1">
+                        <svg class="w-4 h-4 text-secondary" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Secure & Encrypted</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Handle role selection and dynamic greeting
+        const roleInputs = document.querySelectorAll('input[name="role"]');
+        const doctorFields = document.getElementById('doctorFields');
+
+        roleInputs.forEach(input => {
+            input.addEventListener('change', function () {
+                const selectedRole = this.value;
+
+                // Show/hide doctor fields
+                if (selectedRole === 'doctor') {
+                    doctorFields.classList.remove('hidden');
+                    // Make doctor fields required
+                    document.getElementById('qualification').required = true;
+                    document.getElementById('specialization').required = true;
+                    document.getElementById('experience').required = true;
+                } else {
+                    doctorFields.classList.add('hidden');
+                    // Remove required attribute from doctor fields
+                    document.getElementById('qualification').required = false;
+                    document.getElementById('specialization').required = false;
+                    document.getElementById('experience').required = false;
+                }
+            });
+        });
+
+        // Phone number formatting
+        document.getElementById('phone').addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0 && !value.startsWith('91')) {
+                if (value.length <= 10) {
+                    value = '91' + value;
+                }
+            }
+            if (value.length > 12) {
+                value = value.slice(0, 12);
+            }
+
+            // Format as +91 XXXXX XXXXX
+            if (value.length >= 2) {
+                value = '+' + value.slice(0, 2) + ' ' + value.slice(2, 7) + ' ' + value.slice(7);
+            }
+
+            e.target.value = value;
+        });
+    </script>
+</body>
+
+</html>
