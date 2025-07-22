@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Settings - Doctor Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#2563EB',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="font-inter antialiased bg-gray-50">
+    <!-- Include Doctor Sidebar with activeMenu parameter -->
+    <th:block
+        th:replace="~{fragments/doctor-sidebar :: doctor-sidebar('settings', ${doctor != null ? doctor.getUser().getName() : 'Doctor'}, ${doctor != null ? doctor.getSpecialization() : 'Specialist'})}">
+    </th:block>
+
+    <!-- Main Content -->
+    <div class="lg:pl-64">
+        <!-- Top Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+                <div class="flex items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Profile Settings</h1>
+                        <p class="text-sm text-gray-600">View your professional profile information</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Status Indicator -->
+                    <div class="hidden sm:flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-secondary rounded-full animate-pulse"></div>
+                        <span class="text-sm text-gray-600">Profile Active</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="p-4 sm:p-6 lg:p-8">
+            <!-- Profile Header Card -->
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <div class="flex flex-col sm:flex-row items-center sm:items-start space-y-6 sm:space-y-0 sm:space-x-8">
+                    <!-- Profile Picture -->
+                    <div class="relative">
+                        <img src="https://images.pexels.com/photos/5407206/pexels-photo-5407206.jpeg?auto=compress&cs=tinysrgb&w=200"
+                            alt="Doctor Profile"
+                            class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg">
+                        <div
+                            class="absolute -bottom-2 -right-2 w-10 h-10 bg-secondary rounded-full border-4 border-white flex items-center justify-center">
+                            <i class="fas fa-check text-white text-sm"></i>
+                        </div>
+                    </div>
+
+                    <!-- Basic Info -->
+                    <div class="text-center sm:text-left flex-1">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-2"
+                            th:text="${doctor != null and doctor.getUser() != null ? doctor.getUser().getName() : 'Dr. John Doe'}">
+                            Dr. Rajesh Kumar</h2>
+                        <p class="text-xl text-primary font-medium mb-3"
+                            th:text="${doctor != null ? doctor.getSpecialization() : 'General Medicine'}">Cardiologist
+                        </p>
+
+                        <!-- Quick Stats -->
+                        <div
+                            class="flex flex-col sm:flex-row items-center sm:items-start space-y-2 sm:space-y-0 sm:space-x-6 text-sm text-gray-600">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <span>4.9 Rating</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-users text-secondary"></i>
+                                <span>127+ Patients</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-calendar-check text-primary"></i>
+                                <span
+                                    th:text="${doctor != null ? doctor.getExperience() + ' Years Experience' : '5+ Years Experience'}">15+
+                                    Years Experience</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Information Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Personal Information -->
+                <div class="bg-white rounded-xl shadow-lg">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center">
+                            <i class="fas fa-user text-primary text-xl mr-3"></i>
+                            <h3 class="text-xl font-semibold text-gray-900">Personal Information</h3>
+                        </div>
+                    </div>
+
+                    <div class="p-6 space-y-6">
+                        <!-- Full Name -->
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-id-card text-primary"></i>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Full Name</label>
+                                <p class="text-lg font-medium text-gray-900"
+                                    th:text="${doctor != null and doctor.getUser() != null ? doctor.getUser().getName() : 'Dr. John Doe'}">
+                                    Dr. Rajesh Kumar</p>
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-envelope text-secondary"></i>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Email Address</label>
+                                <p class="text-lg font-medium text-gray-900"
+                                    th:text="${doctor != null and doctor.getUser() != null ? doctor.getUser().getEmail() : 'doctor@example.com'}">
+                                    rajesh.kumar@medicareplus.com</p>
+                            </div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-phone text-accent"></i>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Phone Number</label>
+                                <p class="text-lg font-medium text-gray-900"
+                                    th:text="${doctor != null and doctor.getUser() != null ? doctor.getUser().getPhone() : '+91 98765 43210'}">
+                                    +91 98765 43210</p>
+                            </div>
+                        </div>
+
+                        <!-- Gender -->
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-venus-mars text-purple-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Gender</label>
+                                <p class="text-lg font-medium text-gray-900">Not Available</p>
+                            </div>
+                        </div>
+
+                        <!-- Date of Birth -->
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-birthday-cake text-indigo-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Date of Birth</label>
+                                <p class="text-lg font-medium text-gray-900">Not Available</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Professional Information -->
+                <div class="bg-white rounded-xl shadow-lg">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center">
+                            <i class="fas fa-stethoscope text-secondary text-xl mr-3"></i>
+                            <h3 class="text-xl font-semibold text-gray-900">Professional Information</h3>
+                        </div>
+                    </div>
+
+                    <div class="p-6 space-y-6">
+                        <!-- Specialization -->
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-user-md text-primary"></i>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Specialization</label>
+                                <p class="text-lg font-medium text-gray-900"
+                                    th:text="${doctor != null ? doctor.getSpecialization() : 'General Medicine'}">
+                                    Cardiology</p>
+                            </div>
+                        </div>
+
+                        <!-- Experience -->
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-award text-secondary"></i>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Experience</label>
+                                <p class="text-lg font-medium text-gray-900"
+                                    th:text="${doctor != null ? doctor.getExperience() + ' Years' : '5 Years'}">15 Years
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Qualification -->
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-graduation-cap text-accent"></i>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Qualification</label>
+                                <p class="text-lg font-medium text-gray-900"
+                                    th:text="${doctor != null ? doctor.getQualification() : 'MBBS, MD'}">MBBS, MD
+                                    (Cardiology)</p>
+                            </div>
+                        </div>
+
+                        <!-- Clinic/Hospital -->
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-hospital text-purple-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Clinic/Hospital</label>
+                                <p class="text-lg font-medium text-gray-900">MediCare+ Online Clinic</p>
+                            </div>
+                        </div>
+
+                        <!-- Consultation Fee -->
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-rupee-sign text-indigo-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Consultation Fee</label>
+                                <p class="text-lg font-medium text-gray-900">₹500</p>
+                            </div>
+                        </div>
+
+                        <!-- Working Hours -->
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-clock text-red-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Working Hours</label>
+                                <p class="text-lg font-medium text-gray-900">9:00 AM - 6:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="mt-8 bg-white rounded-xl shadow-lg">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center">
+                        <i class="fas fa-info-circle text-accent text-xl mr-3"></i>
+                        <h3 class="text-xl font-semibold text-gray-900">Additional Information</h3>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Registration Date -->
+                        <div class="text-center p-4 bg-blue-50 rounded-lg">
+                            <i class="fas fa-calendar-plus text-primary text-2xl mb-2"></i>
+                            <h4 class="font-semibold text-gray-900 mb-1">Joined MediCare+</h4>
+                            <p class="text-sm text-gray-600"
+                                th:text="${doctor != null and doctor.getCreatedAt() != null ? #temporals.format(doctor.getCreatedAt(), 'MMMM yyyy') : 'January 2024'}">
+                                January 2024</p>
+                        </div>
+
+                        <!-- Verification Status -->
+                        <div class="text-center p-4 bg-green-50 rounded-lg">
+                            <i class="fas fa-shield-alt text-secondary text-2xl mb-2"></i>
+                            <h4 class="font-semibold text-gray-900 mb-1">Verification Status</h4>
+                            <p class="text-sm text-secondary font-medium"
+                                th:text="${doctor != null and doctor.isApproved() ? 'Verified' : 'Pending'}">Verified
+                            </p>
+                        </div>
+
+                        <!-- Profile Completion -->
+                        <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                            <i class="fas fa-chart-pie text-accent text-2xl mb-2"></i>
+                            <h4 class="font-semibold text-gray-900 mb-1">Profile Completion</h4>
+                            <p class="text-sm text-accent font-medium">100%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-8 bg-gradient-to-r from-primary to-blue-600 rounded-xl p-6 text-white">
+                <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">Need to Update Your Profile?</h3>
+                        <p class="text-blue-100">Contact our support team to make changes to your profile information.
+                        </p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button
+                            class="bg-white text-primary px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-headset mr-2"></i>Contact Support
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,11 +1,264 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor-Dashboard</title>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{doctor/header :: head('Dashboard - MediCare+')}">
 </head>
-<body>
-    <h1>Doctor</h1>
+
+<body class="font-inter antialiased bg-gray-50">
+    <!-- Include Doctor Sidebar with activeMenu parameter -->
+    <th:block
+        th:replace="~{fragments/doctor-sidebar :: doctor-sidebar('dashboard', ${doctor.getUser().getName()}, ${doctor.getSpecialization()})}">
+    </th:block>
+
+    <!-- Main Content Area -->
+    <div class="lg:ml-64">
+        <main class="p-4 sm:p-6 lg:p-8">
+
+            <!-- Welcome Section -->
+            <div class="mb-8">
+                <div
+                    class="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 rounded-xl p-6 sm:p-8 text-white shadow-lg">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                        <div class="flex-1">
+                            <h1 class="text-2xl sm:text-3xl font-bold mb-2">Good Morning, Dr. <span
+                                    th:text="${doctor.getUser().getName()}">Doctor Name</span>! ☀️</h1>
+                            <p class="text-blue-100 text-base sm:text-lg mb-4 sm:mb-0">
+                                You have <span class="font-semibold text-white"
+                                    th:text="${#lists.size(todayAppointments)}">0</span>
+                                appointment<span th:if="${#lists.size(todayAppointments) != 1}">s</span> scheduled for
+                                today
+                            </p>
+                        </div>
+                        <div class="hidden sm:block flex-shrink-0">
+                            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-stethoscope text-3xl text-blue-200"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+                <div
+                    class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Today's Appointments</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2"
+                                th:text="${#lists.size(todayAppointments)}">0</p>
+                            <p class="text-gray-500 text-sm mt-1">
+                                <i class="fas fa-calendar-check mr-1 text-blue-500"></i>Scheduled for today
+                            </p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-lg">
+                            <i class="fas fa-calendar-check text-primary text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Total Patients</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2" th:text="${uniquePatientCount}">0</p>
+                            <p class="text-gray-500 text-sm mt-1">
+                                <i class="fas fa-users mr-1 text-green-500"></i>Unique patients served
+                            </p>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-lg">
+                            <i class="fas fa-users text-secondary text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Monthly Earnings</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">
+                                <span th:if="${monthlyIncome > 0}">₹<span
+                                        th:text="${#numbers.formatDecimal(monthlyIncome, 0, 'COMMA', 0, 'POINT')}">0</span></span>
+                                <span th:if="${monthlyIncome == 0}">₹0</span>
+                            </p>
+                            <p class="text-gray-500 text-sm mt-1">
+                                <i class="fas fa-rupee-sign mr-1 text-yellow-500"></i>
+                                <span th:if="${monthlyIncome > 0}">This month's income</span>
+                                <span th:if="${monthlyIncome == 0}">No income this month</span>
+                            </p>
+                        </div>
+                        <div class="bg-yellow-100 p-3 rounded-lg">
+                            <i class="fas fa-rupee-sign text-accent text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Rating</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">
+                                <span th:if="${averageRating > 0}"
+                                    th:text="${#numbers.formatDecimal(averageRating, 1, 'POINT')}">0.0</span>
+                                <span th:if="${averageRating == 0}">N/A</span>
+                            </p>
+                            <p class="text-gray-500 text-sm mt-1">
+                                <i class="fas fa-star mr-1 text-yellow-400"></i>
+                                <span th:if="${averageRating > 0}">Average rating</span>
+                                <span th:if="${averageRating == 0}">No ratings yet</span>
+                            </p>
+                        </div>
+                        <div class="bg-purple-100 p-3 rounded-lg">
+                            <i class="fas fa-star text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today's Schedule & Quick Actions -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                <!-- Today's Schedule -->
+                <div class="xl:col-span-2">
+                    <div class="bg-white rounded-xl shadow-lg h-fit">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xl font-semibold text-gray-900">Today's Schedule</h3>
+                                <span class="text-sm text-gray-600"
+                                    th:text="${#temporals.format(#temporals.createNow(), 'MMMM dd, yyyy')}">Current
+                                    Date</span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <!-- Check if there are appointments today -->
+                                <div th:if="${#lists.isEmpty(todayAppointments)}" class="text-center py-8">
+                                    <i class="fas fa-calendar text-gray-400 text-4xl mb-4"></i>
+                                    <p class="text-gray-500 text-lg">No appointments scheduled for today</p>
+                                    <p class="text-gray-400 text-sm">Take a well-deserved break!</p>
+                                </div>
+
+                                <!-- Appointment Items -->
+                                <div th:each="appointment : ${todayAppointments}" th:class="'flex items-start sm:items-center p-4 rounded-lg border-l-4 transition-all hover:shadow-md ' + 
+                                    (${appointment.status.toString() == 'CONFIRMED'} ? 'bg-green-50 border-green-500' : 
+                                     ${appointment.status.toString() == 'PENDING'} ? 'bg-yellow-50 border-yellow-500' : 
+                                     ${appointment.status.toString() == 'COMPLETED'} ? 'bg-blue-50 border-blue-500' : 
+                                     'bg-gray-50 border-gray-300')">
+                                    <div class="flex-shrink-0">
+                                        <div
+                                            class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                                            <i class="fas fa-user text-white text-lg"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4 flex-1">
+                                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                            <h4 class="font-semibold text-gray-900 mb-1 sm:mb-0"
+                                                th:text="${appointment.patient.user.name}">Patient Name</h4>
+                                            <span
+                                                class="text-sm font-medium text-gray-800 bg-white px-2 py-1 rounded-md"
+                                                th:text="${#temporals.format(appointment.appointmentDate, 'HH:mm')}">Time</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mt-1"
+                                            th:text="${appointment.description ?: 'General Consultation'}">Consultation
+                                            Type</p>
+                                        <div class="flex flex-wrap items-center mt-3 gap-2">
+                                            <span th:class="'text-xs px-3 py-1 rounded-full font-medium ' + 
+                                                (${appointment.status.toString() == 'CONFIRMED'} ? 'bg-green-100 text-green-800' : 
+                                                 ${appointment.status.toString() == 'PENDING'} ? 'bg-yellow-100 text-yellow-800' : 
+                                                 ${appointment.status.toString() == 'COMPLETED'} ? 'bg-blue-100 text-blue-800' : 
+                                                 'bg-gray-100 text-gray-800')"
+                                                th:text="${appointment.status.toString()}">Status</span>
+                                            <button th:if="${appointment.status.toString() == 'CONFIRMED'}"
+                                                class="bg-primary text-white text-xs px-4 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md">
+                                                <i class="fas fa-video mr-1"></i>Join Call
+                                            </button>
+                                            <button th:if="${appointment.status.toString() == 'PENDING'}"
+                                                class="bg-gray-200 text-gray-600 text-xs px-4 py-2 rounded-lg cursor-not-allowed font-medium">
+                                                <i class="fas fa-clock mr-1"></i>Waiting
+                                            </button>
+                                            <button th:if="${appointment.status.toString() == 'COMPLETED'}"
+                                                class="bg-secondary text-white text-xs px-4 py-2 rounded-lg font-medium">
+                                                <i class="fas fa-check mr-1"></i>Completed
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 text-center">
+                                <a href="/doctor/appointments"
+                                    class="inline-flex items-center text-primary font-medium hover:text-blue-700 transition-colors">
+                                    View All Appointments
+                                    <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions & Recent Activity -->
+                <div class="space-y-6">
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-xl shadow-lg">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-xl font-semibold text-gray-900">Quick Actions</h3>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <a href="/doctor/availability"
+                                class="flex items-center p-3 rounded-lg border-2 border-gray-200 hover:border-primary hover:bg-blue-50 transition-all duration-200 group">
+                                <div
+                                    class="w-10 h-10 bg-blue-100 group-hover:bg-blue-200 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-calendar-plus text-primary text-lg"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="font-medium text-gray-900">Set Availability</h4>
+                                    <p class="text-sm text-gray-600">Update your schedule</p>
+                                </div>
+                            </a>
+
+                            <a href="/doctor/patients"
+                                class="flex items-center p-3 rounded-lg border-2 border-gray-200 hover:border-secondary hover:bg-green-50 transition-all duration-200 group">
+                                <div
+                                    class="w-10 h-10 bg-green-100 group-hover:bg-green-200 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-users text-secondary text-lg"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="font-medium text-gray-900">View Patients</h4>
+                                    <p class="text-sm text-gray-600">Manage patient records</p>
+                                </div>
+                            </a>
+
+                            <a href="/doctor/earnings"
+                                class="flex items-center p-3 rounded-lg border-2 border-gray-200 hover:border-accent hover:bg-yellow-50 transition-all duration-200 group">
+                                <div
+                                    class="w-10 h-10 bg-yellow-100 group-hover:bg-yellow-200 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-chart-line text-accent text-lg"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="font-medium text-gray-900">View Earnings</h4>
+                                    <p class="text-sm text-gray-600">Check your income</p>
+                                </div>
+                            </a>
+
+                            <a href="/doctor/settings"
+                                class="flex items-center p-3 rounded-lg border-2 border-gray-200 hover:border-purple-500 hover:bg-purple-50 transition-all duration-200 group">
+                                <div
+                                    class="w-10 h-10 bg-purple-100 group-hover:bg-purple-200 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-cog text-purple-600 text-lg"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="font-medium text-gray-900">Settings</h4>
+                                    <p class="text-sm text-gray-600">Profile & preferences</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 </body>
+
 </html>

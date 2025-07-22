@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{doctor/header :: head('Appointments - Doctor Dashboard')}">
+</head>
+
+<body class="font-inter antialiased bg-gray-50">
+
+    
+    <!-- Include Doctor Sidebar with activeMenu parameter -->
+    <th:block
+        th:replace="~{fragments/doctor-sidebar :: doctor-sidebar('appointments', ${doctor.getUser().getName()}, ${doctor.getSpecialization()})}">
+    </th:block>
+
+    <!-- Main Content -->
+    <div class="lg:pl-64">
+        <!-- Top Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+                <div class="flex items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Appointments</h1>
+                        <p class="text-sm text-gray-600">Manage your patient appointments</p>
+                    </div>
+                </div>
+
+                <div class="hidden sm:flex bg-gray-100 rounded-lg p-1">
+                    <button id="tableViewBtn"
+                        class="px-3 py-2 text-sm font-medium text-primary bg-white rounded-md shadow-sm transition-colors">
+                        <i class="fas fa-list mr-1"></i>Table
+                    </button>
+                    <button id="calendarViewBtn"
+                        class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+                        <i class="fas fa-calendar mr-1"></i>Calendar
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="p-4 sm:p-6 lg:p-8">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Total Appointments</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1" th:text="${#lists.size(appointments)}">0
+                            </p>
+                            <p class="text-secondary text-sm mt-1">
+                                <i class="fas fa-calendar mr-1"></i>All time
+                            </p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-lg">
+                            <i class="fas fa-calendar-week text-primary text-lg"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Today</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1" th:text="${todayAppointmentsCount}">0</p>
+                            <p class="text-accent text-sm mt-1">
+                                <i class="fas fa-clock mr-1"></i>Today's appointments
+                            </p>
+                        </div>
+                        <div class="bg-yellow-100 p-3 rounded-lg">
+                            <i class="fas fa-calendar-day text-accent text-lg"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Completed</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1" th:text="${completedAppointmentsCount}">0
+                            </p>
+                            <p class="text-secondary text-sm mt-1">
+                                <i class="fas fa-check mr-1"></i>All time
+                            </p>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-lg">
+                            <i class="fas fa-check-circle text-secondary text-lg"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Cancelled</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1" th:text="${cancelledAppointmentsCount}">0
+                            </p>
+                            <p class="text-red-600 text-sm mt-1">
+                                <i class="fas fa-times mr-1"></i>All time
+                            </p>
+                        </div>
+                        <div class="bg-red-100 p-3 rounded-lg">
+                            <i class="fas fa-times-circle text-red-600 text-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters and Search -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                    <!-- Date Range -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                        <div class="relative">
+                            <input type="date"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <i class="fas fa-calendar-alt absolute right-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <!-- Search -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Search Patient</label>
+                        <div class="relative">
+                            <input type="text" placeholder="Name or ID"
+                                class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <select
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">All Status</option>
+                            <option value="scheduled">Scheduled</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-end space-x-2">
+                        <button
+                            class="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-filter mr-2"></i>Filter
+                        </button>
+                        <button
+                            class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-download mr-2"></i>Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="bg-white rounded-xl shadow-lg mb-8">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6" aria-label="Tabs">
+                        <button class="border-b-2 border-primary text-primary py-4 px-1 text-sm font-medium">
+                            All <span class="ml-2 bg-primary text-white text-xs px-2 py-1 rounded-full"
+                                th:text="${#lists.size(appointments)}">0</span>
+                        </button>
+                        <button
+                            class="border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
+                            Today <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full"
+                                th:text="${todayAppointmentsCount}">0</span>
+                        </button>
+                        <button
+                            class="border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
+                            Upcoming <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full"
+                                th:text="${upcomingAppointmentsCount}">0</span>
+                        </button>
+                        <button
+                            class="border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
+                            Completed <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full"
+                                th:text="${completedAppointmentsCount}">0</span>
+                        </button>
+                        <button
+                            class="border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
+                            Cancelled <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full"
+                                th:text="${cancelledAppointmentsCount}">0</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Appointments List -->
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <!-- Dynamic Appointment Cards -->
+                        <div th:each="appointment : ${appointments}"
+                            class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                            th:classappend="${appointment.status.toString() == 'COMPLETED'} ? 'bg-gray-50' : ''">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                                        <i class="fas fa-user text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900"
+                                            th:text="${appointment.patient.user.name}">Patient Name</h4>
+                                        <p class="text-sm text-gray-600">
+                                            <span th:text="${appointment.patient.user.phone}">Phone</span> •
+                                            <span>ID: P</span><span th:text="${appointment.patient.id}">001</span>
+                                        </p>
+                                        <p class="text-sm text-gray-500">
+                                            <span>Fee: ₹</span><span th:text="${appointment.fee}">0</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="text-center">
+                                    <p class="font-medium text-gray-900">
+                                        <span
+                                            th:text="${#temporals.format(appointment.date, 'dd MMM yyyy')}">Date</span>,
+                                        <span th:text="${#temporals.format(appointment.slot, 'hh:mm a')}">Time</span>
+                                    </p>
+                                    <div class="flex items-center justify-center space-x-2 mt-1">
+                                        <span th:if="${appointment.status.toString() == 'BOOKED'}"
+                                            class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Confirmed</span>
+                                        <span th:if="${appointment.status.toString() == 'COMPLETED'}"
+                                            class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Completed</span>
+                                        <span th:if="${appointment.status.toString() == 'CANCELLED_BY_DOCTOR'}"
+                                            class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">Cancelled by
+                                            Doctor</span>
+                                        <span th:if="${appointment.status.toString() == 'CANCELLED_BY_PATIENT'}"
+                                            class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">Cancelled by
+                                            Patient</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center space-x-2">
+                                    <button th:if="${appointment.status.toString() == 'BOOKED'}"
+                                        class="bg-primary text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                        <i class="fas fa-video mr-1"></i>Start
+                                    </button>
+                                    <button th:if="${appointment.status.toString() == 'BOOKED'}"
+                                        class="border border-primary text-primary px-3 py-2 rounded-lg text-sm font-medium hover:bg-primary hover:text-white transition-colors">
+                                        <i class="fas fa-eye mr-1"></i>View
+                                    </button>
+                                    <button th:if="${appointment.status.toString() == 'COMPLETED'}"
+                                        class="border border-gray-300 text-gray-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors">
+                                        <i class="fas fa-file-medical mr-1"></i>Report
+                                    </button>
+                                    <div class="relative">
+                                        <button class="text-gray-400 hover:text-gray-600 p-2">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- No appointments message -->
+                        <div th:if="${#lists.isEmpty(appointments)}" class="text-center py-8">
+                            <i class="fas fa-calendar-times text-gray-300 text-4xl mb-4"></i>
+                            <p class="text-gray-500 text-lg font-medium">No appointments found</p>
+                            <p class="text-gray-400 text-sm">Your appointments will appear here once patients book them.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="flex items-center justify-between mt-8" th:if="${!#lists.isEmpty(appointments)}">
+                        <div class="text-sm text-gray-700">
+                            Showing <span class="font-medium">1</span> to <span class="font-medium"
+                                th:text="${#lists.size(appointments)}">0</span> of <span class="font-medium"
+                                th:text="${#lists.size(appointments)}">0</span> appointments
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button
+                                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                Previous
+                            </button>
+                            <button
+                                class="px-3 py-2 text-sm font-medium text-white bg-primary border border-primary rounded-lg">
+                                1
+                            </button>
+                            <button
+                                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Mobile sidebar toggle (reuse from dashboard)
+        const openSidebar = document.getElementById('openSidebar');
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+
+        if (openSidebar) {
+            openSidebar.addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) {
+                    sidebar.classList.remove('-translate-x-full');
+                    mobileMenuOverlay.classList.remove('hidden');
+                }
+            });
+        }
+
+        if (mobileMenuOverlay) {
+            mobileMenuOverlay.addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) {
+                    sidebar.classList.add('-translate-x-full');
+                    mobileMenuOverlay.classList.add('hidden');
+                }
+            });
+        }
+
+        // View toggle functionality
+        const tableViewBtn = document.getElementById('tableViewBtn');
+        const calendarViewBtn = document.getElementById('calendarViewBtn');
+
+        tableViewBtn.addEventListener('click', () => {
+            tableViewBtn.classList.add('text-primary', 'bg-white', 'shadow-sm');
+            tableViewBtn.classList.remove('text-gray-600');
+            calendarViewBtn.classList.remove('text-primary', 'bg-white', 'shadow-sm');
+            calendarViewBtn.classList.add('text-gray-600');
+        });
+
+        calendarViewBtn.addEventListener('click', () => {
+            calendarViewBtn.classList.add('text-primary', 'bg-white', 'shadow-sm');
+            calendarViewBtn.classList.remove('text-gray-600');
+            tableViewBtn.classList.remove('text-primary', 'bg-white', 'shadow-sm');
+            tableViewBtn.classList.add('text-gray-600');
+        });
+
+        // Tab functionality
+        const tabs = document.querySelectorAll('nav[aria-label="Tabs"] button');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active state from all tabs
+                tabs.forEach(t => {
+                    t.classList.remove('border-primary', 'text-primary');
+                    t.classList.add('border-transparent', 'text-gray-500');
+                });
+
+                // Add active state to clicked tab
+                tab.classList.add('border-primary', 'text-primary');
+                tab.classList.remove('border-transparent', 'text-gray-500');
+            });
+        });
+    </script>
+</body>
+
+</html>

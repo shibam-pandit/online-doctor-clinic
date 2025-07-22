@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{doctor/header :: head('Earnings - Doctor Dashboard')}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="font-inter antialiased bg-gray-50">
+    <!-- Include Doctor Sidebar with activeMenu parameter -->
+    <th:block
+        th:replace="~{fragments/doctor-sidebar :: doctor-sidebar('earnings', ${doctor != null ? doctor.getUser().getName() : 'Doctor'}, ${doctor != null ? doctor.getSpecialization() : 'Specialist'})}">
+    </th:block>
+
+    <!-- Main Content -->
+    <div class="lg:pl-64">
+        <!-- Top Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+                <div class="flex items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Earnings</h1>
+                        <p class="text-sm text-gray-600">Track your consultation earnings and financial performance</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Quick Actions -->
+                    <button
+                        class="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-download mr-2"></i>Download Report
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="p-4 sm:p-6 lg:p-8">
+            <!-- Alert Messages -->
+            <div th:if="${success != null}"
+                class="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span th:text="${success}">Success message</span>
+                <button type="button" class="ml-auto text-green-600 hover:text-green-800"
+                    onclick="this.parentElement.style.display='none'">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div th:if="${error != null}"
+                class="mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span th:text="${error}">Error message</span>
+                <button type="button" class="ml-auto text-red-600 hover:text-red-800"
+                    onclick="this.parentElement.style.display='none'">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Total Earnings -->
+                <div class="bg-gradient-to-r from-primary to-blue-600 rounded-xl shadow-lg p-6 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm font-medium">Total Earnings</p>
+                            <p class="text-3xl font-bold mt-2">₹<span
+                                    th:text="${totalEarnings != null ? totalEarnings : '0'}">45,000</span></p>
+                            <p class="text-blue-100 text-sm mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>All time
+                            </p>
+                        </div>
+                        <div class="bg-blue-700 p-3 rounded-lg">
+                            <i class="fas fa-rupee-sign text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Earnings -->
+                <div class="bg-gradient-to-r from-secondary to-green-600 rounded-xl shadow-lg p-6 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm font-medium">This Month</p>
+                            <p class="text-3xl font-bold mt-2">₹<span
+                                    th:text="${monthlyEarnings != null ? monthlyEarnings : '0'}">12,500</span></p>
+                            <p class="text-green-100 text-sm mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i><span
+                                    th:text="${monthlyGrowth != null ? monthlyGrowth : '0'}">+15</span>% from last month
+                            </p>
+                        </div>
+                        <div class="bg-green-700 p-3 rounded-lg">
+                            <i class="fas fa-calendar-alt text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appointments Completed -->
+                <div class="bg-gradient-to-r from-accent to-yellow-600 rounded-xl shadow-lg p-6 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-yellow-100 text-sm font-medium">Completed</p>
+                            <p class="text-3xl font-bold mt-2"
+                                th:text="${completedAppointments != null ? completedAppointments : '0'}">89</p>
+                            <p class="text-yellow-100 text-sm mt-1">
+                                <i class="fas fa-check mr-1"></i>Appointments
+                            </p>
+                        </div>
+                        <div class="bg-yellow-700 p-3 rounded-lg">
+                            <i class="fas fa-user-check text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Average Fee -->
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm font-medium">Average Fee</p>
+                            <p class="text-3xl font-bold mt-2">₹<span
+                                    th:text="${averageFee != null ? averageFee : '0'}">506</span></p>
+                            <p class="text-purple-100 text-sm mt-1">
+                                <i class="fas fa-chart-line mr-1"></i>Per consultation
+                            </p>
+                        </div>
+                        <div class="bg-purple-700 p-3 rounded-lg">
+                            <i class="fas fa-calculator text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters and Chart Section -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
+                <!-- Filters -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-filter text-primary mr-2"></i>Filters
+                    </h3>
+
+                    <div class="space-y-4">
+                        <!-- Date Range Filter Form -->
+                        <form method="get" action="/doctor/earnings" id="filterForm">
+                            <input type="hidden" name="page" value="0">
+
+                            <!-- Date Range -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="date" name="startDate" th:value="${startDate}"
+                                        class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
+                                    <input type="date" name="endDate" th:value="${endDate}"
+                                        class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
+                                </div>
+                            </div>
+
+                            <!-- View Toggle -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">View</label>
+                                <div class="flex bg-gray-100 rounded-lg p-1">
+                                    <button type="button"
+                                        class="flex-1 px-3 py-2 text-sm font-medium text-primary bg-white rounded-md shadow-sm transition-colors view-btn"
+                                        data-view="day">
+                                        Day
+                                    </button>
+                                    <button type="button"
+                                        class="flex-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-primary transition-colors view-btn"
+                                        data-view="week">
+                                        Week
+                                    </button>
+                                    <button type="button"
+                                        class="flex-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-primary transition-colors view-btn"
+                                        data-view="month">
+                                        Month
+                                    </button>
+                                </div>
+                                <input type="hidden" name="viewType" value="day" id="viewType">
+                            </div>
+
+                            <!-- Apply Filters Button -->
+                            <button type="submit"
+                                class="w-full bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-search mr-2"></i>Apply Filters
+                            </button>
+                        </form>
+
+                        <!-- Download CSV Button -->
+                        <a href="/doctor/earnings/download-csv"
+                            class="w-full block text-center border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-file-csv mr-2"></i>Download CSV
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Earnings Chart -->
+                <div class="xl:col-span-2 bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">
+                            <i class="fas fa-chart-line text-primary mr-2"></i>Earnings Trend (Last 30 Days)
+                        </h3>
+                        <div class="flex items-center space-x-2 text-sm text-gray-600">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-primary rounded-full mr-2"></div>
+                                <span>Earnings</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative h-80">
+                        <canvas id="earningsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Earnings Table -->
+            <div class="bg-white rounded-xl shadow-lg">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">
+                            <i class="fas fa-table text-primary mr-2"></i>Recent Earnings
+                        </h3>
+                        <div class="flex items-center space-x-4">
+                            <!-- Search -->
+                            <div class="relative">
+                                <input type="text" placeholder="Search patient..." id="patientSearch"
+                                    class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
+                                <i class="fas fa-search absolute left-3 top-3 text-gray-400 text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="text-left py-4 px-6 font-semibold text-gray-900">Date</th>
+                                <th class="text-left py-4 px-6 font-semibold text-gray-900">Patient Name</th>
+                                <th class="text-left py-4 px-6 font-semibold text-gray-900">Appointment Fee</th>
+                                <th class="text-left py-4 px-6 font-semibold text-gray-900">Status</th>
+                                <th class="text-left py-4 px-6 font-semibold text-gray-900">Payment Method</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <!-- Sample Data Row -->
+                            <tr th:if="${appointmentsList != null and !appointmentsList.isEmpty()}"
+                                th:each="appointment : ${appointmentsList}" class="hover:bg-gray-50 transition-colors">
+                                <td class="py-4 px-6 text-gray-900"
+                                    th:text="${appointment.date != null ? #temporals.format(appointment.date, 'MMM dd, yyyy') : 'N/A'}">
+                                    Mar 15, 2024</td>
+                                <td class="py-4 px-6">
+                                    <div class="flex items-center space-x-3">
+                                        <img th:src="${appointment.patient.user.profileImage != null ? appointment.patient.user.profileImage : 'https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=100'}"
+                                            alt="Patient" class="w-8 h-8 rounded-full object-cover">
+                                        <span class="font-medium text-gray-900"
+                                            th:text="${appointment.patient.user.firstName + ' ' + appointment.patient.user.lastName}">Patient
+                                            Name</span>
+                                    </div>
+                                </td>
+                                <td class="py-4 px-6 font-semibold text-gray-900">₹<span
+                                        th:text="${appointment.fee}">500</span></td>
+                                <td class="py-4 px-6">
+                                    <span th:if="${appointment.status.name() == 'COMPLETED'}"
+                                        class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                        <i class="fas fa-check mr-1"></i>Completed
+                                    </span>
+                                    <span th:if="${appointment.status.name().startsWith('CANCELLED')}"
+                                        class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                                        <i class="fas fa-times mr-1"></i>Cancelled
+                                    </span>
+                                    <span
+                                        th:if="${!appointment.status.name().equals('COMPLETED') and !appointment.status.name().startsWith('CANCELLED')}"
+                                        class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                                        <i class="fas fa-clock mr-1"></i>Pending
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6 text-gray-600"
+                                    th:text="${appointment.paymentDone ? 'Paid' : 'Pending'}">Online
+                                </td>
+                            </tr>
+
+                            <!-- Dynamic data only - static rows removed -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div th:if="${appointmentsList == null or appointmentsList.isEmpty()}" class="text-center py-16">
+                    <i class="fas fa-chart-line text-gray-300 text-6xl mb-4"></i>
+                    <h3 class="text-xl font-medium text-gray-900 mb-2">No Earnings Data</h3>
+                    <p class="text-gray-600 mb-6">Your earnings from completed appointments will appear here.</p>
+                    <a href="/doctor/appointments"
+                        class="bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-calendar-plus mr-2"></i>Schedule Appointments
+                    </a>
+                </div>
+
+                <!-- Pagination -->
+                <div th:if="${appointmentsList != null and !appointmentsList.isEmpty()}"
+                    class="flex items-center justify-between p-6 border-t border-gray-200">
+                    <div class="text-sm text-gray-700">
+                        Showing <span class="font-medium" th:text="${currentPage * pageSize + 1}">1</span> to
+                        <span class="font-medium"
+                            th:text="${currentPage * pageSize + appointmentsList.size()}">10</span> of
+                        <span class="font-medium" th:text="${totalRecords != null ? totalRecords : '0'}">0</span>
+                        entries
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button th:if="${currentPage > 0}"
+                            th:onclick="'window.location.href=\'/doctor/earnings?page=' + (${currentPage} - 1) + '\''"
+                            class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                            Previous
+                        </button>
+                        <button th:if="${currentPage == 0}" disabled
+                            class="px-3 py-2 text-sm font-medium text-gray-300 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed">
+                            Previous
+                        </button>
+
+                        <!-- Page numbers -->
+                        <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                            <button th:if="${i == currentPage}"
+                                class="px-3 py-2 text-sm font-medium text-white bg-primary border border-primary rounded-lg"
+                                th:text="${i + 1}">1</button>
+                            <button th:if="${i != currentPage}"
+                                th:onclick="'window.location.href=\'/doctor/earnings?page=' + ${i} + '\''"
+                                class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                                th:text="${i + 1}">2</button>
+                        </th:block>
+
+                        <button th:if="${currentPage < totalPages - 1}"
+                            th:onclick="'window.location.href=\'/doctor/earnings?page=' + (${currentPage} + 1) + '\''"
+                            class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                            Next
+                        </button>
+                        <button th:if="${currentPage >= totalPages - 1}" disabled
+                            class="px-3 py-2 text-sm font-medium text-gray-300 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:inline="javascript">
+        // Get dynamic data from backend
+        var chartLabels = /*[[${chartLabels}]]*/[];
+        var chartData = /*[[${chartData}]]*/[];
+
+        // Fallback data if backend doesn't provide chart data
+        if (!chartLabels || chartLabels.length === 0) {
+            chartLabels = ['No Data'];
+            chartData = [0];
+        }
+
+        // Initialize Chart with dynamic data
+        const ctx = document.getElementById('earningsChart').getContext('2d');
+        const earningsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Daily Earnings',
+                    data: chartData,
+                    borderColor: '#2563EB',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#2563EB',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return '₹' + value;
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                elements: {
+                    point: {
+                        hoverBackgroundColor: '#2563EB'
+                    }
+                }
+            }
+        });
+
+        // View toggle functionality
+        const viewButtons = document.querySelectorAll('.view-btn');
+        const viewTypeInput = document.getElementById('viewType');
+
+        viewButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active state from all buttons
+                viewButtons.forEach(btn => {
+                    btn.classList.remove('text-primary', 'bg-white', 'shadow-sm');
+                    btn.classList.add('text-gray-600');
+                });
+
+                // Add active state to clicked button
+                button.classList.add('text-primary', 'bg-white', 'shadow-sm');
+                button.classList.remove('text-gray-600');
+
+                // Update hidden input value
+                viewTypeInput.value = button.getAttribute('data-view');
+
+                console.log('View changed to:', button.getAttribute('data-view'));
+            });
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('[class*="bg-green-50"], [class*="bg-red-50"]');
+            alerts.forEach(alert => {
+                if (alert.style.display !== 'none') {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.style.display = 'none', 300);
+                }
+            });
+        }, 5000);
+
+        // Search functionality
+        const searchInput = document.getElementById('patientSearch');
+        const tableRows = document.querySelectorAll('tbody tr');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                const searchTerm = this.value.toLowerCase();
+
+                tableRows.forEach(row => {
+                    const patientName = row.querySelector('.font-medium.text-gray-900');
+                    if (patientName) {
+                        const name = patientName.textContent.toLowerCase();
+                        if (name.includes(searchTerm)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>

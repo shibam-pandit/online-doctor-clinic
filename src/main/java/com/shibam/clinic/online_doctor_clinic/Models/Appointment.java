@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,10 +22,10 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Doctor doctor;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Patient patient;
 
     private LocalDate date;
@@ -32,6 +33,8 @@ public class Appointment {
     private LocalTime slot;
 
     private int durationMinutes; 
+
+    private double fee;
 
     public enum AppointmentStatus {
         BOOKED,
@@ -47,6 +50,8 @@ public class Appointment {
     private String meetingLink;
 
     private boolean paymentDone;
+
+    private double rating;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -98,6 +103,13 @@ public class Appointment {
         this.durationMinutes = durationMinutes;
     }
 
+    public double getFee() {
+        return fee;
+    }
+    public void setFee(double fee) {
+        this.fee = fee;
+    }
+
     public AppointmentStatus getStatus() {
         return status;
     }
@@ -126,6 +138,13 @@ public class Appointment {
         this.paymentDone = paymentDone;
     }
 
+    public double getRating() {
+        return rating;
+    }
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -138,7 +157,7 @@ public class Appointment {
     public Appointment() {
     }
 
-    public Appointment(Doctor doctor, Patient patient, LocalDate date, LocalTime slot, int durationMinutes) {
+    public Appointment(Doctor doctor, Patient patient, LocalDate date, LocalTime slot, double fee, int durationMinutes) {
         this.doctor = doctor;
         this.patient = patient;
         this.date = date;

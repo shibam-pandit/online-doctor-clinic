@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{doctor/header :: head('Set Availability - Doctor Dashboard')}"> </head>
+
+<body class="font-inter antialiased bg-gray-50">
+
+    <!-- Include Doctor Sidebar with activeMenu parameter -->
+    <th:block
+        th:replace="~{fragments/doctor-sidebar :: doctor-sidebar('availability', ${doctor.getUser().getName()}, ${doctor.getSpecialization()})}">
+    </th:block>
+
+    <!-- Main Content -->
+    <div class="lg:pl-64">
+        <!-- Top Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-4 sm:px-6 lg:px-8 gap-4">
+                <div class="flex items-center">
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Set Availability</h1>
+                        <p class="text-sm text-gray-600">Manage your consultation schedule</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-start sm:justify-end">
+                    <!-- Quick Stats -->
+                    <div class="flex items-center space-x-4 sm:space-x-6 text-sm">
+                        <div class="text-center">
+                            <div class="text-base sm:text-lg font-bold text-primary"
+                                th:text="${availableSlots != null ? availableSlots : 0}">12
+                            </div>
+                            <div class="text-gray-600 text-xs sm:text-sm">Available</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-base sm:text-lg font-bold text-secondary"
+                                th:text="${bookedSlots != null ? bookedSlots : 0}">8</div>
+                            <div class="text-gray-600 text-xs sm:text-sm">Booked</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="p-3 sm:p-4 md:p-6 lg:p-8">
+            <!-- Alert Messages -->
+            <div th:if="${success}"
+                class="mb-4 sm:mb-6 bg-green-50 border border-green-200 text-green-800 px-3 sm:px-4 py-3 rounded-lg flex items-start sm:items-center">
+                <i class="fas fa-check-circle mr-2 mt-0.5 sm:mt-0 flex-shrink-0"></i>
+                <span th:text="${success}" class="flex-1"></span>
+                <button type="button" class="ml-2 sm:ml-auto text-green-600 hover:text-green-800 flex-shrink-0"
+                    onclick="this.parentElement.style.display='none'">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div th:if="${error}"
+                class="mb-4 sm:mb-6 bg-red-50 border border-red-200 text-red-800 px-3 sm:px-4 py-3 rounded-lg flex items-start sm:items-center">
+                <i class="fas fa-exclamation-circle mr-2 mt-0.5 sm:mt-0 flex-shrink-0"></i>
+                <span th:text="${error}" class="flex-1"></span>
+                <button type="button" class="ml-2 sm:ml-auto text-red-600 hover:text-red-800 flex-shrink-0"
+                    onclick="this.parentElement.style.display='none'">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Set Availability Form -->
+            <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+                <div class="flex items-center mb-4 sm:mb-6">
+                    <i class="fas fa-calendar-plus text-primary text-lg sm:text-xl mr-3"></i>
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-900">Set Availability</h2>
+                </div>
+
+                <form th:action="@{/doctor/set-availability}" method="post" class="space-y-4 sm:space-y-6">
+                    <!-- Availability Form Fields -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                        <!-- Left Column - Date Selection -->
+                        <div class="space-y-4 sm:space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
+                                    <i class="fas fa-calendar text-primary mr-2"></i>Select Date
+                                </label>
+                                <input type="date" name="selectedDate" id="selectedDate" required
+                                    class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-base sm:text-lg">
+                                <!-- <p class="text-xs sm:text-sm text-gray-500 mt-2">You can schedule up to 7 days in
+                                    advance</p> -->
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
+                                    <i class="fas fa-rupee-sign text-secondary mr-2"></i>Consultation Fees
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-2 sm:top-3 text-gray-500">₹</span>
+                                    <input type="number" name="fees" min="100" max="5000" step="50" required
+                                        class="w-full pl-7 sm:pl-8 pr-3 sm:pr-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-base sm:text-lg"
+                                        placeholder="500">
+                                </div>
+                                <p class="text-xs sm:text-sm text-gray-500 mt-2">Set your consultation fee (₹100 -
+                                    ₹5000)</p>
+                            </div>
+                        </div>
+
+                        <!-- Right Column - Time & Duration -->
+                        <div class="space-y-4 sm:space-y-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
+                                        <i class="fas fa-clock text-accent mr-2"></i>Start Time
+                                    </label>
+                                    <input type="time" name="startTime" required
+                                        class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-base sm:text-lg">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
+                                        <i class="fas fa-clock text-accent mr-2"></i>End Time
+                                    </label>
+                                    <input type="time" name="endTime" required
+                                        class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-base sm:text-lg">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
+                                    <i class="fas fa-hourglass-half text-purple-600 mr-2"></i>Slot Duration
+                                </label>
+                                <select name="duration" required
+                                    class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-base sm:text-lg">
+                                    <option value="">Select duration</option>
+                                    <option value="15">15 minutes</option>
+                                    <option value="20">20 minutes</option>
+                                    <option value="30" selected>30 minutes</option>
+                                    <option value="45">45 minutes</option>
+                                    <option value="60">60 minutes</option>
+                                </select>
+                                <p class="text-xs sm:text-sm text-gray-500 mt-2">Duration per consultation slot</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview Section -->
+                    <div id="previewSection" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+                        <h4 class="font-medium text-blue-900 mb-2">
+                            <i class="fas fa-eye text-blue-600 mr-2"></i>Preview
+                        </h4>
+                        <div id="previewContent" class="text-xs sm:text-sm text-blue-800"></div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-center pt-4">
+                        <button type="submit"
+                            class="w-full sm:w-auto bg-gradient-to-r from-primary to-blue-600 text-white px-6 sm:px-12 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <i class="fas fa-plus-circle mr-2 sm:mr-3"></i>Create Availability Slots
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Current Availability Display -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+                <!-- Available Slots (Not Booked) -->
+                <div class="bg-white rounded-xl shadow-lg">
+                    <div class="p-4 sm:p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fas fa-clock text-secondary text-lg sm:text-xl mr-3"></i>
+                                <h2 class="text-lg sm:text-xl font-semibold text-gray-900">Available Slots</h2>
+                            </div>
+                            <span
+                                class="bg-secondary text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium"
+                                th:text="${availableSlots != null ? availableSlots : 0}">12</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 sm:p-6">
+                        <div th:if="${availableSlotsList != null and availableSlotsList.size() > 0}" class="space-y-3">
+                            <!-- Iterate through each availability record -->
+                            <div th:each="availability : ${availableSlotsList}">
+                                <!-- Iterate through each slot in that availability record -->
+                                <div th:each="slotStart : ${availability.availableSlotStarts}"
+                                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-green-50 border border-green-200 rounded-lg hover:shadow-md transition-shadow gap-3 sm:gap-0 mb-3">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 sm:space-x-4">
+                                            <div class="text-center flex-shrink-0">
+                                                <div class="text-sm font-medium text-gray-900"
+                                                    th:text="${availability.date != null ? #temporals.format(availability.date, 'MMM dd') : 'N/A'}">
+                                                    Mar 15</div>
+                                                <div class="text-xs text-gray-600"
+                                                    th:text="${availability.date != null ? #temporals.format(availability.date, 'EEEE') : 'N/A'}">
+                                                    Monday</div>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="font-medium text-gray-900">
+                                                    <span
+                                                        th:text="${slotStart != null ? #temporals.format(slotStart, 'HH:mm') : 'N/A'}">09:00</span>
+                                                    –
+                                                    <span
+                                                        th:text="${slotStart != null and availability.sessionMinutes != null ? #temporals.format(slotStart.plusMinutes(availability.sessionMinutes), 'HH:mm') : 'N/A'}">09:30</span>
+                                                </div>
+                                                <div class="text-sm text-gray-600">
+                                                    <span
+                                                        th:text="${availability.sessionMinutes != null ? availability.sessionMinutes : 30}">30</span>
+                                                    minutes • ₹<span
+                                                        th:text="${availability.price != null ? availability.price : 0}">500</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <form th:action="@{/doctor/cancel-slot/{id}(id=${availability.id})}" method="post"
+                                        class="flex-shrink-0">
+                                        <input type="hidden" name="slotStart" th:value="${slotStart}">
+                                        <button type="submit"
+                                            class="w-full sm:w-auto bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
+                                            onclick="return confirm('Are you sure you want to cancel this slot?')">
+                                            <i class="fas fa-times mr-1"></i>Cancel
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Empty State for Available Slots -->
+                        <div th:if="${availableSlotsList == null or availableSlotsList.size() == 0}"
+                            class="text-center py-8 sm:py-12">
+                            <i class="fas fa-calendar-times text-gray-300 text-3xl sm:text-4xl mb-3 sm:mb-4"></i>
+                            <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-2">No Available Slots</h3>
+                            <p class="text-sm sm:text-base text-gray-600">Create your availability using the form above.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booked Slots -->
+                <div class="bg-white rounded-xl shadow-lg">
+                    <div class="p-4 sm:p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fas fa-user-check text-primary text-lg sm:text-xl mr-3"></i>
+                                <h2 class="text-lg sm:text-xl font-semibold text-gray-900">Booked Appointments</h2>
+                            </div>
+                            <span
+                                class="bg-primary text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium"
+                                th:text="${bookedSlots != null ? bookedSlots : 0}">8</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 sm:p-6">
+                        <div th:if="${bookedSlotsList != null and bookedSlotsList.size() > 0}" class="space-y-3">
+                            <div th:each="appointment : ${bookedSlotsList}"
+                                class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg gap-3 sm:gap-0">
+                                <div class="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                                    <div
+                                        class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-user text-blue-600"></i>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="font-medium text-gray-900 truncate"
+                                            th:text="${appointment.patient != null and appointment.patient.user != null and appointment.patient.user.name != null ? appointment.patient.user.name : 'Unknown Patient'}">
+                                            Sneha Gupta</div>
+                                        <div class="text-sm text-gray-600">
+                                            <span
+                                                th:text="${appointment.date != null ? #temporals.format(appointment.date, 'MMM dd') : 'N/A'}">Mar
+                                                15</span>
+                                            •
+                                            <span
+                                                th:text="${appointment.slot != null ? #temporals.format(appointment.slot, 'HH:mm') : 'N/A'}">10:00</span>
+                                            –
+                                            <span
+                                                th:text="${appointment.slot != null and appointment.durationMinutes > 0 ? #temporals.format(appointment.slot.plusMinutes(appointment.durationMinutes), 'HH:mm') : 'N/A'}">10:30</span>
+                                            • ₹<span
+                                                th:text="${appointment.fee != null ? appointment.fee : 0}">500</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-end sm:justify-center">
+                                    <span
+                                        class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium inline-flex items-center">
+                                        <i class="fas fa-check mr-1"></i>Booked
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Empty State for Booked Slots -->
+                        <div th:if="${bookedSlotsList == null or bookedSlotsList.size() == 0}"
+                            class="text-center py-8 sm:py-12">
+                            <i class="fas fa-calendar-check text-gray-300 text-3xl sm:text-4xl mb-3 sm:mb-4"></i>
+                            <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-2">No Booked Appointments</h3>
+                            <p class="text-sm sm:text-base text-gray-600">Your booked appointments will appear here.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="mt-6 sm:mt-8 bg-gradient-to-r from-primary to-blue-600 rounded-xl p-4 sm:p-6 text-white">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h3 class="text-base sm:text-lg font-semibold mb-1 sm:mb-2">Quick Actions</h3>
+                        <p class="text-blue-100 text-sm">Manage your schedule efficiently</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                        <a href="/doctor/appointments"
+                            class="bg-white text-primary px-3 sm:px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors text-center text-sm sm:text-base">
+                            <i class="fas fa-calendar-alt mr-2"></i>View Appointments
+                        </a>
+                        <button
+                            class="bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-lg font-medium hover:bg-blue-800 transition-colors text-sm sm:text-base">
+                            <i class="fas fa-download mr-2"></i>Export Schedule
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+
+        // Form validation
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                const selectedDate = document.getElementById('selectedDate').value;
+                const startTime = document.querySelector('input[name="startTime"]').value;
+                const endTime = document.querySelector('input[name="endTime"]').value;
+                const fees = document.querySelector('input[name="fees"]').value;
+                const duration = document.querySelector('select[name="duration"]').value;
+
+                if (!selectedDate || !startTime || !endTime || !fees || !duration) {
+                    e.preventDefault();
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+
+                if (startTime >= endTime) {
+                    e.preventDefault();
+                    alert('End time must be after start time.');
+                    return;
+                }
+
+                // Validate date is within allowed range
+                const inputDate = new Date(selectedDate);
+                const today = new Date();
+                const maxDate = new Date();
+                maxDate.setDate(today.getDate() + 7);
+
+                if (inputDate < today || inputDate > maxDate) {
+                    e.preventDefault();
+                    alert('Please select a date within the next 7 days.');
+                    return;
+                }
+            });
+        }
+
+        // Set date restrictions (current date + 7 days maximum)
+        const dateInput = document.getElementById('selectedDate');
+        if (dateInput) {
+            const today = new Date();
+            const maxDate = new Date();
+            maxDate.setDate(today.getDate() + 7);
+
+            // Format dates to YYYY-MM-DD for input
+            const todayString = today.toISOString().split('T')[0];
+            const maxDateString = maxDate.toISOString().split('T')[0];
+
+            dateInput.min = todayString;
+            dateInput.max = maxDateString;
+
+            // Set default to today if no value is set
+            if (!dateInput.value) {
+                dateInput.value = todayString;
+            }
+        }
+
+        // Preview functionality
+        function updatePreview() {
+            const selectedDate = document.getElementById('selectedDate')?.value;
+            const startTime = document.querySelector('input[name="startTime"]')?.value;
+            const endTime = document.querySelector('input[name="endTime"]')?.value;
+            const fees = document.querySelector('input[name="fees"]')?.value;
+            const duration = document.querySelector('select[name="duration"]')?.value;
+
+            if (selectedDate && startTime && endTime && duration) {
+                const previewSection = document.getElementById('previewSection');
+                const previewContent = document.getElementById('previewContent');
+
+                if (previewSection && previewContent) {
+                    try {
+                        const date = new Date(selectedDate);
+                        const formattedDate = date.toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+
+                        // Calculate number of slots
+                        const start = new Date(`2000-01-01T${startTime}`);
+                        const end = new Date(`2000-01-01T${endTime}`);
+                        const durationMs = parseInt(duration) * 60 * 1000;
+                        const totalMs = end - start;
+                        const slots = Math.floor(totalMs / durationMs);
+
+                        previewContent.innerHTML = `
+                            <strong>Date:</strong> ${formattedDate}<br>
+                            <strong>Time:</strong> ${startTime} - ${endTime}<br>
+                            <strong>Duration:</strong> ${duration} minutes per slot<br>
+                            <strong>Total Slots:</strong> ${slots > 0 ? slots : 0} slots<br>
+                            <strong>Fees:</strong> ₹${fees} per consultation
+                        `;
+
+                        previewSection.classList.remove('hidden');
+                    } catch (error) {
+                        console.error('Error updating preview:', error);
+                        previewSection.classList.add('hidden');
+                    }
+                }
+            } else {
+                const previewSection = document.getElementById('previewSection');
+                if (previewSection) {
+                    previewSection.classList.add('hidden');
+                }
+            }
+        }
+
+        // Add event listeners for preview
+        const dateField = document.getElementById('selectedDate');
+        const startTimeField = document.querySelector('input[name="startTime"]');
+        const endTimeField = document.querySelector('input[name="endTime"]');
+        const feesField = document.querySelector('input[name="fees"]');
+        const durationField = document.querySelector('select[name="duration"]');
+
+        if (dateField) dateField.addEventListener('change', updatePreview);
+        if (startTimeField) startTimeField.addEventListener('change', updatePreview);
+        if (endTimeField) endTimeField.addEventListener('change', updatePreview);
+        if (feesField) feesField.addEventListener('input', updatePreview);
+        if (durationField) durationField.addEventListener('change', updatePreview);
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.bg-green-50[class*="border-green-200"], .bg-red-50[class*="border-red-200"]');
+            alerts.forEach(alert => {
+                // Only dismiss if it's actually an alert message (has success/error content)
+                if (alert && alert.style.display !== 'none' &&
+                    (alert.querySelector('.fas.fa-check-circle') || alert.querySelector('.fas.fa-exclamation-circle'))) {
+                    alert.style.opacity = '0';
+                    setTimeout(() => {
+                        if (alert) alert.style.display = 'none';
+                    }, 300);
+                }
+            });
+        }, 5000);
+    </script>
+</body>
+
+</html>

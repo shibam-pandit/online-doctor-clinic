@@ -29,8 +29,8 @@ public class DoctorAvailability {
 
     private LocalDate date;
 
-    private LocalTime startTime;
-    private LocalTime endTime;
+    // private LocalTime startTime;
+    // private LocalTime endTime;
 
     private int sessionMinutes;
     private double price;
@@ -70,21 +70,21 @@ public class DoctorAvailability {
         this.date = date;
     }
 
-    public LocalTime getStartTime() {
-        return startTime;
-    }
+    // public LocalTime getStartTime() {
+    //     return startTime;
+    // }
 
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
+    // public void setStartTime(LocalTime startTime) {
+    //     this.startTime = startTime;
+    // }
 
-    public LocalTime getEndTime() {
-        return endTime;
-    }
+    // public LocalTime getEndTime() {
+    //     return endTime;
+    // }
 
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
-    }
+    // public void setEndTime(LocalTime endTime) {
+    //     this.endTime = endTime;
+    // }
 
     public int getSessionMinutes() {
         return sessionMinutes;
@@ -122,12 +122,12 @@ public class DoctorAvailability {
     public DoctorAvailability() {
     }
 
-    public DoctorAvailability(Doctor doctor, LocalDate date, LocalTime startTime, LocalTime endTime, int sessionMinutes,
+    public DoctorAvailability(Doctor doctor, LocalDate date, int sessionMinutes,
             double price) {
         this.doctor = doctor;
         this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        // this.startTime = startTime;
+        // this.endTime = endTime;
         this.sessionMinutes = sessionMinutes;
         this.price = price;
     }
