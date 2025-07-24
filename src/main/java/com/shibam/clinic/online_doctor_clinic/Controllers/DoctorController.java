@@ -124,8 +124,8 @@ public class DoctorController {
 
         Long doctorId = doctor.getUser().getId(); // Use doctor.getUser().getId() for centralized user ID
 
-        // Get availability data for display
-        List<DoctorAvailability> availableSlotsList = doctorService.getAvailableSlotsByDoctorId(doctorId);
+        // Get availability data for display - only unbooked slots with date information
+        List<DoctorAvailability> availableSlotsList = doctorService.getUnbookedAvailabilitiesByDoctorId(doctorId);
         List<Appointment> bookedSlotsList = doctorService.getBookedAppointmentsByDoctorId(doctorId);
 
         // Count available and booked slots

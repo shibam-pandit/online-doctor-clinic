@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
 
 @Entity
 public class Doctor {
@@ -26,6 +27,10 @@ public class Doctor {
     private String qualification;
     private int experience;
     private boolean approved; // admin approves
+
+    // Transient field for average rating (not stored in database)
+    @Transient
+    private double averageRating;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -80,6 +85,14 @@ public class Doctor {
 
     public void setApproved(boolean approved) {
         this.approved = approved;
+    }
+
+    public double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(double averageRating) {
+        this.averageRating = averageRating;
     }
 
     public LocalDateTime getCreatedAt() {

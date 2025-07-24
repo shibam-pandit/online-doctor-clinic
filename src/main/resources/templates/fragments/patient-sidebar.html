@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <!-- Complete Patient Sidebar Fragment with all mobile view and script functionality -->
+    <th:block th:fragment="patient-sidebar(activeMenu, patientName, patientId)">
+        <!-- Mobile Menu Overlay -->
+        <div id="mobileMenuOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+
+        <!-- Sidebar -->
+        <div id="sidebar"
+            class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0">
+            <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200">
+                <h1 class="text-xl font-bold text-primary">MediCare+</h1>
+                <button id="closeSidebar" class="lg:hidden text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Patient Profile Section -->
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <img src="https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=100"
+                        alt="Patient Profile" class="w-12 h-12 rounded-full object-cover">
+                    <div>
+                        <div th:fragment="patientProfile">
+                            <h3 class="font-semibold text-gray-900 break-all" th:text="${patientName}"
+                                style="word-break: break-word; overflow-wrap: anywhere;">Patient Name</h3>
+                            <p class="text-sm text-gray-600 break-all" th:text="'Patient ID: ' + ${patientId}"
+                                style="word-break: break-word; overflow-wrap: anywhere;">Patient ID: P001</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="mt-6">
+                <div class="px-6 space-y-1">
+                    <a href="/patient"
+                        th:classappend="${activeMenu == 'dashboard'} ? 'bg-blue-50 text-primary border-r-2 border-primary rounded-l-lg' : 'text-gray-700 hover:bg-gray-100 hover:text-primary rounded-lg'"
+                        class="flex items-center px-4 py-3 text-sm font-medium transition-colors">
+                        <i class="fas fa-home w-5 h-5 mr-3"></i>
+                        Dashboard
+                    </a>
+                    <a href="/patient/book-appointment"
+                        th:classappend="${activeMenu == 'book-appointment'} ? 'bg-blue-50 text-primary border-r-2 border-primary rounded-l-lg' : 'text-gray-700 hover:bg-gray-100 hover:text-primary rounded-lg'"
+                        class="flex items-center px-4 py-3 text-sm font-medium transition-colors">
+                        <i class="fas fa-calendar-plus w-5 h-5 mr-3"></i>
+                        Book Appointment
+                    </a>
+                    <a href="/patient/appointments"
+                        th:classappend="${activeMenu == 'appointments'} ? 'bg-blue-50 text-primary border-r-2 border-primary rounded-l-lg' : 'text-gray-700 hover:bg-gray-100 hover:text-primary rounded-lg'"
+                        class="flex items-center px-4 py-3 text-sm font-medium transition-colors">
+                        <i class="fas fa-calendar-alt w-5 h-5 mr-3"></i>
+                        My Appointments
+                    </a>
+                    <a href="/patient/prescriptions"
+                        th:classappend="${activeMenu == 'prescriptions'} ? 'bg-blue-50 text-primary border-r-2 border-primary rounded-l-lg' : 'text-gray-700 hover:bg-gray-100 hover:text-primary rounded-lg'"
+                        class="flex items-center px-4 py-3 text-sm font-medium transition-colors">
+                        <i class="fas fa-prescription-bottle-alt w-5 h-5 mr-3"></i>
+                        My Prescriptions
+                    </a>
+                    <a href="/patient/settings"
+                        th:classappend="${activeMenu == 'settings'} ? 'bg-blue-50 text-primary border-r-2 border-primary rounded-l-lg' : 'text-gray-700 hover:bg-gray-100 hover:text-primary rounded-lg'"
+                        class="flex items-center px-4 py-3 text-sm font-medium transition-colors">
+                        <i class="fas fa-cog w-5 h-5 mr-3"></i>
+                        Settings
+                    </a>
+                </div>
+                
+                <!-- Logout Button -->
+                <div class="px-6 mt-8">
+                    <form action="/logout" method="post" style="display: inline;">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit"
+                            class="text-red-600 hover:bg-red-50 flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors">
+                            <i class="fas fa-sign-out-alt mr-4"></i>Logout
+                        </button>
+                    </form>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Mobile Header -->
+        <div class="lg:hidden bg-white shadow-sm border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+            <button id="openSidebar" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <h1 class="text-lg font-semibold text-gray-900">MediCare+</h1>
+            <div class="w-8"></div> <!-- Spacer for centering -->
+        </div>
+
+        <!-- Sidebar Toggle Scripts -->
+        <script>
+            // Mobile sidebar toggle functionality
+            document.addEventListener('DOMContentLoaded', function () {
+                const openSidebar = document.getElementById('openSidebar');
+                const closeSidebar = document.getElementById('closeSidebar');
+                const sidebar = document.getElementById('sidebar');
+                const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+
+                if (openSidebar) {
+                    openSidebar.addEventListener('click', () => {
+                        sidebar.classList.remove('-translate-x-full');
+                        mobileMenuOverlay.classList.remove('hidden');
+                    });
+                }
+
+                if (closeSidebar) {
+                    closeSidebar.addEventListener('click', () => {
+                        sidebar.classList.add('-translate-x-full');
+                        mobileMenuOverlay.classList.add('hidden');
+                    });
+                }
+
+                if (mobileMenuOverlay) {
+                    mobileMenuOverlay.addEventListener('click', () => {
+                        sidebar.classList.add('-translate-x-full');
+                        mobileMenuOverlay.classList.add('hidden');
+                    });
+                }
+
+                // Close sidebar on window resize if desktop
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth >= 1024) {
+                        if (mobileMenuOverlay) {
+                            mobileMenuOverlay.classList.add('hidden');
+                        }
+                    }
+                });
+            });
+        </script>
+    </th:block>
+</body>
+
+</html>

@@ -7,6 +7,7 @@ import java.time.LocalTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -32,7 +33,7 @@ public class Appointment {
 
     private LocalTime slot;
 
-    private int durationMinutes; 
+    private int durationMinutes;
 
     private double fee;
 
@@ -42,6 +43,7 @@ public class Appointment {
         CANCELLED_BY_PATIENT,
         COMPLETED
     }
+
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
 
@@ -49,9 +51,10 @@ public class Appointment {
 
     private String meetingLink;
 
-    private boolean paymentDone;
+    private Boolean paymentDone;
 
-    private double rating;
+    @Column(nullable = true)
+    private Double rating; // Use wrapper type to allow null (not mandatory)
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -59,11 +62,11 @@ public class Appointment {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-
     // Getters and Setters
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -71,6 +74,7 @@ public class Appointment {
     public Doctor getDoctor() {
         return doctor;
     }
+
     public void setDoctor(Doctor doctor) {
         this.doctor = doctor;
     }
@@ -78,6 +82,7 @@ public class Appointment {
     public Patient getPatient() {
         return patient;
     }
+
     public void setPatient(Patient patient) {
         this.patient = patient;
     }
@@ -85,6 +90,7 @@ public class Appointment {
     public LocalDate getDate() {
         return date;
     }
+
     public void setDate(LocalDate date) {
         this.date = date;
     }
@@ -92,6 +98,7 @@ public class Appointment {
     public LocalTime getSlot() {
         return slot;
     }
+
     public void setSlot(LocalTime slot) {
         this.slot = slot;
     }
@@ -99,6 +106,7 @@ public class Appointment {
     public int getDurationMinutes() {
         return durationMinutes;
     }
+
     public void setDurationMinutes(int durationMinutes) {
         this.durationMinutes = durationMinutes;
     }
@@ -106,6 +114,7 @@ public class Appointment {
     public double getFee() {
         return fee;
     }
+
     public void setFee(double fee) {
         this.fee = fee;
     }
@@ -113,6 +122,7 @@ public class Appointment {
     public AppointmentStatus getStatus() {
         return status;
     }
+
     public void setStatus(AppointmentStatus status) {
         this.status = status;
     }
@@ -120,6 +130,7 @@ public class Appointment {
     public String getPrescription() {
         return prescription;
     }
+
     public void setPrescription(String prescription) {
         this.prescription = prescription;
     }
@@ -127,6 +138,7 @@ public class Appointment {
     public String getMeetingLink() {
         return meetingLink;
     }
+
     public void setMeetingLink(String meetingLink) {
         this.meetingLink = meetingLink;
     }
@@ -134,14 +146,16 @@ public class Appointment {
     public boolean isPaymentDone() {
         return paymentDone;
     }
+
     public void setPaymentDone(boolean paymentDone) {
         this.paymentDone = paymentDone;
     }
 
-    public double getRating() {
+    public Double getRating() {
         return rating;
     }
-    public void setRating(double rating) {
+
+    public void setRating(Double rating) {
         this.rating = rating;
     }
 
@@ -157,7 +171,8 @@ public class Appointment {
     public Appointment() {
     }
 
-    public Appointment(Doctor doctor, Patient patient, LocalDate date, LocalTime slot, double fee, int durationMinutes) {
+    public Appointment(Doctor doctor, Patient patient, LocalDate date, LocalTime slot, double fee,
+            int durationMinutes) {
         this.doctor = doctor;
         this.patient = patient;
         this.date = date;

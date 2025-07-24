@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Prescriptions - Patient Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .prescription-card {
+            transition: all 0.3s ease;
+        }
+        
+        .prescription-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .filter-tab.active {
+            border-bottom-color: #3b82f6 !important;
+            color: #3b82f6 !important;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#10b981',
+                        accent: '#f59e0b'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<th:block th:replace="~{fragments/patient-header :: patient-header('My Prescriptions - Patient Dashboard')}" />
+
+<body class="font-inter antialiased bg-gray-50">
+    <!-- Include Patient Sidebar -->
+    <div th:replace="~{fragments/patient-sidebar :: patient-sidebar('prescriptions', ${patient != null and patient.getUser() != null ? patient.getUser().getName() : 'Patient'}, ${patient != null ? patient.getId() : 'P001'})}">
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:pl-64">
+        <!-- Top Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+                <div class="flex items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">My Prescriptions</h1>
+                        <p class="text-sm text-gray-600">View and manage your medical prescriptions</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Quick Stats -->
+                    <div class="hidden sm:flex items-center space-x-6 text-sm">
+                        <div class="text-center">
+                            <div class="text-lg font-bold text-primary" th:text="${totalPrescriptions}">0</div>
+                            <div class="text-gray-600">Total</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-lg font-bold text-secondary" th:text="${recentPrescriptions}">0</div>
+                            <div class="text-gray-600">Recent</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="p-4 sm:p-6 lg:p-8">
+            <!-- Alert Messages -->
+            <div th:if="${success != null}"
+                class="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center success">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span th:text="${success}">Success message</span>
+                <button type="button" class="ml-auto text-green-600 hover:text-green-800"
+                    onclick="this.parentElement.style.display='none'">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div th:if="${error != null}"
+                class="mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center error">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span th:text="${error}">Error message</span>
+                <button type="button" class="ml-auto text-red-600 hover:text-red-800"
+                    onclick="this.parentElement.style.display='none'">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Search and Filter Section -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                    <!-- Search Bar -->
+                    <div class="flex-1 max-w-2xl">
+                        <div class="relative">
+                            <input type="text" id="prescriptionSearch"
+                                placeholder="Search by doctor name or prescription content..."
+                                class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <!-- Filter Options -->
+                    <div class="flex items-center space-x-4">
+                        <!-- Sort by Date -->
+                        <select id="dateSort"
+                            class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="bg-white rounded-xl shadow-lg mb-8">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6" aria-label="Tabs">
+                        <button id="allTab"
+                            class="filter-tab active border-b-2 border-primary text-primary py-4 px-1 text-sm font-medium"
+                            onclick="filterPrescriptions('all')">
+                            All <span class="ml-2 bg-primary text-white text-xs px-2 py-1 rounded-full" th:text="${totalPrescriptions}">0</span>
+                        </button>
+                        <button id="recentTab"
+                            class="filter-tab border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium"
+                            onclick="filterPrescriptions('recent')">
+                            Recent (7 days) <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full" th:text="${recentPrescriptions}">0</span>
+                        </button>
+                        <button id="olderTab"
+                            class="filter-tab border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium"
+                            onclick="filterPrescriptions('older')">
+                            Older <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full" th:text="${totalPrescriptions - recentPrescriptions}">0</span>
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Prescriptions Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="prescriptionsGrid">
+                <!-- Recent Prescription Cards -->
+                <div th:each="prescription : ${recentPrescriptionsList}"
+                    class="prescription-card recent bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    th:data-doctor="${prescription.doctor.user.name}" 
+                    th:data-medication="${prescription.prescription}"
+                    th:data-date="${prescription.date}">
+                    <div class="p-6">
+                        <!-- Prescription Header -->
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-4">
+                                <img src="https://images.pexels.com/photos/5407206/pexels-photo-5407206.jpeg?auto=compress&cs=tinysrgb&w=100"
+                                    th:alt="'Dr. ' + ${prescription.doctor.user.name}"
+                                    class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900" th:text="'Dr. ' + ${prescription.doctor.user.name}">Dr. Name</h3>
+                                    <p class="text-sm text-primary font-medium" th:text="${prescription.doctor.specialization}">Specialization</p>
+                                    <p class="text-sm text-gray-600" th:text="${prescription.doctor.qualification}">Qualification</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                    <i class="fas fa-clock mr-1"></i>Recent
+                                </span>
+                                <p class="text-sm text-gray-600 mt-1" th:text="${#temporals.format(prescription.date, 'MMM dd, yyyy')}">Date</p>
+                            </div>
+                        </div>
+
+                        <!-- Prescription Preview -->
+                        <div class="bg-blue-50 rounded-lg p-4 mb-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="text-sm font-medium text-blue-800">
+                                    <i class="fas fa-prescription-bottle-alt mr-2"></i>Prescription Details
+                                </h4>
+                                <span class="text-xs text-blue-600 bg-blue-200 px-2 py-1 rounded-full">
+                                    ID: <span th:text="'RX' + ${prescription.id}">RX001</span>
+                                </span>
+                            </div>
+                            <p class="text-sm text-blue-700 mb-3" th:text="${#strings.length(prescription.prescription) > 150 ? #strings.substring(prescription.prescription, 0, 150) + '...' : prescription.prescription}">
+                                Prescription content preview...
+                            </p>
+                            <button class="text-blue-600 text-sm font-medium hover:text-blue-800 transition-colors"
+                                th:onclick="'viewFullPrescription(' + ${prescription.id} + ')'">
+                                <i class="fas fa-eye mr-1"></i>View Full Prescription
+                            </button>
+                        </div>
+
+                        <!-- Appointment Summary -->
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="text-center p-3 bg-yellow-50 rounded-lg">
+                                <div class="text-lg font-bold text-accent" th:text="${prescription.durationMinutes}">0</div>
+                                <div class="text-xs text-gray-600">Duration (min)</div>
+                            </div>
+                            <div class="text-center p-3 bg-green-50 rounded-lg">
+                                <div class="text-lg font-bold text-secondary" th:text="${prescription.status}">Status</div>
+                                <div class="text-xs text-gray-600">Status</div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex space-x-3">
+                            <button
+                                class="flex-1 px-4 py-3 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                th:onclick="'viewFullPrescription(' + ${prescription.id} + ')'">
+                                <i class="fas fa-eye mr-2"></i>View Details
+                            </button>
+                            <button
+                                class="px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                                th:onclick="'sharePrescription(' + ${prescription.id} + ')'">
+                                <i class="fas fa-share"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Older Prescription Cards -->
+                <div th:each="prescription : ${prescriptionsList}"
+                    th:if="${!#lists.contains(recentPrescriptionsList, prescription)}"
+                    class="prescription-card older bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    th:data-doctor="${prescription.doctor.user.name}" 
+                    th:data-medication="${prescription.prescription}"
+                    th:data-date="${prescription.date}">
+                    <div class="p-6">
+                        <!-- Prescription Header -->
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-4">
+                                <img src="https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg?auto=compress&cs=tinysrgb&w=100"
+                                    th:alt="'Dr. ' + ${prescription.doctor.user.name}"
+                                    class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900" th:text="'Dr. ' + ${prescription.doctor.user.name}">Dr. Name</h3>
+                                    <p class="text-sm text-primary font-medium" th:text="${prescription.doctor.specialization}">Specialization</p>
+                                    <p class="text-sm text-gray-600" th:text="${prescription.doctor.qualification}">Qualification</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
+                                    <i class="fas fa-history mr-1"></i>Older
+                                </span>
+                                <p class="text-sm text-gray-600 mt-1" th:text="${#temporals.format(prescription.date, 'MMM dd, yyyy')}">Date</p>
+                            </div>
+                        </div>
+
+                        <!-- Prescription Preview -->
+                        <div class="bg-purple-50 rounded-lg p-4 mb-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="text-sm font-medium text-purple-800">
+                                    <i class="fas fa-prescription-bottle-alt mr-2"></i>Prescription Details
+                                </h4>
+                                <span class="text-xs text-purple-600 bg-purple-200 px-2 py-1 rounded-full">
+                                    ID: <span th:text="'RX' + ${prescription.id}">RX001</span>
+                                </span>
+                            </div>
+                            <p class="text-sm text-purple-700 mb-3" th:text="${#strings.length(prescription.prescription) > 150 ? #strings.substring(prescription.prescription, 0, 150) + '...' : prescription.prescription}">
+                                Prescription content preview...
+                            </p>
+                            <button class="text-purple-600 text-sm font-medium hover:text-purple-800 transition-colors"
+                                th:onclick="'viewFullPrescription(' + ${prescription.id} + ')'">
+                                <i class="fas fa-eye mr-1"></i>View Full Prescription
+                            </button>
+                        </div>
+
+                        <!-- Appointment Summary -->
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="text-center p-3 bg-yellow-50 rounded-lg">
+                                <div class="text-lg font-bold text-accent" th:text="${prescription.durationMinutes}">0</div>
+                                <div class="text-xs text-gray-600">Duration (min)</div>
+                            </div>
+                            <div class="text-center p-3 bg-green-50 rounded-lg">
+                                <div class="text-lg font-bold text-secondary" th:text="${prescription.status}">Status</div>
+                                <div class="text-xs text-gray-600">Status</div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex space-x-3">
+                            <button
+                                class="flex-1 px-4 py-3 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                th:onclick="'viewFullPrescription(' + ${prescription.id} + ')'">
+                                <i class="fas fa-eye mr-2"></i>View Details
+                            </button>
+                            <button
+                                class="px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                                th:onclick="'sharePrescription(' + ${prescription.id} + ')'">
+                                <i class="fas fa-share"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-16" th:classappend="${totalPrescriptions == 0 ? '' : 'hidden'}">
+                <i class="fas fa-prescription-bottle-alt text-gray-300 text-6xl mb-4"></i>
+                <h3 class="text-xl font-medium text-gray-900 mb-2">No Prescriptions Found</h3>
+                <p class="text-gray-600 mb-6" th:if="${totalPrescriptions == 0}">You don't have any prescriptions yet. Book an appointment to get started.</p>
+                <p class="text-gray-600 mb-6" th:unless="${totalPrescriptions == 0}">No prescriptions match your search criteria.</p>
+                <button onclick="clearFilters()" th:if="${totalPrescriptions > 0}"
+                    class="bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-refresh mr-2"></i>Clear Filters
+                </button>
+            </div>
+
+            <!-- Load More Button (if needed for pagination) -->
+            <div class="text-center mt-8" th:if="${totalPrescriptions > 10}">
+                <button class="bg-gray-100 text-gray-700 px-8 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Load More Prescriptions
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Full Prescription Modal -->
+    <div id="prescriptionModal"
+        class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-prescription-bottle-alt text-primary text-xl"></i>
+                    <h2 class="text-xl font-semibold text-gray-900">Full Prescription Details</h2>
+                </div>
+                <button onclick="closePrescriptionModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                <!-- Doctor and Patient Info -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- Doctor Info -->
+                    <div class="bg-blue-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-blue-900 mb-4">
+                            <i class="fas fa-user-md mr-2"></i>Doctor Information
+                        </h3>
+                        <div class="flex items-center space-x-4">
+                            <img id="modalDoctorImage"
+                                src="https://images.pexels.com/photos/5407206/pexels-photo-5407206.jpeg?auto=compress&cs=tinysrgb&w=100"
+                                alt="Doctor" class="w-16 h-16 rounded-full object-cover">
+                            <div>
+                                <h4 id="modalDoctorName" class="font-semibold text-gray-900">Dr. Name</h4>
+                                <p id="modalDoctorSpec" class="text-sm text-gray-600">Specialization</p>
+                                <p id="modalDoctorQual" class="text-sm text-blue-600">Qualification</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prescription Info -->
+                    <div class="bg-green-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-green-900 mb-4">
+                            <i class="fas fa-calendar-alt mr-2"></i>Prescription Information
+                        </h3>
+                        <div class="space-y-2 text-sm">
+                            <div><span class="font-medium">Date:</span> <span id="modalPrescriptionDate">Date</span></div>
+                            <div><span class="font-medium">Prescription ID:</span> <span id="modalPrescriptionId">ID</span></div>
+                            <div><span class="font-medium">Appointment Status:</span> <span id="modalStatus">Status</span></div>
+                            <div><span class="font-medium">Duration:</span> <span id="modalDuration">Duration</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Full Prescription Content -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-6">
+                        <i class="fas fa-pills text-primary mr-2"></i>Complete Prescription
+                    </h3>
+
+                    <div id="fullPrescriptionContent" class="space-y-6">
+                        <div class="border-l-4 border-primary pl-6">
+                            <h4 class="font-semibold text-gray-900 mb-3">
+                                <i class="fas fa-prescription text-primary mr-2"></i>Prescription Details
+                            </h4>
+                            <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                <p id="modalFullPrescription" class="text-sm text-gray-700 whitespace-pre-wrap">Full prescription content will be loaded here...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+                <div class="text-sm text-gray-600">
+                    <i class="fas fa-shield-alt text-secondary mr-1"></i>
+                    This prescription is digitally verified and secure
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="sharePrescription(currentPrescriptionId)"
+                        class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-share mr-2"></i>Share
+                    </button>
+                    <button onclick="printPrescription()"
+                        class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-print mr-2"></i>Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        // Get prescription data from Thymeleaf
+        const prescriptionsData = /*[[${prescriptionsList}]]*/ [];
+        let currentPrescriptionId = null;
+
+        // Search and Filter Functionality
+        const searchInput = document.getElementById('prescriptionSearch');
+        const dateSort = document.getElementById('dateSort');
+        const prescriptionCards = document.querySelectorAll('.prescription-card');
+        const emptyState = document.getElementById('emptyState');
+
+        function filterPrescriptions(category) {
+            const tabs = document.querySelectorAll('.filter-tab');
+            const cards = document.querySelectorAll('.prescription-card');
+
+            // Update tab styles
+            tabs.forEach(tab => {
+                tab.classList.remove('active', 'border-primary', 'text-primary');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            });
+
+            const activeTab = document.getElementById(category + 'Tab');
+            activeTab.classList.add('active', 'border-primary', 'text-primary');
+            activeTab.classList.remove('border-transparent', 'text-gray-500');
+
+            // Filter cards
+            let visibleCount = 0;
+            cards.forEach(card => {
+                if (category === 'all' || card.classList.contains(category)) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Show/hide empty state
+            toggleEmptyState(visibleCount === 0);
+        }
+
+        function performSearch() {
+            const searchTerm = searchInput.value.toLowerCase();
+            let visibleCount = 0;
+
+            prescriptionCards.forEach(card => {
+                const doctorName = card.dataset.doctor.toLowerCase();
+                const medicationText = card.dataset.medication.toLowerCase();
+
+                const matchesSearch = doctorName.includes(searchTerm) || medicationText.includes(searchTerm);
+
+                if (matchesSearch) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            toggleEmptyState(visibleCount === 0);
+        }
+
+        function sortPrescriptions() {
+            const sortOrder = dateSort.value;
+            const container = document.getElementById('prescriptionsGrid');
+            const cards = Array.from(container.children);
+
+            cards.sort((a, b) => {
+                const dateA = new Date(a.dataset.date);
+                const dateB = new Date(b.dataset.date);
+                
+                return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+            });
+
+            cards.forEach(card => container.appendChild(card));
+        }
+
+        function toggleEmptyState(show) {
+            if (show) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+        }
+
+        function clearFilters() {
+            searchInput.value = '';
+            dateSort.value = 'newest';
+            filterPrescriptions('all');
+        }
+
+        // Event listeners
+        searchInput.addEventListener('input', performSearch);
+        dateSort.addEventListener('change', sortPrescriptions);
+
+        // Prescription Modal Functions
+        function viewFullPrescription(prescriptionId) {
+            currentPrescriptionId = prescriptionId;
+            
+            // Find prescription data
+            const prescription = prescriptionsData.find(p => p.id == prescriptionId);
+            if (!prescription) {
+                alert('Prescription data not found');
+                return;
+            }
+
+            // Populate modal with data
+            document.getElementById('modalDoctorName').textContent = 'Dr. ' + prescription.doctor.user.name;
+            document.getElementById('modalDoctorSpec').textContent = prescription.doctor.specialization;
+            document.getElementById('modalDoctorQual').textContent = prescription.doctor.qualification;
+            document.getElementById('modalPrescriptionDate').textContent = new Date(prescription.date).toLocaleDateString();
+            document.getElementById('modalPrescriptionId').textContent = 'RX' + prescription.id;
+            document.getElementById('modalStatus').textContent = prescription.status;
+            document.getElementById('modalDuration').textContent = prescription.durationMinutes + ' minutes';
+            document.getElementById('modalFullPrescription').textContent = prescription.prescription;
+
+            const modal = document.getElementById('prescriptionModal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePrescriptionModal() {
+            const modal = document.getElementById('prescriptionModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            currentPrescriptionId = null;
+        }
+
+        function sharePrescription(prescriptionId) {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Medical Prescription',
+                    text: `Prescription ID: RX${prescriptionId}`,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback: copy to clipboard
+                const url = `${window.location.origin}/prescription/${prescriptionId}`;
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('Prescription link copied to clipboard!');
+                });
+            }
+        }
+
+        function printPrescription() {
+            window.print();
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('prescriptionModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closePrescriptionModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closePrescriptionModal();
+            }
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('[class*="success"], [class*="error"]');
+            alerts.forEach(alert => {
+                if (alert.style.display !== 'none') {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.style.display = 'none', 300);
+                }
+            });
+        }, 5000);
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if there are no prescriptions and show empty state
+            const totalPrescriptions = /*[[${totalPrescriptions}]]*/ 0;
+            if (totalPrescriptions === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>

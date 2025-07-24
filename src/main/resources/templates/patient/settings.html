@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Patient Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .info-card {
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .profile-avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#10b981',
+                        accent: '#f59e0b'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<th:block th:replace="~{fragments/patient-header :: patient-header('Settings - Patient Dashboard')}" />
+
+<body class="font-inter antialiased bg-gray-50">
+    <!-- Include Patient Sidebar -->
+    <div th:replace="~{fragments/patient-sidebar :: patient-sidebar('settings', ${patient != null and patient.getUser() != null ? patient.getUser().getName() : 'Patient'}, ${patient != null ? patient.getId() : 'P001'})}">
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:pl-64">
+        <!-- Top Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+                <div class="flex items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Settings</h1>
+                        <p class="text-sm text-gray-600">View your personal information and account details</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Status Badge -->
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                            <i class="fas fa-check-circle mr-1"></i>Active Account
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="p-4 sm:p-6 lg:p-8">
+            <!-- Profile Header Section -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+                <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-8">
+                    <div class="flex items-center space-x-6">
+                        <!-- Profile Avatar -->
+                        <div
+                            class="profile-avatar w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                            <span
+                                th:text="${patient != null and patient.getUser() != null ? #strings.substring(patient.getUser().getName(), 0, 1) : 'P'}">P</span>
+                        </div>
+                        <!-- Profile Info -->
+                        <div class="text-white">
+                            <h2 class="text-3xl font-bold"
+                                th:text="${patient != null and patient.getUser() != null ? patient.getUser().getName() : 'Patient Name'}">
+                                Patient Name</h2>
+                            <p class="text-blue-100 text-lg"
+                                th:text="${patient != null and patient.getUser() != null ? patient.getUser().getEmail() : 'patient@example.com'}">
+                                patient@example.com</p>
+                            <div class="flex items-center mt-2 text-blue-100">
+                                <i class="fas fa-calendar-alt mr-2"></i>
+                                <span>Member since </span>
+                                <span
+                                    th:text="${patient != null ? #temporals.format(patient.getCreatedAt(), 'MMMM yyyy') : 'N/A'}">January
+                                    2024</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Information Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Basic Information Card -->
+                <div class="info-card bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="p-6">
+                        <div class="flex items-center mb-6">
+                            <div class="bg-blue-100 p-3 rounded-lg mr-4">
+                                <i class="fas fa-user text-blue-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900">Basic Information</h3>
+                                <p class="text-gray-600 text-sm">Your personal details</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Full Name -->
+                            <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                                <div class="flex items-center">
+                                    <i class="fas fa-id-card text-gray-400 w-5"></i>
+                                    <span class="ml-3 text-gray-600 font-medium">Full Name</span>
+                                </div>
+                                <span class="text-gray-900 font-semibold"
+                                    th:text="${patient != null and patient.getUser() != null ? patient.getUser().getName() : 'N/A'}">N/A</span>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                                <div class="flex items-center">
+                                    <i class="fas fa-envelope text-gray-400 w-5"></i>
+                                    <span class="ml-3 text-gray-600 font-medium">Email Address</span>
+                                </div>
+                                <span class="text-gray-900 font-semibold"
+                                    th:text="${patient != null and patient.getUser() != null ? patient.getUser().getEmail() : 'N/A'}">N/A</span>
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                                <div class="flex items-center">
+                                    <i class="fas fa-phone text-gray-400 w-5"></i>
+                                    <span class="ml-3 text-gray-600 font-medium">Phone Number</span>
+                                </div>
+                                <span class="text-gray-900 font-semibold"
+                                    th:text="${patient != null and patient.getUser() != null and patient.getUser().getPhone() != null ? patient.getUser().getPhone() : 'Not provided'}">Not
+                                    provided</span>
+                            </div>
+
+                            <!-- Patient ID -->
+                            <div class="flex items-center justify-between py-3">
+                                <div class="flex items-center">
+                                    <i class="fas fa-hashtag text-gray-400 w-5"></i>
+                                    <span class="ml-3 text-gray-600 font-medium">Patient ID</span>
+                                </div>
+                                <span class="text-gray-900 font-semibold"
+                                    th:text="${patient != null ? 'P' + patient.getId() : 'N/A'}">N/A</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Information Card -->
+                <div class="info-card bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="p-6">
+                        <div class="flex items-center mb-6">
+                            <div class="bg-green-100 p-3 rounded-lg mr-4">
+                                <i class="fas fa-cog text-green-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900">Account Information</h3>
+                                <p class="text-gray-600 text-sm">Your account status and details</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Account Type -->
+                            <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                                <div class="flex items-center">
+                                    <i class="fas fa-user-circle text-gray-400 w-5"></i>
+                                    <span class="ml-3 text-gray-600 font-medium">Account Type</span>
+                                </div>
+                                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                                    <span
+                                        th:text="${patient != null and patient.getUser() != null ? patient.getUser().getRole() : 'PATIENT'}">PATIENT</span>
+                                </span>
+                            </div>
+
+                            <!-- Account Status -->
+                            <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                                <div class="flex items-center">
+                                    <i class="fas fa-shield-alt text-gray-400 w-5"></i>
+                                    <span class="ml-3 text-gray-600 font-medium">Account Status</span>
+                                </div>
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                    <i class="fas fa-check-circle mr-1"></i>Active
+                                </span>
+                            </div>
+
+                            <!-- Member Since -->
+                            <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                                <div class="flex items-center">
+                                    <i class="fas fa-calendar-plus text-gray-400 w-5"></i>
+                                    <span class="ml-3 text-gray-600 font-medium">Member Since</span>
+                                </div>
+                                <span class="text-gray-900 font-semibold"
+                                    th:text="${patient != null ? #temporals.format(patient.getCreatedAt(), 'dd MMM yyyy') : 'N/A'}">N/A</span>
+                            </div>
+
+                            <!-- Last Updated -->
+                            <div class="flex items-center justify-between py-3">
+                                <div class="flex items-center">
+                                    <i class="fas fa-clock text-gray-400 w-5"></i>
+                                    <span class="ml-3 text-gray-600 font-medium">Last Updated</span>
+                                </div>
+                                <span class="text-gray-900 font-semibold"
+                                    th:text="${patient != null ? #temporals.format(patient.getUpdatedAt(), 'dd MMM yyyy') : 'N/A'}">N/A</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Information Section -->
+            <div class="mt-8">
+                <div class="bg-white rounded-xl shadow-lg">
+                    <div class="p-6">
+                        <div class="flex items-center mb-6">
+                            <div class="bg-purple-100 p-3 rounded-lg mr-4">
+                                <i class="fas fa-info-circle text-purple-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900">Additional Information</h3>
+                                <p class="text-gray-600 text-sm">Account statistics and preferences</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Total Appointments -->
+                            <div class="text-center p-6 bg-blue-50 rounded-lg">
+                                <div
+                                    class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-calendar-check text-blue-600"></i>
+                                </div>
+                                <div class="text-2xl font-bold text-blue-600"
+                                    th:text="${totalAppointments != null ? totalAppointments : '0'}">0</div>
+                                <div class="text-gray-600 text-sm font-medium">Total Appointments</div>
+                            </div>
+
+                            <!-- Completed Appointments -->
+                            <div class="text-center p-6 bg-green-50 rounded-lg">
+                                <div
+                                    class="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-check-circle text-green-600"></i>
+                                </div>
+                                <div class="text-2xl font-bold text-green-600"
+                                    th:text="${completedAppointments != null ? completedAppointments : '0'}">0</div>
+                                <div class="text-gray-600 text-sm font-medium">Completed</div>
+                            </div>
+
+                            <!-- Prescriptions Received -->
+                            <div class="text-center p-6 bg-purple-50 rounded-lg">
+                                <div
+                                    class="bg-purple-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-prescription-bottle-alt text-purple-600"></i>
+                                </div>
+                                <div class="text-2xl font-bold text-purple-600"
+                                    th:text="${totalPrescriptions != null ? totalPrescriptions : '0'}">0</div>
+                                <div class="text-gray-600 text-sm font-medium">Prescriptions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Information -->
+            <div class="mt-8">
+                <div class="bg-white rounded-xl shadow-lg">
+                    <div class="p-6">
+                        <div class="flex items-center mb-6">
+                            <div class="bg-red-100 p-3 rounded-lg mr-4">
+                                <i class="fas fa-lock text-red-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900">Security & Privacy</h3>
+                                <p class="text-gray-600 text-sm">Your account security information</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Password Security -->
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-key text-gray-400 mr-3"></i>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Password</div>
+                                        <div class="text-sm text-gray-600">Last changed recently</div>
+                                    </div>
+                                </div>
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                    <i class="fas fa-shield-alt mr-1"></i>Secure
+                                </span>
+                            </div>
+
+                            <!-- Email Verification -->
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-envelope-circle-check text-gray-400 mr-3"></i>
+                                    <div>
+                                        <div class="font-medium text-gray-900">Email Verification</div>
+                                        <div class="text-sm text-gray-600">Email address verified</div>
+                                    </div>
+                                </div>
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                    <i class="fas fa-check mr-1"></i>Verified
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Privacy Notice -->
+                        <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="flex items-start">
+                                <i class="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                                <div class="text-sm text-blue-800">
+                                    <div class="font-medium mb-1">Privacy Notice</div>
+                                    <div>Your personal information is encrypted and securely stored. We never share your
+                                        data with third parties without your explicit consent. All medical records are
+                                        kept confidential in accordance with healthcare privacy regulations.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Auto-dismiss any alert messages after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('[class*="success"], [class*="error"], [class*="bg-yellow-50"]');
+            alerts.forEach(alert => {
+                if (alert.style.display !== 'none') {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.style.display = 'none', 300);
+                }
+            });
+        }, 5000);
+
+        // Add hover effects to info cards
+        document.addEventListener('DOMContentLoaded', function () {
+            const cards = document.querySelectorAll('.info-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function () {
+                    this.style.transform = 'translateY(-4px)';
+                });
+                card.addEventListener('mouseleave', function () {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

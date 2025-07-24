@@ -37,6 +37,10 @@ public class DoctorService {
         return doctorRepo.findByUser(user);
     }
 
+    public Doctor getDoctorById(Long doctorId) {
+        return doctorRepo.findById(doctorId).orElse(null);
+    }
+
     public Doctor findByUserEmail(String email) {
         return doctorRepo.findByUserEmail(email);
     }
@@ -52,7 +56,13 @@ public class DoctorService {
     }
 
     public List<Doctor> getAllDoctors() {
-        return doctorRepo.findAll();
+        try {
+            List<Doctor> doctors = doctorRepo.findAll();
+            return doctors != null ? doctors : new ArrayList<>();
+        } catch (Exception e) {
+            // Log the exception if needed
+            return new ArrayList<>();
+        }
     }
 
     public List<Doctor> getPendingDoctors() {
@@ -212,7 +222,64 @@ public class DoctorService {
 
     // Get all available slots for a doctor (across all dates)
     public List<DoctorAvailability> getAvailableSlotsByDoctorId(Long doctorId) {
-        return doctorAvailabilityRepo.findByDoctorIdOrderByDateAsc(doctorId);
+        return doctorAvailabilityRepo.findAvailabilityByDoctorIdOrderByDateAsc(doctorId);
+    }
+
+    // Get filtered available slots (unbooked only) for a doctor with date information
+    public List<DoctorAvailability> getUnbookedAvailabilitiesByDoctorId(Long doctorId) {
+
+        List<DoctorAvailability> allAvailability = doctorAvailabilityRepo.findAvailabilityByDoctorIdOrderByDateAsc(doctorId);
+
+        List<DoctorAvailability> filteredAvailabilities = new ArrayList<>();
+
+        for (DoctorAvailability availability : allAvailability) {
+            LocalDate date = availability.getDate();
+            List<LocalTime> availableSlots = availability.getAvailableSlotStarts();
+            List<LocalTime> bookedSlots = getBookedSlotsByDoctorId(doctorId, date);
+
+            if (availableSlots != null) {
+                List<LocalTime> unbookedSlots = availableSlots.stream()
+                        .filter(slot -> !bookedSlots.contains(slot))
+                        .collect(Collectors.toList());
+
+                // Only include availability if there are unbooked slots
+                if (!unbookedSlots.isEmpty()) {
+                    // Create a new DoctorAvailability object with filtered slots
+                    DoctorAvailability filteredAvailability = new DoctorAvailability();
+                    filteredAvailability.setId(availability.getId());
+                    filteredAvailability.setDoctor(availability.getDoctor());
+                    filteredAvailability.setDate(availability.getDate());
+                    filteredAvailability.setSessionMinutes(availability.getSessionMinutes());
+                    filteredAvailability.setPrice(availability.getPrice());
+                    filteredAvailability.setAvailableSlotStarts(unbookedSlots);
+
+                    filteredAvailabilities.add(filteredAvailability);
+                }
+            }
+        }
+
+        return filteredAvailabilities;
+    }
+
+    // Get all unbooked available slots for a doctor (across all dates) - flat list
+    public List<LocalTime> getUnbookedAvailableSlotsByDoctorId(Long doctorId) {
+        List<DoctorAvailability> allAvailability = doctorAvailabilityRepo.findAvailabilityByDoctorIdOrderByDateAsc(doctorId);
+        List<LocalTime> unbookedSlots = new ArrayList<>();
+
+        for (DoctorAvailability availability : allAvailability) {
+            LocalDate date = availability.getDate();
+            List<LocalTime> availableSlots = availability.getAvailableSlotStarts();
+            List<LocalTime> bookedSlots = getBookedSlotsByDoctorId(doctorId, date);
+
+            if (availableSlots != null) {
+                List<LocalTime> dateUnbookedSlots = availableSlots.stream()
+                        .filter(slot -> !bookedSlots.contains(slot))
+                        .collect(Collectors.toList());
+                unbookedSlots.addAll(dateUnbookedSlots);
+            }
+        }
+
+        return unbookedSlots;
     }
 
     // Get booked appointments for a doctor

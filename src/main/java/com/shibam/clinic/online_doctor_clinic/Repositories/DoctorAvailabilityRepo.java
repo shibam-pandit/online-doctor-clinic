@@ -21,6 +21,6 @@ public interface DoctorAvailabilityRepo extends JpaRepository<DoctorAvailability
     @Query("SELECT da FROM DoctorAvailability da WHERE da.doctor.user.id = :doctorId AND da.date = :date")
     public DoctorAvailability findByDoctorIdAndDate(@Param("doctorId") Long doctorId, @Param("date") LocalDate date);
 
-    @Query("SELECT da FROM DoctorAvailability da WHERE da.doctor.user.id = :doctorId ORDER BY da.date ASC")
-    public List<DoctorAvailability> findByDoctorIdOrderByDateAsc(@Param("doctorId") Long doctorId);
+    @Query("SELECT da FROM DoctorAvailability da WHERE da.doctor.user.id = :doctorId AND da.date >= CURRENT_DATE ORDER BY da.date ASC")
+    public List<DoctorAvailability> findAvailabilityByDoctorIdOrderByDateAsc(@Param("doctorId") Long doctorId);
 }

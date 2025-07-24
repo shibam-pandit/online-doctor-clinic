@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - Patient Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        }
+
+        .time-slot {
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 0.875rem 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .time-slot::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .time-slot:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        .time-slot:hover::before {
+            transform: scaleX(1);
+        }
+
+        .time-slot.selected {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .time-slot.selected::before {
+            transform: scaleX(1);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .time-slot.booked {
+            border-color: #d1d5db;
+            background-color: #f3f4f6;
+            color: #9ca3af;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .time-slot.booked:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .date-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: white;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .date-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .date-card:hover {
+            border-color: #3b82f6;
+            background-color: #f8faff;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
+        }
+
+        .date-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .date-card.selected {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.25);
+        }
+
+        .date-card.selected::before {
+            transform: scaleX(1);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Include Patient Sidebar -->
+    <div th:replace="fragments/patient-sidebar :: patient-sidebar('book-appointment', 'Patient', 'P001')">
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:pl-64">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Book Appointment</h1>
+                    <p class="text-sm text-gray-600">Select your preferred date and time slot</p>
+                </div>
+                <a href="/patient/book-appointment"
+                    class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Doctors
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="p-4 sm:p-6 lg:p-8">
+            <!-- Alert Messages -->
+            <div th:if="${success}"
+                class="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span th:text="${success}">Success message</span>
+            </div>
+
+            <div th:if="${error}"
+                class="mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span th:text="${error}">Error message</span>
+            </div>
+
+            <!-- Doctor Information Card -->
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <div class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
+                    <!-- Doctor Image -->
+                    <div class="relative">
+                        <img src="https://images.pexels.com/photos/5407206/pexels-photo-5407206.jpeg?auto=compress&cs=tinysrgb&w=200"
+                            alt="Doctor Profile"
+                            class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg">
+                        <div
+                            class="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
+                            <i class="fas fa-check text-white text-sm"></i>
+                        </div>
+                    </div>
+
+                    <!-- Doctor Details -->
+                    <div class="text-center md:text-left flex-1">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-2">
+                            <span th:text="${doctor != null ? doctor.user.name : 'Dr. Rajesh Kumar'}">Dr. Rajesh
+                                Kumar</span>
+                        </h2>
+                        <p class="text-xl text-blue-600 font-medium mb-3">
+                            <span th:text="${doctor != null ? doctor.specialization : 'Cardiology'}">Cardiology</span>
+                        </p>
+                        <p class="text-gray-600 mb-4">
+                            <span th:text="${doctor != null ? doctor.qualification : 'MBBS, MD (Cardiology)'}">MBBS, MD
+                                (Cardiology)</span>
+                        </p>
+
+                        <!-- Rating -->
+                        <div class="flex items-center justify-center md:justify-start space-x-1 mb-4">
+                            <div class="flex space-x-1">
+                                <span th:each="i : ${#numbers.sequence(1, 5)}">
+                                    <i class="fas"
+                                        th:classappend="${doctor != null and doctor.getAverageRating() >= i} ? 'fa-star text-yellow-400' : (${doctor != null and doctor.getAverageRating() >= i - 0.5} ? 'fa-star-half-alt text-yellow-400' : 'fa-star text-gray-300')">
+                                    </i>
+                                </span>
+                            </div>
+                            <span class="text-gray-600 text-sm ml-4"
+                                th:text="${doctor != null ? doctor.getAverageRating() : 'N/A'}">4.9</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointment Booking Section -->
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h3 class="text-2xl font-semibold text-gray-900 mb-8 flex items-center">
+                    <i class="fas fa-calendar-plus text-blue-600 text-2xl mr-3"></i>
+                    Select Date & Time
+                </h3>
+
+                <form th:action="@{/patient/confirm-appointment}" method="post" id="bookingForm">
+                    <input type="hidden" name="doctorId" th:value="${doctor.id}">
+                    <input type="hidden" name="patientId" th:value="${patient.id}">
+                    <input type="hidden" name="date" id="selectedDateInput">
+                    <input type="hidden" name="slot" id="selectedSlotInput">
+                    <input type="hidden" name="durationMinutes" id="durationMinutesInput">
+                    <input type="hidden" name="fee" id="feeInput">
+                    <input type="hidden" name="availabilityId" id="availabilityIdInput">
+
+                    <!-- Date Selection -->
+                    <div class="mb-8">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-6">
+                            <i class="fas fa-calendar text-blue-600 mr-2"></i>Choose Available Date
+                        </h4>
+
+                        <div th:if="${availableSlots != null and !availableSlots.isEmpty()}">
+                            <div
+                                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                                <div th:each="availability : ${availableSlots}" class="date-card"
+                                    th:data-date="${availability.date}" th:data-availability-id="${availability.id}"
+                                    onclick="selectDate(this)">
+                                    <div class="text-xs text-gray-500 mb-2 uppercase tracking-wide">Available</div>
+                                    <div class="text-2xl font-bold text-gray-900 mb-1" th:text="${availability.date}">15
+                                    </div>
+                                    <div class="text-sm font-medium text-gray-700 mb-1" th:text="${availability.date}">
+                                        Mar</div>
+                                    <div class="text-xs text-gray-600 mb-3"
+                                        th:text="${#temporals.dayOfWeekName(availability.date)}">Monday</div>
+                                    <div class="mt-auto">
+                                        <span
+                                            class="bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs px-3 py-1 rounded-full shadow-sm">
+                                            <span th:text="${#lists.size(availability.availableSlotStarts)}">5</span>
+                                            slots
+                                        </span>
+                                    </div>
+                                    <!-- Hidden slot data -->
+                                    <div style="display: none;" class="slot-data">
+                                        <span th:each="slot : ${availability.availableSlotStarts}"
+                                            th:data-time="${slot}" th:data-availability-id="${availability.id}"
+                                            th:data-session-minutes="${availability.sessionMinutes}"
+                                            th:data-price="${availability.price}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div th:if="${availableSlots == null or availableSlots.isEmpty()}" class="text-center py-8">
+                            <i class="fas fa-calendar-times text-4xl text-gray-400 mb-4"></i>
+                            <p class="text-lg font-medium text-gray-600">No available dates</p>
+                            <p class="text-sm text-gray-500">Please contact the doctor's office to schedule an
+                                appointment.</p>
+                        </div>
+                    </div>
+
+                    <!-- Time Slots Section -->
+                    <div id="timeSlotsSection" style="display: none;" class="mb-8">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-6">
+                            <i class="fas fa-clock text-blue-600 mr-2"></i>Available Time Slots
+                        </h4>
+
+                        <!-- Selected Date Display -->
+                        <div id="selectedDateDisplay"
+                            class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 hidden">
+                            <div class="flex items-center text-blue-800">
+                                <i class="fas fa-calendar-day text-blue-600 mr-2"></i>
+                                <span class="font-medium">Selected Date: </span>
+                                <span id="selectedDateText" class="ml-2 font-semibold"></span>
+                            </div>
+                        </div>
+
+                        <!-- Morning Slots -->
+                        <div id="morningSection" class="mb-6">
+                            <h5 class="text-md font-medium text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-sun text-yellow-500 mr-2"></i>Morning (6:00 AM - 12:00 PM)
+                            </h5>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3"
+                                id="morningSlots">
+                                <!-- Morning slots will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Afternoon Slots -->
+                        <div id="afternoonSection" class="mb-6">
+                            <h5 class="text-md font-medium text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-sun text-orange-500 mr-2"></i>Afternoon (12:00 PM - 5:00 PM)
+                            </h5>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3"
+                                id="afternoonSlots">
+                                <!-- Afternoon slots will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Evening Slots -->
+                        <div id="eveningSection" class="mb-6">
+                            <h5 class="text-md font-medium text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-moon text-purple-500 mr-2"></i>Evening (5:00 PM - 11:00 PM)
+                            </h5>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3"
+                                id="eveningSlots">
+                                <!-- Evening slots will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <div id="noSlotsMessage" class="hidden text-center py-12">
+                            <div class="max-w-md mx-auto">
+                                <i class="fas fa-calendar-times text-6xl text-gray-300 mb-4"></i>
+                                <h5 class="text-xl font-medium text-gray-600 mb-2">No time slots available</h5>
+                                <p class="text-sm text-gray-500">Please select a different date or contact the doctor's
+                                    office directly.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Appointment Summary -->
+                    <div id="appointmentSummary"
+                        class="hidden bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 mb-8 shadow-lg">
+                        <h4 class="text-xl font-bold text-blue-900 mb-6 flex items-center">
+                            <i class="fas fa-clipboard-check text-blue-600 text-xl mr-3"></i>Appointment Summary
+                        </h4>
+                        <div class="bg-white rounded-lg p-6 shadow-sm">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-user-md text-blue-500 w-5 mr-3"></i>
+                                        <span class="text-gray-600 font-medium">Doctor:</span>
+                                        <span class="text-gray-900 ml-2 font-semibold"
+                                            th:text="${doctor.getUser().getName()}">Dr. Rajesh Kumar</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-stethoscope text-blue-500 w-5 mr-3"></i>
+                                        <span class="text-gray-600 font-medium">Specialization:</span>
+                                        <span class="text-gray-900 ml-2"
+                                            th:text="${doctor.getSpecialization()}">Cardiology</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar-alt text-blue-500 w-5 mr-3"></i>
+                                        <span class="text-gray-600 font-medium">Date:</span>
+                                        <span class="text-gray-900 ml-2 font-semibold" id="summaryDate">-</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-clock text-blue-500 w-5 mr-3"></i>
+                                        <span class="text-gray-600 font-medium">Time:</span>
+                                        <span class="text-gray-900 ml-2 font-semibold" id="summaryTime">-</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-hourglass-half text-blue-500 w-5 mr-3"></i>
+                                        <span class="text-gray-600 font-medium">Duration:</span>
+                                        <span class="text-gray-900 ml-2" id="summaryDuration">-</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-rupee-sign text-blue-500 w-5 mr-3"></i>
+                                        <span class="text-gray-600 font-medium">Consultation Fee:</span>
+                                        <span class="text-green-600 ml-2 font-bold" id="summaryFee">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Confirm Button -->
+                    <div class="text-center">
+                        <button type="submit" id="confirmButton"
+                            class="btn-primary text-white px-16 py-5 rounded-2xl font-bold text-xl transition-all duration-300 shadow-2xl hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-lg relative overflow-hidden"
+                            disabled>
+                            <span class="relative z-10 flex items-center justify-center">
+                                <i class="fas fa-calendar-check mr-4 text-xl"></i>Confirm Appointment
+                            </span>
+                            <div
+                                class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 transition-opacity duration-300 hover:opacity-100">
+                            </div>
+                        </button>
+                </form>
+                <p class="text-base text-gray-600 mt-4 max-w-md mx-auto" id="buttonStatus">Please select a date
+                    and time slot to continue with your appointment booking</p>
+
+                <!-- Additional Info -->
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg max-w-2xl mx-auto">
+                    <div class="flex items-center justify-center text-sm text-gray-600">
+                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                        <span>You will receive a confirmation email after booking</span>
+                    </div>
+                </div>
+            </div>
+            </form>
+    </div>
+    </main>
+    </div>
+
+    <script>
+        let selectedDate = null;
+        let selectedSlot = null;
+        let selectedAvailabilityId = null;
+        let selectedSessionMinutes = null;
+        let selectedPrice = null;
+
+        function selectDate(element) {
+            // Remove previous selection
+            document.querySelectorAll('.date-card').forEach(card => card.classList.remove('selected'));
+
+            // Select current date
+            element.classList.add('selected');
+            selectedDate = element.getAttribute('data-date');
+            selectedAvailabilityId = element.getAttribute('data-availability-id');
+
+            document.getElementById('selectedDateInput').value = selectedDate;
+            document.getElementById('availabilityIdInput').value = selectedAvailabilityId;
+
+            // Show selected date
+            const selectedDateDisplay = document.getElementById('selectedDateDisplay');
+            const selectedDateText = document.getElementById('selectedDateText');
+            const dateObj = new Date(selectedDate);
+            const formattedDate = dateObj.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            selectedDateText.textContent = formattedDate;
+            selectedDateDisplay.classList.remove('hidden');
+
+            // Get slots for this date
+            const slotData = element.querySelector('.slot-data');
+            const slots = slotData ? slotData.querySelectorAll('span[data-time]') : [];
+
+            // Show time slots section
+            document.getElementById('timeSlotsSection').style.display = 'block';
+
+            // Populate time slots
+            populateTimeSlots(slots);
+
+            // Reset slot selection
+            selectedSlot = null;
+            selectedSessionMinutes = null;
+            selectedPrice = null;
+            updateUI();
+
+            // Smooth scroll to time slots section
+            document.getElementById('timeSlotsSection').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        function populateTimeSlots(slots) {
+            const morningSlots = document.getElementById('morningSlots');
+            const afternoonSlots = document.getElementById('afternoonSlots');
+            const eveningSlots = document.getElementById('eveningSlots');
+            const noSlotsMessage = document.getElementById('noSlotsMessage');
+
+            // Clear existing slots
+            morningSlots.innerHTML = '';
+            afternoonSlots.innerHTML = '';
+            eveningSlots.innerHTML = '';
+
+            if (slots.length === 0) {
+                noSlotsMessage.classList.remove('hidden');
+                document.getElementById('morningSection').style.display = 'none';
+                document.getElementById('afternoonSection').style.display = 'none';
+                document.getElementById('eveningSection').style.display = 'none';
+                return;
+            }
+
+            noSlotsMessage.classList.add('hidden');
+
+            slots.forEach(slot => {
+                const timeStr = slot.getAttribute('data-time');
+                const availabilityId = slot.getAttribute('data-availability-id');
+                const sessionMinutes = parseInt(slot.getAttribute('data-session-minutes')) || 30;
+                const price = parseFloat(slot.getAttribute('data-price')) || 0;
+
+                // Convert time to 12-hour format
+                const [hours, minutes] = timeStr.split(':');
+                const hour24 = parseInt(hours);
+                const timeObj = new Date(2000, 0, 1, hour24, parseInt(minutes));
+                const time12 = timeObj.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+
+                const slotButton = document.createElement('button');
+                slotButton.type = 'button';
+                slotButton.className = 'time-slot';
+                slotButton.setAttribute('data-time', timeStr);
+                slotButton.setAttribute('data-availability-id', availabilityId);
+                slotButton.setAttribute('data-session-minutes', sessionMinutes);
+                slotButton.setAttribute('data-price', price);
+                slotButton.onclick = () => selectSlot(slotButton);
+
+                slotButton.innerHTML = `
+                    <div class="font-medium text-sm">${time12}</div>
+                    <div class="text-xs text-gray-500 mt-1">${sessionMinutes} min</div>
+                `;
+
+                // Categorize by time of day
+                if (hour24 >= 6 && hour24 < 12) {
+                    morningSlots.appendChild(slotButton);
+                } else if (hour24 >= 12 && hour24 < 17) {
+                    afternoonSlots.appendChild(slotButton);
+                } else {
+                    eveningSlots.appendChild(slotButton);
+                }
+            });
+
+            // Show/hide sections based on available slots
+            document.getElementById('morningSection').style.display =
+                morningSlots.children.length > 0 ? 'block' : 'none';
+            document.getElementById('afternoonSection').style.display =
+                afternoonSlots.children.length > 0 ? 'block' : 'none';
+            document.getElementById('eveningSection').style.display =
+                eveningSlots.children.length > 0 ? 'block' : 'none';
+        }
+
+        function selectSlot(element) {
+            // Remove previous selection
+            document.querySelectorAll('.time-slot').forEach(slot => slot.classList.remove('selected'));
+
+            // Select current slot
+            element.classList.add('selected');
+            selectedSlot = element.getAttribute('data-time');
+            selectedSessionMinutes = parseInt(element.getAttribute('data-session-minutes'));
+            selectedPrice = parseFloat(element.getAttribute('data-price'));
+
+            document.getElementById('selectedSlotInput').value = selectedSlot;
+            document.getElementById('durationMinutesInput').value = selectedSessionMinutes;
+            document.getElementById('feeInput').value = selectedPrice;
+
+            updateUI();
+        }
+
+        function updateUI() {
+            const confirmButton = document.getElementById('confirmButton');
+            const buttonStatus = document.getElementById('buttonStatus');
+            const summary = document.getElementById('appointmentSummary');
+
+            if (selectedDate && selectedSlot) {
+                confirmButton.disabled = false;
+                buttonStatus.textContent = 'Ready to confirm your appointment! Click the button above to proceed.';
+                buttonStatus.className = 'text-base text-green-600 mt-4 max-w-md mx-auto font-medium';
+
+                // Show summary with animation
+                summary.classList.remove('hidden');
+                summary.style.opacity = '0';
+                summary.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    summary.style.transition = 'all 0.5s ease';
+                    summary.style.opacity = '1';
+                    summary.style.transform = 'translateY(0)';
+                }, 100);
+
+                // Update summary details
+                const dateObj = new Date(selectedDate);
+                const dateString = dateObj.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                document.getElementById('summaryDate').textContent = dateString;
+
+                const [hours, minutes] = selectedSlot.split(':');
+                const timeObj = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes));
+                const time12 = timeObj.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+                document.getElementById('summaryTime').textContent = time12;
+
+                // Update dynamic duration and fee
+                document.getElementById('summaryDuration').textContent = `${selectedSessionMinutes} minutes`;
+                document.getElementById('summaryFee').textContent = `₹${selectedPrice.toFixed(2)}`;
+
+                // Smooth scroll to summary
+                setTimeout(() => {
+                    summary.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }, 200);
+            } else {
+                confirmButton.disabled = true;
+                buttonStatus.textContent = 'Please select a date and time slot to continue with your appointment booking';
+                buttonStatus.className = 'text-base text-gray-600 mt-4 max-w-md mx-auto';
+                summary.classList.add('hidden');
+            }
+        }
+
+        // Form validation
+        document.getElementById('bookingForm').addEventListener('submit', function (e) {
+            if (!selectedDate || !selectedSlot || !selectedAvailabilityId || !selectedSessionMinutes || !selectedPrice) {
+                e.preventDefault();
+                alert('Please select both date and time slot before confirming.');
+                return false;
+            }
+        });
+    </script>
+</body>
+
+</html>
