@@ -494,4 +494,8 @@ public class DoctorService {
             return fallbackData;
         }
     }
+
+    public void addMeetingLinkToAppointment(Long appointmentId, String meetingLink) {
+        appointmentRepo.updateMeetingLink(appointmentId, meetingLink);
+    }
 }

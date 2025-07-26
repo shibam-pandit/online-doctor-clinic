@@ -141,11 +141,9 @@
                                 </div>
 
                                 <!-- Appointment Items -->
-                                <div th:each="appointment : ${todayAppointments}" th:class="'flex items-start sm:items-center p-4 rounded-lg border-l-4 transition-all hover:shadow-md ' + 
-                                    (${appointment.status.toString() == 'CONFIRMED'} ? 'bg-green-50 border-green-500' : 
-                                     ${appointment.status.toString() == 'PENDING'} ? 'bg-yellow-50 border-yellow-500' : 
-                                     ${appointment.status.toString() == 'COMPLETED'} ? 'bg-blue-50 border-blue-500' : 
-                                     'bg-gray-50 border-gray-300')">
+                                <div th:each="appointment : ${todayAppointments}"
+                                    class="flex items-start sm:items-center p-4 rounded-lg border-l-4 transition-all hover:shadow-md"
+                                    th:classappend="${appointment?.getStatus()?.toString() == 'CONFIRMED'} ? 'bg-green-50 border-green-500' : (${appointment?.getStatus()?.toString() == 'PENDING'} ? 'bg-yellow-50 border-yellow-500' : (${appointment?.getStatus()?.toString() == 'COMPLETED'} ? 'bg-blue-50 border-blue-500' : 'bg-gray-50 border-gray-300'))">
                                     <div class="flex-shrink-0">
                                         <div
                                             class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
@@ -155,30 +153,31 @@
                                     <div class="ml-4 flex-1">
                                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                             <h4 class="font-semibold text-gray-900 mb-1 sm:mb-0"
-                                                th:text="${appointment.patient.user.name}">Patient Name</h4>
+                                                th:text="${appointment?.getPatient()?.getUser()?.getName() ?: 'Unknown Patient'}">
+                                                Patient Name</h4>
                                             <span
                                                 class="text-sm font-medium text-gray-800 bg-white px-2 py-1 rounded-md"
-                                                th:text="${#temporals.format(appointment.appointmentDate, 'HH:mm')}">Time</span>
+                                                th:text="${appointment?.getDate() != null ? #temporals.format(appointment.getSlot(), 'HH:mm') : 'N/A'}">Time</span>
                                         </div>
-                                        <p class="text-sm text-gray-600 mt-1"
-                                            th:text="${appointment.description ?: 'General Consultation'}">Consultation
-                                            Type</p>
+                                        <!-- <p class="text-sm text-gray-600 mt-1"
+                                            th:text="${appointment?.description ?: 'General Consultation'}">
+                                            Consultation Type</p> -->
                                         <div class="flex flex-wrap items-center mt-3 gap-2">
-                                            <span th:class="'text-xs px-3 py-1 rounded-full font-medium ' + 
-                                                (${appointment.status.toString() == 'CONFIRMED'} ? 'bg-green-100 text-green-800' : 
-                                                 ${appointment.status.toString() == 'PENDING'} ? 'bg-yellow-100 text-yellow-800' : 
-                                                 ${appointment.status.toString() == 'COMPLETED'} ? 'bg-blue-100 text-blue-800' : 
-                                                 'bg-gray-100 text-gray-800')"
-                                                th:text="${appointment.status.toString()}">Status</span>
-                                            <button th:if="${appointment.status.toString() == 'CONFIRMED'}"
+                                            <span class="text-xs px-3 py-1 rounded-full font-medium"
+                                                  th:classappend="${appointment?.getStatus()?.toString() == 'CONFIRMED'} ? 'bg-green-100 text-green-800' : (${appointment?.getStatus()?.toString() == 'PENDING'} ? 'bg-yellow-100 text-yellow-800' : (${appointment?.getStatus()?.toString() == 'COMPLETED'} ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'))"
+                                                  th:text="${appointment?.getStatus()?.toString() ?: 'UNKNOWN'}">Status</span>
+
+                                            <button th:if="${appointment?.getStatus()?.toString() == 'CONFIRMED'}"
                                                 class="bg-primary text-white text-xs px-4 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md">
                                                 <i class="fas fa-video mr-1"></i>Join Call
                                             </button>
-                                            <button th:if="${appointment.status.toString() == 'PENDING'}"
+
+                                            <button th:if="${appointment?.getStatus()?.toString() == 'PENDING'}"
                                                 class="bg-gray-200 text-gray-600 text-xs px-4 py-2 rounded-lg cursor-not-allowed font-medium">
                                                 <i class="fas fa-clock mr-1"></i>Waiting
                                             </button>
-                                            <button th:if="${appointment.status.toString() == 'COMPLETED'}"
+
+                                            <button th:if="${appointment?.getStatus()?.toString() == 'COMPLETED'}"
                                                 class="bg-secondary text-white text-xs px-4 py-2 rounded-lg font-medium">
                                                 <i class="fas fa-check mr-1"></i>Completed
                                             </button>

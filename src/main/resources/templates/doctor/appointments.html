@@ -6,7 +6,6 @@
 
 <body class="font-inter antialiased bg-gray-50">
 
-    
     <!-- Include Doctor Sidebar with activeMenu parameter -->
     <th:block
         th:replace="~{fragments/doctor-sidebar :: doctor-sidebar('appointments', ${doctor.getUser().getName()}, ${doctor.getSpecialization()})}">
@@ -23,17 +22,6 @@
                         <p class="text-sm text-gray-600">Manage your patient appointments</p>
                     </div>
                 </div>
-
-                <div class="hidden sm:flex bg-gray-100 rounded-lg p-1">
-                    <button id="tableViewBtn"
-                        class="px-3 py-2 text-sm font-medium text-primary bg-white rounded-md shadow-sm transition-colors">
-                        <i class="fas fa-list mr-1"></i>Table
-                    </button>
-                    <button id="calendarViewBtn"
-                        class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-primary transition-colors">
-                        <i class="fas fa-calendar mr-1"></i>Calendar
-                    </button>
-                </div>
             </div>
         </header>
 
@@ -45,8 +33,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-600 text-sm font-medium">Total Appointments</p>
-                            <p class="text-2xl font-bold text-gray-900 mt-1" th:text="${#lists.size(appointments)}">0
-                            </p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1" th:text="${#lists.size(appointments)}">0</p>
                             <p class="text-secondary text-sm mt-1">
                                 <i class="fas fa-calendar mr-1"></i>All time
                             </p>
@@ -76,8 +63,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-600 text-sm font-medium">Completed</p>
-                            <p class="text-2xl font-bold text-gray-900 mt-1" th:text="${completedAppointmentsCount}">0
-                            </p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1" th:text="${completedAppointmentsCount}">0</p>
                             <p class="text-secondary text-sm mt-1">
                                 <i class="fas fa-check mr-1"></i>All time
                             </p>
@@ -92,8 +78,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-600 text-sm font-medium">Cancelled</p>
-                            <p class="text-2xl font-bold text-gray-900 mt-1" th:text="${cancelledAppointmentsCount}">0
-                            </p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1" th:text="${cancelledAppointmentsCount}">0</p>
                             <p class="text-red-600 text-sm mt-1">
                                 <i class="fas fa-times mr-1"></i>All time
                             </p>
@@ -112,9 +97,8 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
                         <div class="relative">
-                            <input type="date"
+                            <input type="date" id="dateFilter"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                            <i class="fas fa-calendar-alt absolute right-3 top-3 text-gray-400"></i>
                         </div>
                     </div>
 
@@ -122,7 +106,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Search Patient</label>
                         <div class="relative">
-                            <input type="text" placeholder="Name or ID"
+                            <input type="text" id="searchFilter" placeholder="Name or ID"
                                 class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
                             <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                         </div>
@@ -131,22 +115,27 @@
                     <!-- Status Filter -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                        <select
+                        <select id="statusFilter"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
                             <option value="">All Status</option>
-                            <option value="scheduled">Scheduled</option>
-                            <option value="completed">Completed</option>
-                            <option value="cancelled">Cancelled</option>
+                            <option value="BOOKED">Scheduled</option>
+                            <option value="COMPLETED">Completed</option>
+                            <option value="CANCELLED_BY_DOCTOR">Cancelled by Doctor</option>
+                            <option value="CANCELLED_BY_PATIENT">Cancelled by Patient</option>
                         </select>
                     </div>
 
                     <!-- Actions -->
                     <div class="flex items-end space-x-2">
-                        <button
+                        <button id="applyFilters"
                             class="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
                             <i class="fas fa-filter mr-2"></i>Filter
                         </button>
-                        <button
+                        <button id="clearFilters"
+                            class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-times mr-2"></i>Clear
+                        </button>
+                        <button id="exportBtn"
                             class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors">
                             <i class="fas fa-download mr-2"></i>Export
                         </button>
@@ -158,28 +147,28 @@
             <div class="bg-white rounded-xl shadow-lg mb-8">
                 <div class="border-b border-gray-200">
                     <nav class="flex space-x-8 px-6" aria-label="Tabs">
-                        <button class="border-b-2 border-primary text-primary py-4 px-1 text-sm font-medium">
-                            All <span class="ml-2 bg-primary text-white text-xs px-2 py-1 rounded-full"
+                        <button data-tab="all" class="tab-button border-b-2 border-primary text-primary py-4 px-1 text-sm font-medium">
+                            All <span class="ml-2 bg-primary text-white text-xs px-2 py-1 rounded-full" id="allCount"
                                 th:text="${#lists.size(appointments)}">0</span>
                         </button>
-                        <button
-                            class="border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
-                            Today <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full"
+                        <button data-tab="today"
+                            class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
+                            Today <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full" id="todayCount"
                                 th:text="${todayAppointmentsCount}">0</span>
                         </button>
-                        <button
-                            class="border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
-                            Upcoming <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full"
+                        <button data-tab="upcoming"
+                            class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
+                            Upcoming <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full" id="upcomingCount"
                                 th:text="${upcomingAppointmentsCount}">0</span>
                         </button>
-                        <button
-                            class="border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
-                            Completed <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full"
+                        <button data-tab="completed"
+                            class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
+                            Completed <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full" id="completedCount"
                                 th:text="${completedAppointmentsCount}">0</span>
                         </button>
-                        <button
-                            class="border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
-                            Cancelled <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full"
+                        <button data-tab="cancelled"
+                            class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
+                            Cancelled <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full" id="cancelledCount"
                                 th:text="${cancelledAppointmentsCount}">0</span>
                         </button>
                     </nav>
@@ -187,11 +176,15 @@
 
                 <!-- Appointments List -->
                 <div class="p-6">
-                    <div class="space-y-4">
+                    <div class="space-y-4" id="appointmentsList">
                         <!-- Dynamic Appointment Cards -->
                         <div th:each="appointment : ${appointments}"
-                            class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
-                            th:classappend="${appointment.status.toString() == 'COMPLETED'} ? 'bg-gray-50' : ''">
+                            class="appointment-card border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                            th:classappend="${appointment.status.toString() == 'COMPLETED'} ? 'bg-gray-50' : ''"
+                            th:data-status="${appointment.status}"
+                            th:data-date="${#temporals.format(appointment.date, 'yyyy-MM-dd')}"
+                            th:data-patient-name="${appointment.patient.user.name}"
+                            th:data-patient-id="${appointment.patient.id}">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-4">
                                     <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
@@ -212,8 +205,7 @@
 
                                 <div class="text-center">
                                     <p class="font-medium text-gray-900">
-                                        <span
-                                            th:text="${#temporals.format(appointment.date, 'dd MMM yyyy')}">Date</span>,
+                                        <span th:text="${#temporals.format(appointment.date, 'dd MMM yyyy')}">Date</span>,
                                         <span th:text="${#temporals.format(appointment.slot, 'hh:mm a')}">Time</span>
                                     </p>
                                     <div class="flex items-center justify-center space-x-2 mt-1">
@@ -222,27 +214,91 @@
                                         <span th:if="${appointment.status.toString() == 'COMPLETED'}"
                                             class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Completed</span>
                                         <span th:if="${appointment.status.toString() == 'CANCELLED_BY_DOCTOR'}"
-                                            class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">Cancelled by
-                                            Doctor</span>
+                                            class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">Cancelled by Doctor</span>
                                         <span th:if="${appointment.status.toString() == 'CANCELLED_BY_PATIENT'}"
-                                            class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">Cancelled by
-                                            Patient</span>
+                                            class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">Cancelled by Patient</span>
                                     </div>
                                 </div>
 
                                 <div class="flex items-center space-x-2">
-                                    <button th:if="${appointment.status.toString() == 'BOOKED'}"
-                                        class="bg-primary text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-                                        <i class="fas fa-video mr-1"></i>Start
-                                    </button>
-                                    <button th:if="${appointment.status.toString() == 'BOOKED'}"
-                                        class="border border-primary text-primary px-3 py-2 rounded-lg text-sm font-medium hover:bg-primary hover:text-white transition-colors">
-                                        <i class="fas fa-eye mr-1"></i>View
-                                    </button>
-                                    <button th:if="${appointment.status.toString() == 'COMPLETED'}"
-                                        class="border border-gray-300 text-gray-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors">
-                                        <i class="fas fa-file-medical mr-1"></i>Report
-                                    </button>
+                                    <!-- For BOOKED appointments -->
+                                    <th:block th:if="${appointment.status.toString() == 'BOOKED'}">
+                                        <!-- If meeting link exists, show Start and View buttons -->
+                                        <th:block th:if="${appointment.meetingLink != null && !#strings.isEmpty(appointment.meetingLink)}">
+                                            <button
+                                                class="start-meeting-btn bg-primary text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                                                th:data-meeting-link="${appointment.meetingLink}">
+                                                <i class="fas fa-video mr-1"></i>Start
+                                            </button>
+                                            <button
+                                                class="view-appointment-btn border border-primary text-primary px-3 py-2 rounded-lg text-sm font-medium hover:bg-primary hover:text-white transition-colors"
+                                                th:data-id="${appointment.id}"
+                                                th:data-patient-name="${appointment.patient.user.name}"
+                                                th:data-patient-phone="${appointment.patient.user.phone}"
+                                                th:data-patient-id="${appointment.patient.id}"
+                                                th:data-date="${#temporals.format(appointment.date, 'dd MMM yyyy')}"
+                                                th:data-time="${#temporals.format(appointment.slot, 'hh:mm a')}"
+                                                th:data-fee="${appointment.fee}"
+                                                th:data-meeting-link="${appointment.meetingLink}"
+                                                th:data-status="${appointment.status}">
+                                                <i class="fas fa-eye mr-1"></i>View
+                                            </button>
+                                        </th:block>
+                                        <!-- If no meeting link, show form to add one -->
+                                        <th:block th:if="${appointment.meetingLink == null || #strings.isEmpty(appointment.meetingLink)}">
+                                            <form th:action="@{/doctor/appointments/add-meeting-link/{id}(id=${appointment.id})}"
+                                                method="post" class="flex space-x-2" onsubmit="return validateMeetingLink(event)">
+                                                <input type="text" name="meetingLink"
+                                                    placeholder="Google Meet code (e.g. abc-defg-hij)" required
+                                                    pattern="[a-zA-Z0-9]{3}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{3}"
+                                                    title="Enter only the Google Meet code, e.g. abc-defg-hij"
+                                                    class="meeting-link-input border border-gray-300 rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-primary focus:border-transparent" />
+                                                <button type="submit"
+                                                    class="bg-primary text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                                    <i class="fas fa-plus mr-1"></i>Add Link
+                                                </button>
+                                            </form>
+                                        </th:block>
+                                    </th:block>
+                                    
+                                    <!-- For COMPLETED appointments -->
+                                    <th:block th:if="${appointment.status.toString() == 'COMPLETED'}">
+                                        <button
+                                            class="view-appointment-btn border border-primary text-primary px-3 py-2 rounded-lg text-sm font-medium hover:bg-primary hover:text-white transition-colors"
+                                            th:data-id="${appointment.id}"
+                                            th:data-patient-name="${appointment.patient.user.name}"
+                                            th:data-patient-phone="${appointment.patient.user.phone}"
+                                            th:data-patient-id="${appointment.patient.id}"
+                                            th:data-date="${#temporals.format(appointment.date, 'dd MMM yyyy')}"
+                                            th:data-time="${#temporals.format(appointment.slot, 'hh:mm a')}"
+                                            th:data-fee="${appointment.fee}"
+                                            th:data-meeting-link="${appointment.meetingLink}"
+                                            th:data-status="${appointment.status}">
+                                            <i class="fas fa-eye mr-1"></i>View
+                                        </button>
+                                        <button
+                                            class="border border-gray-300 text-gray-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors">
+                                            <i class="fas fa-file-medical mr-1"></i>Report
+                                        </button>
+                                    </th:block>
+                                    
+                                    <!-- For CANCELLED appointments -->
+                                    <th:block th:if="${appointment.status.toString() == 'CANCELLED_BY_DOCTOR' || appointment.status.toString() == 'CANCELLED_BY_PATIENT'}">
+                                        <button
+                                            class="view-appointment-btn border border-primary text-primary px-3 py-2 rounded-lg text-sm font-medium hover:bg-primary hover:text-white transition-colors"
+                                            th:data-id="${appointment.id}"
+                                            th:data-patient-name="${appointment.patient.user.name}"
+                                            th:data-patient-phone="${appointment.patient.user.phone}"
+                                            th:data-patient-id="${appointment.patient.id}"
+                                            th:data-date="${#temporals.format(appointment.date, 'dd MMM yyyy')}"
+                                            th:data-time="${#temporals.format(appointment.slot, 'hh:mm a')}"
+                                            th:data-fee="${appointment.fee}"
+                                            th:data-meeting-link="${appointment.meetingLink}"
+                                            th:data-status="${appointment.status}">
+                                            <i class="fas fa-eye mr-1"></i>View
+                                        </button>
+                                    </th:block>
+
                                     <div class="relative">
                                         <button class="text-gray-400 hover:text-gray-600 p-2">
                                             <i class="fas fa-ellipsis-v"></i>
@@ -253,20 +309,26 @@
                         </div>
 
                         <!-- No appointments message -->
-                        <div th:if="${#lists.isEmpty(appointments)}" class="text-center py-8">
+                        <div th:if="${#lists.isEmpty(appointments)}" id="initialNoAppointments" class="text-center py-8">
                             <i class="fas fa-calendar-times text-gray-300 text-4xl mb-4"></i>
                             <p class="text-gray-500 text-lg font-medium">No appointments found</p>
-                            <p class="text-gray-400 text-sm">Your appointments will appear here once patients book them.
-                            </p>
+                            <p class="text-gray-400 text-sm">Your appointments will appear here once patients book them.</p>
+                        </div>
+                        
+                        <!-- No filtered appointments message -->
+                        <div id="noAppointmentsMessage" class="text-center py-8 hidden">
+                            <i class="fas fa-calendar-times text-gray-300 text-4xl mb-4"></i>
+                            <p class="text-gray-500 text-lg font-medium">No appointments found</p>
+                            <p class="text-gray-400 text-sm">No appointments match your current filters.</p>
                         </div>
                     </div>
 
                     <!-- Pagination -->
-                    <div class="flex items-center justify-between mt-8" th:if="${!#lists.isEmpty(appointments)}">
+                    <div class="flex items-center justify-between mt-8" id="paginationContainer" th:if="${!#lists.isEmpty(appointments)}">
                         <div class="text-sm text-gray-700">
-                            Showing <span class="font-medium">1</span> to <span class="font-medium"
-                                th:text="${#lists.size(appointments)}">0</span> of <span class="font-medium"
-                                th:text="${#lists.size(appointments)}">0</span> appointments
+                            Showing <span class="font-medium" id="showingFrom">1</span> to 
+                            <span class="font-medium" id="showingTo" th:text="${#lists.size(appointments)}">0</span> of 
+                            <span class="font-medium" id="totalCount" th:text="${#lists.size(appointments)}">0</span> appointments
                         </div>
                         <div class="flex items-center space-x-2">
                             <button
@@ -288,8 +350,126 @@
         </main>
     </div>
 
+    <!-- Appointment Details Modal -->
+    <div id="appointmentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Appointment Details</h3>
+                    <button onclick="closeAppointmentModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Modal Body -->
+                <div class="mt-4 space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Patient Name</label>
+                            <p id="modalPatientName" class="mt-1 text-sm text-gray-900"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Patient ID</label>
+                            <p id="modalPatientId" class="mt-1 text-sm text-gray-900"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Phone</label>
+                            <p id="modalPatientPhone" class="mt-1 text-sm text-gray-900"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Appointment Date</label>
+                            <p id="modalDate" class="mt-1 text-sm text-gray-900"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Time</label>
+                            <p id="modalTime" class="mt-1 text-sm text-gray-900"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Fee</label>
+                            <p id="modalFee" class="mt-1 text-sm text-gray-900"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Status</label>
+                            <p id="modalStatus" class="mt-1 text-sm"></p>
+                        </div>
+                        <div id="modalMeetingLinkContainer">
+                            <label class="block text-sm font-medium text-gray-700">Meeting Link</label>
+                            <div class="mt-1 flex items-center space-x-2">
+                                <p id="modalMeetingLink" class="text-sm text-primary underline cursor-pointer"></p>
+                                <button id="copyLinkBtn" onclick="copyMeetingLink()" class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modal Footer -->
+                <div class="flex items-center justify-end pt-4 border-t border-gray-200 space-x-2">
+                    <button onclick="closeAppointmentModal()" 
+                        class="px-4 py-2 bg-gray-200 text-gray-800 text-sm font-medium rounded-md hover:bg-gray-300 transition-colors">
+                        Close
+                    </button>
+                    <button id="modalJoinBtn" onclick="joinMeeting()" 
+                        class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors hidden">
+                        <i class="fas fa-video mr-1"></i>Join Meeting
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Mobile sidebar toggle (reuse from dashboard)
+        // Global variables
+        let allAppointments = [];
+        let filteredAppointments = [];
+        let currentTab = 'all';
+        let currentMeetingLink = '';
+
+        // Initialize appointments data and event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Collect all appointment data
+            const appointmentCards = document.querySelectorAll('.appointment-card');
+            allAppointments = Array.from(appointmentCards).map(card => ({
+                element: card,
+                status: card.dataset.status,
+                date: card.dataset.date,
+                patientName: card.dataset.patientName ? card.dataset.patientName.toLowerCase() : '',
+                patientId: card.dataset.patientId || ''
+            }));
+            
+            filteredAppointments = [...allAppointments];
+            updatePaginationInfo();
+
+            // Add event listeners for view appointment buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.view-appointment-btn')) {
+                    const btn = e.target.closest('.view-appointment-btn');
+                    const id = btn.dataset.id;
+                    const patientName = btn.dataset.patientName;
+                    const phone = btn.dataset.patientPhone;
+                    const patientId = 'P' + btn.dataset.patientId;
+                    const date = btn.dataset.date;
+                    const time = btn.dataset.time;
+                    const fee = '₹' + btn.dataset.fee;
+                    const meetingLink = btn.dataset.meetingLink;
+                    const status = btn.dataset.status;
+                    
+                    openAppointmentModal(id, patientName, phone, patientId, date, time, fee, meetingLink, status);
+                }
+                
+                if (e.target.closest('.start-meeting-btn')) {
+                    const btn = e.target.closest('.start-meeting-btn');
+                    const meetingLink = btn.dataset.meetingLink;
+                    if (meetingLink) {
+                        window.open('https://meet.google.com/' + meetingLink, '_blank');
+                    }
+                }
+            });
+        });
+
+        // Mobile sidebar toggle
         const openSidebar = document.getElementById('openSidebar');
         const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
 
@@ -298,7 +478,7 @@
                 const sidebar = document.getElementById('sidebar');
                 if (sidebar) {
                     sidebar.classList.remove('-translate-x-full');
-                    mobileMenuOverlay.classList.remove('hidden');
+                    if (mobileMenuOverlay) mobileMenuOverlay.classList.remove('hidden');
                 }
             });
         }
@@ -317,24 +497,29 @@
         const tableViewBtn = document.getElementById('tableViewBtn');
         const calendarViewBtn = document.getElementById('calendarViewBtn');
 
-        tableViewBtn.addEventListener('click', () => {
-            tableViewBtn.classList.add('text-primary', 'bg-white', 'shadow-sm');
-            tableViewBtn.classList.remove('text-gray-600');
-            calendarViewBtn.classList.remove('text-primary', 'bg-white', 'shadow-sm');
-            calendarViewBtn.classList.add('text-gray-600');
-        });
+        if (tableViewBtn && calendarViewBtn) {
+            tableViewBtn.addEventListener('click', () => {
+                tableViewBtn.classList.add('text-primary', 'bg-white', 'shadow-sm');
+                tableViewBtn.classList.remove('text-gray-600');
+                calendarViewBtn.classList.remove('text-primary', 'bg-white', 'shadow-sm');
+                calendarViewBtn.classList.add('text-gray-600');
+            });
 
-        calendarViewBtn.addEventListener('click', () => {
-            calendarViewBtn.classList.add('text-primary', 'bg-white', 'shadow-sm');
-            calendarViewBtn.classList.remove('text-gray-600');
-            tableViewBtn.classList.remove('text-primary', 'bg-white', 'shadow-sm');
-            tableViewBtn.classList.add('text-gray-600');
-        });
+            calendarViewBtn.addEventListener('click', () => {
+                calendarViewBtn.classList.add('text-primary', 'bg-white', 'shadow-sm');
+                calendarViewBtn.classList.remove('text-gray-600');
+                tableViewBtn.classList.remove('text-primary', 'bg-white', 'shadow-sm');
+                tableViewBtn.classList.add('text-gray-600');
+            });
+        }
 
         // Tab functionality
-        const tabs = document.querySelectorAll('nav[aria-label="Tabs"] button');
+        const tabs = document.querySelectorAll('.tab-button');
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
+                const tabType = tab.dataset.tab;
+                currentTab = tabType;
+                
                 // Remove active state from all tabs
                 tabs.forEach(t => {
                     t.classList.remove('border-primary', 'text-primary');
@@ -344,7 +529,346 @@
                 // Add active state to clicked tab
                 tab.classList.add('border-primary', 'text-primary');
                 tab.classList.remove('border-transparent', 'text-gray-500');
+                
+                // Apply filters
+                applyAllFilters();
             });
+        });
+
+        // Filter functionality
+        const applyFiltersBtn = document.getElementById('applyFilters');
+        const clearFiltersBtn = document.getElementById('clearFilters');
+        const searchFilter = document.getElementById('searchFilter');
+
+        if (applyFiltersBtn) applyFiltersBtn.addEventListener('click', applyAllFilters);
+        if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', clearAllFilters);
+        if (searchFilter) searchFilter.addEventListener('input', applyAllFilters);
+
+        function applyAllFilters() {
+            const dateFilter = document.getElementById('dateFilter').value;
+            const searchFilterValue = document.getElementById('searchFilter').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            filteredAppointments = allAppointments.filter(appointment => {
+                // Date filter
+                if (dateFilter && appointment.date !== dateFilter) {
+                    return false;
+                }
+
+                // Search filter (name or ID)
+                if (searchFilterValue && 
+                    !appointment.patientName.includes(searchFilterValue) && 
+                    !appointment.patientId.includes(searchFilterValue)) {
+                    return false;
+                }
+
+                // Status filter
+                if (statusFilter && appointment.status !== statusFilter) {
+                    return false;
+                }
+
+                // Tab filter
+                const today = new Date().toISOString().split('T')[0];
+                switch (currentTab) {
+                    case 'today':
+                        return appointment.date === today;
+                    case 'upcoming':
+                        return appointment.date > today && appointment.status === 'BOOKED';
+                    case 'completed':
+                        return appointment.status === 'COMPLETED';
+                    case 'cancelled':
+                        return appointment.status === 'CANCELLED_BY_DOCTOR' || appointment.status === 'CANCELLED_BY_PATIENT';
+                    default:
+                        return true;
+                }
+            });
+
+            // Show/hide appointments
+            allAppointments.forEach(appointment => {
+                if (filteredAppointments.includes(appointment)) {
+                    appointment.element.style.display = 'block';
+                } else {
+                    appointment.element.style.display = 'none';
+                }
+            });
+
+            // Show/hide no results message
+            const noAppointmentsMessage = document.getElementById('noAppointmentsMessage');
+            const initialNoAppointments = document.getElementById('initialNoAppointments');
+            
+            if (filteredAppointments.length === 0) {
+                if (noAppointmentsMessage) noAppointmentsMessage.classList.remove('hidden');
+                if (initialNoAppointments) initialNoAppointments.style.display = 'none';
+            } else {
+                if (noAppointmentsMessage) noAppointmentsMessage.classList.add('hidden');
+                if (initialNoAppointments) initialNoAppointments.style.display = 'none';
+            }
+
+            updatePaginationInfo();
+        }
+
+        function clearAllFilters() {
+            const dateFilterEl = document.getElementById('dateFilter');
+            const searchFilterEl = document.getElementById('searchFilter');
+            const statusFilterEl = document.getElementById('statusFilter');
+            
+            if (dateFilterEl) dateFilterEl.value = '';
+            if (searchFilterEl) searchFilterEl.value = '';
+            if (statusFilterEl) statusFilterEl.value = '';
+            
+            // Reset to all tab
+            currentTab = 'all';
+            const allTab = document.querySelector('[data-tab="all"]');
+            
+            // Reset tab styles
+            tabs.forEach(t => {
+                t.classList.remove('border-primary', 'text-primary');
+                t.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            if (allTab) {
+                allTab.classList.add('border-primary', 'text-primary');
+                allTab.classList.remove('border-transparent', 'text-gray-500');
+            }
+            
+            applyAllFilters();
+        }
+
+        function updatePaginationInfo() {
+            const totalCount = filteredAppointments.length;
+            const showingFrom = totalCount > 0 ? 1 : 0;
+            const showingTo = totalCount;
+
+            const showingFromEl = document.getElementById('showingFrom');
+            const showingToEl = document.getElementById('showingTo');
+            const totalCountEl = document.getElementById('totalCount');
+
+            if (showingFromEl) showingFromEl.textContent = showingFrom;
+            if (showingToEl) showingToEl.textContent = showingTo;
+            if (totalCountEl) totalCountEl.textContent = totalCount;
+
+            const paginationContainer = document.getElementById('paginationContainer');
+            if (paginationContainer) {
+                if (totalCount === 0) {
+                    paginationContainer.classList.add('hidden');
+                } else {
+                    paginationContainer.classList.remove('hidden');
+                }
+            }
+        }
+
+        // Export functionality
+        const exportBtn = document.getElementById('exportBtn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', function() {
+                const csvContent = generateCSV();
+                downloadCSV(csvContent, 'appointments.csv');
+            });
+        }
+
+        function generateCSV() {
+            const headers = ['Patient Name', 'Patient ID', 'Phone', 'Date', 'Time', 'Fee', 'Status', 'Meeting Link'];
+            const rows = [headers.join(',')];
+
+            filteredAppointments.forEach(appointment => {
+                const card = appointment.element;
+                const patientNameEl = card.querySelector('h4');
+                const patientInfoEl = card.querySelector('.text-sm.text-gray-600');
+                const dateTimeEl = card.querySelector('.font-medium.text-gray-900');
+                const feeEl = card.querySelector('.text-gray-500');
+                const statusEl = card.querySelector('.text-xs.px-2.py-1.rounded-full');
+                
+                const patientName = patientNameEl ? patientNameEl.textContent : '';
+                const patientInfo = patientInfoEl ? patientInfoEl.textContent : '';
+                const phone = patientInfo.split(' • ')[0] || '';
+                const patientId = patientInfo.split(' • ')[1] || '';
+                const dateTime = dateTimeEl ? dateTimeEl.textContent : '';
+                const [date, time] = dateTime.split(', ');
+                const fee = feeEl ? feeEl.textContent : '';
+                const status = statusEl ? statusEl.textContent : '';
+                const meetingLink = '';
+
+                const row = [
+                    `"${patientName}"`,
+                    `"${patientId}"`,
+                    `"${phone}"`,
+                    `"${date || ''}"`,
+                    `"${time || ''}"`,
+                    `"${fee}"`,
+                    `"${status}"`,
+                    `"${meetingLink}"`
+                ];
+                rows.push(row.join(','));
+            });
+
+            return rows.join('\n');
+        }
+
+        function downloadCSV(csvContent, filename) {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Meeting link validation
+        function validateMeetingLink(event) {
+            const input = event.target.querySelector('.meeting-link-input');
+            if (!input) return true;
+            
+            const meetingCode = input.value.trim();
+            
+            // Validate Google Meet code format
+            const meetingCodePattern = /^[a-zA-Z0-9]{3}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{3}$/;
+            
+            if (!meetingCodePattern.test(meetingCode)) {
+                alert('Please enter a valid Google Meet code in the format: abc-defg-hij');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Modal functionality
+        function openAppointmentModal(id, patientName, phone, patientId, date, time, fee, meetingLink, status) {
+            const modal = document.getElementById('appointmentModal');
+            if (!modal) return;
+
+            const modalPatientName = document.getElementById('modalPatientName');
+            const modalPatientPhone = document.getElementById('modalPatientPhone');
+            const modalPatientId = document.getElementById('modalPatientId');
+            const modalDate = document.getElementById('modalDate');
+            const modalTime = document.getElementById('modalTime');
+            const modalFee = document.getElementById('modalFee');
+            const modalStatus = document.getElementById('modalStatus');
+
+            if (modalPatientName) modalPatientName.textContent = patientName;
+            if (modalPatientPhone) modalPatientPhone.textContent = phone;
+            if (modalPatientId) modalPatientId.textContent = patientId;
+            if (modalDate) modalDate.textContent = date;
+            if (modalTime) modalTime.textContent = time;
+            if (modalFee) modalFee.textContent = fee;
+            
+            // Set status with appropriate styling
+            if (modalStatus) {
+                modalStatus.textContent = getStatusText(status);
+                modalStatus.className = 'mt-1 text-sm px-2 py-1 rounded-full inline-block ' + getStatusClass(status);
+            }
+            
+            // Handle meeting link
+            const meetingLinkContainer = document.getElementById('modalMeetingLinkContainer');
+            const meetingLinkElement = document.getElementById('modalMeetingLink');
+            const joinBtn = document.getElementById('modalJoinBtn');
+            
+            if (meetingLink && meetingLink !== 'null' && meetingLink.trim() !== '') {
+                currentMeetingLink = `https://meet.google.com/${meetingLink}`;
+                if (meetingLinkElement) {
+                    meetingLinkElement.textContent = meetingLink;
+                    meetingLinkElement.onclick = () => window.open(currentMeetingLink, '_blank');
+                }
+                if (meetingLinkContainer) meetingLinkContainer.style.display = 'block';
+                
+                if (joinBtn) {
+                    if (status === 'BOOKED') {
+                        joinBtn.classList.remove('hidden');
+                    } else {
+                        joinBtn.classList.add('hidden');
+                    }
+                }
+            } else {
+                if (meetingLinkContainer) meetingLinkContainer.style.display = 'none';
+                if (joinBtn) joinBtn.classList.add('hidden');
+                currentMeetingLink = '';
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeAppointmentModal() {
+            const modal = document.getElementById('appointmentModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function getStatusText(status) {
+            switch (status) {
+                case 'BOOKED':
+                    return 'Confirmed';
+                case 'COMPLETED':
+                    return 'Completed';
+                case 'CANCELLED_BY_DOCTOR':
+                    return 'Cancelled by Doctor';
+                case 'CANCELLED_BY_PATIENT':
+                    return 'Cancelled by Patient';
+                default:
+                    return status;
+            }
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'BOOKED':
+                    return 'bg-green-100 text-green-800';
+                case 'COMPLETED':
+                    return 'bg-blue-100 text-blue-800';
+                case 'CANCELLED_BY_DOCTOR':
+                case 'CANCELLED_BY_PATIENT':
+                    return 'bg-red-100 text-red-800';
+                default:
+                    return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function copyMeetingLink() {
+            if (currentMeetingLink) {
+                navigator.clipboard.writeText(currentMeetingLink).then(() => {
+                    // Show temporary feedback
+                    const copyBtn = document.getElementById('copyLinkBtn');
+                    if (copyBtn) {
+                        const originalIcon = copyBtn.innerHTML;
+                        copyBtn.innerHTML = '<i class="fas fa-check text-green-600"></i>';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalIcon;
+                        }, 2000);
+                    }
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = currentMeetingLink;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                });
+            }
+        }
+
+        function joinMeeting() {
+            if (currentMeetingLink) {
+                window.open(currentMeetingLink, '_blank');
+            }
+        }
+
+        // Close modal when clicking outside
+        const appointmentModal = document.getElementById('appointmentModal');
+        if (appointmentModal) {
+            appointmentModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeAppointmentModal();
+                }
+            });
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAppointmentModal();
+            }
         });
     </script>
 </body>

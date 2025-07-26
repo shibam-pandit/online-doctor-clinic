@@ -85,8 +85,9 @@ public class DoctorController {
 
         // Calculate counts for different appointment statuses
         long todayCount = appointments.stream()
-                .filter(app -> app.getDate().equals(java.time.LocalDate.now()))
-                .count();
+            .filter(app -> app.getDate().equals(java.time.LocalDate.now()) &&
+                app.getStatus() == Appointment.AppointmentStatus.BOOKED)
+            .count();
 
         long completedCount = appointments.stream()
                 .filter(app -> app.getStatus() == Appointment.AppointmentStatus.COMPLETED)
@@ -109,6 +110,29 @@ public class DoctorController {
         model.addAttribute("upcomingAppointmentsCount", upcomingCount);
 
         return "doctor/appointments";
+    }
+
+    @PostMapping("/appointments/add-meeting-link/{id}")
+    public String addMeetingLink(@PathVariable("id") Long appointmentId,
+            @RequestParam("meetingLink") String meetingLink,
+            Principal principal, 
+            Model model) {
+        String email = principal.getName();
+        Doctor doctor = doctorService.findByUserEmail(email);
+
+        if (doctor == null || !doctor.isApproved()) {
+            return "redirect:/doctor/wait";
+        }
+
+        try {
+            doctorService.addMeetingLinkToAppointment(appointmentId, meetingLink);
+        } catch (Exception e) {
+            model.addAttribute("error", "Failed to add meeting link. Please try again.");
+            e.printStackTrace(); // Log the error for debugging
+            return "doctor/appointments"; // Redirect back to appointments page with error message
+        }
+
+        return "redirect:/doctor/appointments";
     }
 
     @GetMapping("/availability")

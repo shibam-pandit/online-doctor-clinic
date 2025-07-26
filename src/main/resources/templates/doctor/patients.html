@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head th:replace="~{doctor/header :: head('Patients - Doctor Dashboard')}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
-
-<body class="font-inter antialiased bg-gray-50">
-
-    <!-- Include Doctor Sidebar with activeMenu parameter -->
-    <th:block
-        th:replace="~{fragments/doctor-sidebar :: doctor-sidebar('patients', ${doctor.getUser().getName()}, ${doctor.getSpecialization()})}">
-    </th:block>
+<body class="font-sans antialiased bg-gray-50">
+    <!-- Sidebar -->
+    <th:block th:replace="~{fragments/doctor-sidebar :: doctor-sidebar('patients', ${doctor.getUser().getName()}, ${doctor.getSpecialization()})}"></th:block>
 
     <!-- Main Content -->
     <div class="lg:pl-64">
@@ -22,16 +19,14 @@
                         <p class="text-sm text-gray-600">Manage your patient records and history</p>
                     </div>
                 </div>
-
                 <div class="flex items-center space-x-4">
-                    <!-- Patient Stats -->
                     <div class="hidden sm:flex items-center space-x-6 text-sm">
                         <div class="text-center">
-                            <div class="text-lg font-bold text-primary" th:text="${totalPatients}">127</div>
+                            <div class="text-lg font-bold text-blue-600" th:text="${totalPatients}">0</div>
                             <div class="text-gray-600">Total Patients</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-lg font-bold text-secondary" th:text="${newPatientsThisMonth}">15</div>
+                            <div class="text-lg font-bold text-green-600" th:text="${newPatientsThisMonth}">0</div>
                             <div class="text-gray-600">New This Month</div>
                         </div>
                     </div>
@@ -44,116 +39,99 @@
             <!-- Search and Filter Bar -->
             <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-                    <!-- Search -->
                     <div class="flex-1 max-w-md">
                         <div class="relative">
-                            <input type="text" placeholder="Search patients by name, email, or phone..."
-                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <input id="searchInput" type="text" placeholder="Search patients by name, email, or phone..."
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent">
                             <i class="fas fa-search absolute left-3 top-4 text-gray-400"></i>
                         </div>
                     </div>
-
-                    <!-- Filters -->
                     <div class="flex items-center space-x-4">
-                        <select
-                            class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <select id="filterSelect"
+                            class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent">
                             <option value="">All Patients</option>
                             <option value="recent">Recent Visits</option>
                             <option value="frequent">Frequent Patients</option>
                             <option value="new">New Patients</option>
                         </select>
-
-                        <button
-                            class="border border-gray-300 text-gray-700 px-4 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-                            <i class="fas fa-download mr-2"></i>Export
-                        </button>
+                        <form action="/doctor/patients/export" method="get">
+                            <button type="submit"
+                                class="border border-gray-300 text-gray-600 px-4 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-download mr-2"></i>Export
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
 
             <!-- Patients Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                <!-- Patient Card -->
-                <div th:each="patient : ${patientsList}"
-                    class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <div id="patientsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div th:each="patient : ${patientsList}" class="patient-card bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                    th:data-id="${patient.id}"
+                    th:data-name="${patient.name}"
+                    th:data-email="${patient.email}"
+                    th:data-phone="${patient.phone}"
+                    th:data-total-visits="${patient.totalVisits}"
+                    th:data-last-visit="${patient.lastVisitDate}">
                     <div class="p-6">
-                        <!-- Patient Header -->
                         <div class="flex items-center space-x-4 mb-4">
                             <div class="relative">
-                                <img th:src="${patient.profileImage ?: 'https://via.placeholder.com/64'}"
+                                <img th:src="${patient.profileImage ?: 'https://via.placeholder.com/blank'}"
                                     th:alt="${patient.name ?: 'Patient'}"
                                     class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
-                                <div
-                                    class="absolute -bottom-1 -right-1 w-5 h-5 bg-secondary rounded-full border-2 border-white flex items-center justify-center">
+                                <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-600 rounded-full border-2 border-white flex items-center justify-center">
                                     <i class="fas fa-check text-white text-xs"></i>
                                 </div>
                             </div>
                             <div class="flex-1">
-                                <h3 class="text-lg font-semibold text-gray-900" th:text="${patient.name ?: 'Unknown'}">
-                                    Sneha Gupta</h3>
+                                <h3 class="text-lg font-semibold text-gray-900" th:text="${patient.name ?: 'Unknown'}">Unknown</h3>
                                 <p class="text-sm text-gray-600">
-                                    <span th:text="${patient.gender ?: 'N/A'}">Female</span>,
-                                    <span th:text="${patient.age ?: 'N/A'}">28</span> years
+                                    <span th:text="${patient.gender ?: 'N/A'}">N/A</span>,
+                                    <span th:text="${patient.age ?: 'N/A'}">N/A</span> years
                                 </p>
                             </div>
                         </div>
-
-                        <!-- Contact Information -->
                         <div class="space-y-3 mb-4">
                             <div class="flex items-center space-x-3">
                                 <i class="fas fa-envelope text-gray-400 w-4"></i>
-                                <span class="text-sm text-gray-600"
-                                    th:text="${patient.email ?: 'N/A'}">sneha.gupta@email.com</span>
+                                <span class="text-sm text-gray-600" th:text="${patient.email ?: 'N/A'}">N/A</span>
                             </div>
                             <div class="flex items-center space-x-3">
                                 <i class="fas fa-phone text-gray-400 w-4"></i>
-                                <span class="text-sm text-gray-600" th:text="${patient.phone ?: 'N/A'}">+91 98765
-                                    43210</span>
+                                <span class="text-sm text-gray-600" th:text="${patient.phone ?: 'N/A'}">N/A</span>
                             </div>
                         </div>
-
-                        <!-- Visit Statistics -->
                         <div class="grid grid-cols-2 gap-4 mb-4">
                             <div class="text-center p-3 bg-blue-50 rounded-lg">
-                                <div class="text-xl font-bold text-primary" th:text="${patient.totalVisits ?: 0}">12
-                                </div>
+                                <div class="text-xl font-bold text-blue-600" th:text="${patient.totalVisits ?: 0}">0</div>
                                 <div class="text-xs text-gray-600">Total Visits</div>
                             </div>
                             <div class="text-center p-3 bg-green-50 rounded-lg">
-                                <div class="text-sm font-medium text-secondary"
-                                    th:text="${patient.lastVisitDate != null ? #temporals.format(patient.lastVisitDate, 'MMM dd') : 'N/A'}">
-                                    Mar 10</div>
+                                <div class="text-sm font-medium text-green-600"
+                                    th:text="${patient.lastVisitDate != null ? #temporals.format(patient.lastVisitDate, 'MMM dd') : 'N/A'}">N/A</div>
                                 <div class="text-xs text-gray-600">Last Visit</div>
                             </div>
                         </div>
-
-                        <!-- Last Prescription Snippet -->
                         <div class="mb-4">
                             <div class="flex items-center space-x-2 mb-2">
-                                <i class="fas fa-prescription-bottle-alt text-accent text-sm"></i>
+                                <i class="fas fa-prescription-bottle-alt text-yellow-600 text-sm"></i>
                                 <span class="text-sm font-medium text-gray-700">Last Prescription</span>
                             </div>
                             <div class="bg-gray-50 rounded-lg p-3">
                                 <p class="text-sm text-gray-600 line-clamp-2"
-                                    th:text="${patient.lastPrescriptionSnippet ?: 'No prescription available'}">
-                                    Paracetamol 500mg - Take twice daily after meals for 3 days. Rest and plenty of
-                                    fluids recommended...
-                                </p>
+                                    th:text="${patient.lastPrescriptionSnippet ?: 'No prescription available'}">No prescription available</p>
                             </div>
                         </div>
-
-                        <!-- Action Buttons -->
                         <div class="flex space-x-2">
-                            <button th:onclick="'openPatientModal(' + ${patient.id} + ')'"
-                                class="flex-1 bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm">
+                            <button onclick="openPatientModal(this)"
+                                th:data-id="${patient.id}"
+                                class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm">
                                 <i class="fas fa-history mr-2"></i>View History
                             </button>
-                            <button
-                                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                            <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                                 <i class="fas fa-video"></i>
                             </button>
-                            <button
-                                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                            <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                                 <i class="fas fa-prescription"></i>
                             </button>
                         </div>
@@ -162,222 +140,258 @@
             </div>
 
             <!-- Empty State -->
-            <div th:if="${#lists.isEmpty(patientsList)}" class="text-center py-16">
+            <div id="emptyState" class="text-center py-16 hidden">
                 <i class="fas fa-users text-gray-300 text-6xl mb-4"></i>
                 <h3 class="text-xl font-medium text-gray-900 mb-2">No Patients Found</h3>
-                <p class="text-gray-600 mb-6">You haven't seen any patients yet. Your patient records will appear here.
-                </p>
+                <p class="text-gray-600 mb-6">You haven't seen any patients yet. Your patient records will appear here.</p>
             </div>
 
             <!-- Pagination -->
-            <div th:if="${!#lists.isEmpty(patientsList)}" class="flex items-center justify-between mt-8">
-                <div class="text-sm text-gray-700">
-                    Showing <span class="font-medium">1</span> to <span class="font-medium">12</span> of <span
-                        class="font-medium" th:text="${totalPatients}">127</span> patients
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button
-                        class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                        Previous
-                    </button>
-                    <button
-                        class="px-3 py-2 text-sm font-medium text-white bg-primary border border-primary rounded-lg">
-                        1
-                    </button>
-                    <button
-                        class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                        2
-                    </button>
-                    <button
-                        class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                        3
-                    </button>
-                    <button
-                        class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                        Next
-                    </button>
+            <div id="pagination" class="flex items-center justify-between mt-8" th:unless="${#lists.isEmpty(patientsList)}">
+                <div id="paginationInfo" class="text-sm text-gray-700"></div>
+                <div id="paginationButtons" class="flex items-center space-x-2"></div>
+            </div>
+
+            <!-- Patient History Modal -->
+            <div id="patientModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+                <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                        <div class="flex items-center space-x-4">
+                            <img id="modalPatientImage" src="https://via.placeholder.com/64" alt="Patient"
+                                class="w-12 h-12 rounded-full object-cover">
+                            <div>
+                                <h2 id="modalPatientName" class="text-xl font-semibold text-gray-900">Patient History</h2>
+                                <p id="modalPatientInfo" class="text-sm text-gray-600">Complete medical history and prescriptions</p>
+                            </div>
+                        </div>
+                        <button onclick="closePatientModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div id="modalContent" class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]"></div>
+                    <div class="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+                        <div class="flex space-x-3">
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-prescription mr-2"></i>New Prescription
+                            </button>
+                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors">
+                                <i class="fas fa-calendar-plus mr-2"></i>Schedule Appointment
+                            </button>
+                        </div>
+                        <form id="exportHistoryForm" action="/doctor/patients/export" method="get">
+                            <input type="hidden" id="exportPatientId" name="patientId">
+                            <button type="submit"
+                                class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-download mr-2"></i>Export History
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Patient History Modal -->
-    <div id="patientModal"
-        class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            <!-- Modal Header -->
-            <div class="flex items-center justify-between p-6 border-b border-gray-200">
-                <div class="flex items-center space-x-4">
-                    <img id="modalPatientImage"
-                        src="https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=100"
-                        alt="Patient" class="w-12 h-12 rounded-full object-cover">
-                    <div>
-                        <h2 id="modalPatientName" class="text-xl font-semibold text-gray-900">Patient History</h2>
-                        <p id="modalPatientInfo" class="text-sm text-gray-600">Complete medical history and
-                            prescriptions</p>
-                    </div>
-                </div>
-                <button onclick="closePatientModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-
-            <!-- Modal Content -->
-            <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-                <!-- Patient Summary -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-blue-50 rounded-lg p-4 text-center">
-                        <div class="text-2xl font-bold text-primary" id="modalTotalVisits">12</div>
-                        <div class="text-sm text-gray-600">Total Visits</div>
-                    </div>
-                    <div class="bg-green-50 rounded-lg p-4 text-center">
-                        <div class="text-2xl font-bold text-secondary" id="modalLastVisit">Mar 10, 2024</div>
-                        <div class="text-sm text-gray-600">Last Visit</div>
-                    </div>
-                    <div class="bg-yellow-50 rounded-lg p-4 text-center">
-                        <div class="text-2xl font-bold text-accent" id="modalFirstVisit">Jan 15, 2024</div>
-                        <div class="text-sm text-gray-600">First Visit</div>
-                    </div>
-                </div>
-
-                <!-- Visit History Timeline -->
-                <div class="space-y-6">
-                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-                        <i class="fas fa-history text-primary mr-2"></i>Visit History
-                    </h3>
-
-                    <!-- Timeline Item -->
-                    <div class="relative pl-8 border-l-2 border-gray-200">
-                        <div class="absolute -left-2 top-0 w-4 h-4 bg-primary rounded-full border-2 border-white"></div>
-                        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                            <div class="flex items-center justify-between mb-2">
-                                <h4 class="font-medium text-gray-900">General Consultation</h4>
-                                <span class="text-sm text-gray-500">March 10, 2024</span>
-                            </div>
-                            <div class="mb-3">
-                                <span class="text-sm font-medium text-gray-700">Symptoms:</span>
-                                <span class="text-sm text-gray-600">Fever, headache, body ache</span>
-                            </div>
-                            <div class="bg-gray-50 rounded-lg p-3">
-                                <div class="text-sm font-medium text-gray-700 mb-2">Prescription:</div>
-                                <div class="text-sm text-gray-600 space-y-1">
-                                    <div>• Paracetamol 500mg - Take twice daily after meals for 3 days</div>
-                                    <div>• Rest and plenty of fluids recommended</div>
-                                    <div>• Follow up if symptoms persist beyond 3 days</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Timeline Item -->
-                    <div class="relative pl-8 border-l-2 border-gray-200">
-                        <div class="absolute -left-2 top-0 w-4 h-4 bg-secondary rounded-full border-2 border-white">
-                        </div>
-                        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                            <div class="flex items-center justify-between mb-2">
-                                <h4 class="font-medium text-gray-900">Follow-up Consultation</h4>
-                                <span class="text-sm text-gray-500">February 28, 2024</span>
-                            </div>
-                            <div class="mb-3">
-                                <span class="text-sm font-medium text-gray-700">Symptoms:</span>
-                                <span class="text-sm text-gray-600">Routine check-up, feeling better</span>
-                            </div>
-                            <div class="bg-gray-50 rounded-lg p-3">
-                                <div class="text-sm font-medium text-gray-700 mb-2">Prescription:</div>
-                                <div class="text-sm text-gray-600 space-y-1">
-                                    <div>• Vitamin D3 supplements - Once daily for 30 days</div>
-                                    <div>• Continue healthy diet and regular exercise</div>
-                                    <div>• Next check-up in 3 months</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Timeline Item -->
-                    <div class="relative pl-8">
-                        <div class="absolute -left-2 top-0 w-4 h-4 bg-accent rounded-full border-2 border-white"></div>
-                        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                            <div class="flex items-center justify-between mb-2">
-                                <h4 class="font-medium text-gray-900">Initial Consultation</h4>
-                                <span class="text-sm text-gray-500">January 15, 2024</span>
-                            </div>
-                            <div class="mb-3">
-                                <span class="text-sm font-medium text-gray-700">Symptoms:</span>
-                                <span class="text-sm text-gray-600">General health check-up, new patient</span>
-                            </div>
-                            <div class="bg-gray-50 rounded-lg p-3">
-                                <div class="text-sm font-medium text-gray-700 mb-2">Prescription:</div>
-                                <div class="text-sm text-gray-600 space-y-1">
-                                    <div>• Complete blood work recommended</div>
-                                    <div>• Maintain healthy lifestyle</div>
-                                    <div>• Schedule follow-up in 4 weeks</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
-                <div class="flex space-x-3">
-                    <button
-                        class="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                        <i class="fas fa-prescription mr-2"></i>New Prescription
-                    </button>
-                    <button
-                        class="bg-secondary text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors">
-                        <i class="fas fa-calendar-plus mr-2"></i>Schedule Appointment
-                    </button>
-                </div>
-                <button
-                    class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-                    <i class="fas fa-download mr-2"></i>Export History
-                </button>
-            </div>
-        </div>
-    </div>
-
     <script>
+        const PAGE_SIZE = 12;
+        let currentPage = 1;
+        let currentFilter = '';
+        let currentSearch = '';
+        let allPatients = [];
 
-        // Patient Modal Functions
-        function openPatientModal(patientId) {
-            // In a real application, you would fetch patient data based on patientId
-            const modal = document.getElementById('patientModal');
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+        // Initialize patient data from DOM
+        function initializePatients() {
+            const cards = document.querySelectorAll('.patient-card');
+            allPatients = Array.from(cards).map(card => ({
+                id: card.dataset.id,
+                name: card.dataset.name || '',
+                email: card.dataset.email || '',
+                phone: card.dataset.phone || '',
+                totalVisits: parseInt(card.dataset.totalVisits) || 0,
+                lastVisit: card.dataset.lastVisit ? new Date(card.dataset.lastVisit) : null,
+                element: card
+            }));
+            applyFiltersAndRender(1);
         }
 
+        // Apply filters and render patients
+        function applyFiltersAndRender(page) {
+            let filteredPatients = [...allPatients];
+
+            // Apply search
+            if (currentSearch) {
+                const searchTerm = currentSearch.toLowerCase();
+                filteredPatients = filteredPatients.filter(p =>
+                    p.name.toLowerCase().includes(searchTerm) ||
+                    p.email.toLowerCase().includes(searchTerm) ||
+                    p.phone.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // Apply filter
+            if (currentFilter) {
+                if (currentFilter === 'recent') {
+                    filteredPatients.sort((a, b) => (b.lastVisit || new Date(0)) - (a.lastVisit || new Date(0)));
+                } else if (currentFilter === 'frequent') {
+                    filteredPatients.sort((a, b) => b.totalVisits - a.totalVisits);
+                } else if (currentFilter === 'new') {
+                    const thirtyDaysAgo = new Date();
+                    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                    filteredPatients = filteredPatients.filter(p => p.lastVisit && p.lastVisit >= thirtyDaysAgo);
+                }
+            }
+
+            // Paginate
+            const totalElements = filteredPatients.length;
+            const totalPages = Math.ceil(totalElements / PAGE_SIZE);
+            const start = (page - 1) * PAGE_SIZE;
+            const end = start + PAGE_SIZE;
+            const paginatedPatients = filteredPatients.slice(start, end);
+
+            // Render
+            const grid = document.getElementById('patientsGrid');
+            grid.innerHTML = '';
+            const emptyState = document.getElementById('emptyState');
+            const pagination = document.getElementById('pagination');
+
+            if (paginatedPatients.length === 0) {
+                emptyState.classList.remove('hidden');
+                pagination.classList.add('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            pagination.classList.remove('hidden');
+
+            paginatedPatients.forEach(p => grid.appendChild(p.element));
+            renderPagination(totalElements, totalPages, page);
+        }
+
+        // Render pagination
+        function renderPagination(totalElements, totalPages, page) {
+            const paginationInfo = document.getElementById('paginationInfo');
+            const paginationButtons = document.getElementById('paginationButtons');
+            const start = (page - 1) * PAGE_SIZE + 1;
+            const end = Math.min(page * PAGE_SIZE, totalElements);
+
+            paginationInfo.textContent = `Showing ${start} to ${end} of ${totalElements} patients`;
+            paginationButtons.innerHTML = `
+                <button ${page === 1 ? 'disabled' : ''} onclick="applyFiltersAndRender(${page - 1})"
+                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 ${page === 1 ? 'opacity-50 cursor-not-allowed' : ''}">
+                    Previous
+                </button>
+                ${Array.from({ length: totalPages }, (_, i) => `
+                    <button onclick="applyFiltersAndRender(${i + 1})"
+                        class="px-3 py-2 text-sm font-medium ${i + 1 === page ? 'text-white bg-blue-600 border-blue-600' : 'text-gray-500 bg-white border-gray-300'} rounded-lg hover:bg-gray-50">
+                        ${i + 1}
+                    </button>
+                `).join('')}
+                <button ${page === totalPages ? 'disabled' : ''} onclick="applyFiltersAndRender(${page + 1})"
+                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 ${page === totalPages ? 'opacity-50 cursor-not-allowed' : ''}">
+                    Next
+                </button>
+            `;
+        }
+
+        // Open patient modal
+        async function openPatientModal(button) {
+            const patientId = button.dataset.id;
+            const patient = allPatients.find(p => p.id == patientId);
+            const modal = document.getElementById('patientModal');
+            const modalPatientImage = document.getElementById('modalPatientImage');
+            const modalPatientName = document.getElementById('modalPatientName');
+            const modalPatientInfo = document.getElementById('modalPatientInfo');
+            const modalContent = document.getElementById('modalContent');
+            const exportPatientId = document.getElementById('exportPatientId');
+
+            try {
+                const response = await fetch(`/doctor/patients/${patientId}/history`);
+                if (!response.ok) throw new Error('Failed to fetch patient history');
+                const visitHistory = await response.json();
+
+                modalPatientImage.src = button.closest('.patient-card').querySelector('img').src;
+                modalPatientName.textContent = patient.name || 'Patient History';
+                modalPatientInfo.textContent = `${button.closest('.patient-card').querySelector('p').textContent}`;
+                exportPatientId.value = patientId;
+
+                modalContent.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-blue-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-blue-600">${patient.totalVisits || 0}</div>
+                            <div class="text-sm text-gray-600">Total Visits</div>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-green-600">${patient.lastVisit ? new Date(patient.lastVisit).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'N/A'}</div>
+                            <div class="text-sm text-gray-600">Last Visit</div>
+                        </div>
+                        <div class="bg-yellow-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-yellow-600">${visitHistory.length > 0 ? new Date(visitHistory[visitHistory.length - 1].date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'N/A'}</div>
+                            <div class="text-sm text-gray-600">First Visit</div>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-history text-blue-600 mr-2"></i>Visit History
+                        </h3>
+                        ${visitHistory.length > 0 ? visitHistory.map(visit => `
+                            <div class="relative pl-8 border-l-2 border-gray-200">
+                                <div class="absolute -left-2 top-0 w-4 h-4 bg-blue-600 rounded-full border-2 border-white"></div>
+                                <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <h4 class="font-medium text-gray-900">${visit.type || 'Consultation'}</h4>
+                                        <span class="text-sm text-gray-500">${visit.date ? new Date(visit.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'N/A'}</span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <span class="text-sm font-medium text-gray-700">Symptoms:</span>
+                                        <span class="text-sm text-gray-600">${visit.symptoms || 'N/A'}</span>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-lg p-3">
+                                        <div class="text-sm font-medium text-gray-700 mb-2">Prescription:</div>
+                                        <div class="text-sm text-gray-600 space-y-1">
+                                            ${visit.prescription ? visit.prescription.map(p => `<div>• ${p}</div>`).join('') : '<div>No prescription</div>'}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('') : '<p class="text-gray-600">No visit history available</p>'}
+                    </div>
+                `;
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } catch (error) {
+                console.error('Error fetching patient history:', error);
+                modalContent.innerHTML = '<p class="text-red-600">Failed to load history</p>';
+                modal.classList.remove('hidden');
+            }
+        }
+
+        // Close patient modal
         function closePatientModal() {
             const modal = document.getElementById('patientModal');
             modal.classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
 
-        // Close modal when clicking outside
-        document.getElementById('patientModal').addEventListener('click', function (e) {
-            if (e.target === this) {
-                closePatientModal();
-            }
+        // Event listeners
+        document.getElementById('patientModal').addEventListener('click', function(e) {
+            if (e.target === this) closePatientModal();
         });
 
-        // Close modal with Escape key
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                closePatientModal();
-            }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closePatientModal();
         });
 
-        // Search functionality
-        const searchInput = document.querySelector('input[placeholder*="Search patients"]');
-        if (searchInput) {
-            searchInput.addEventListener('input', function (e) {
-                const searchTerm = e.target.value.toLowerCase();
-                // In a real application, you would filter the patient cards based on the search term
-                console.log('Searching for:', searchTerm);
-            });
-        }
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            currentSearch = e.target.value;
+            applyFiltersAndRender(1);
+        });
+
+        document.getElementById('filterSelect').addEventListener('change', function(e) {
+            currentFilter = e.target.value;
+            applyFiltersAndRender(1);
+        });
+
+        // Initialize
+        window.addEventListener('load', initializePatients);
     </script>
 </body>
-
 </html>

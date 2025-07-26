@@ -17,7 +17,7 @@ import com.shibam.clinic.online_doctor_clinic.Models.Patient;
 
 @Repository
 public interface AppointmentRepo extends JpaRepository<Appointment, Long> {
-        @Query("SELECT a FROM Appointment a WHERE a.doctor.user.id = :doctorId AND a.date = CURRENT_DATE")
+        @Query("SELECT a FROM Appointment a WHERE a.doctor.user.id = :doctorId AND a.date = CURRENT_DATE AND a.status = 'BOOKED'")
         public List<Appointment> todayAppointmentsByDoctorId(Long doctorId);
 
         @Query("SELECT COUNT(DISTINCT a.patient.id) FROM Appointment a WHERE a.doctor.user.id = :doctorId")
@@ -95,4 +95,9 @@ public interface AppointmentRepo extends JpaRepository<Appointment, Long> {
                         @Param("date") LocalDate date, @Param("slot") LocalTime slot,
                         @Param("durationMinutes") int durationMinutes, @Param("fee") double fee);
 
+
+        @Modifying
+        @Transactional
+        @Query("UPDATE Appointment a SET a.meetingLink = :meetingLink WHERE a.id = :appointmentId")
+        public void updateMeetingLink(@Param("appointmentId") Long appointmentId, @Param("meetingLink") String meetingLink);
 }
