@@ -284,10 +284,8 @@ public class DoctorService {
 
     // Get booked appointments for a doctor
     public List<Appointment> getBookedAppointmentsByDoctorId(Long doctorId) {
-        List<Appointment> allAppointments = appointmentRepo.getAppointmentsWithPatientDetails(doctorId);
-        return allAppointments.stream()
-                .filter(appointment -> appointment.getStatus() == Appointment.AppointmentStatus.BOOKED)
-                .toList();
+        List<Appointment> allAppointments = appointmentRepo.findBookedAppointmentsByDoctorId(doctorId);
+        return allAppointments;
     }
 
     // Get available slots by doctor and date (existing method - keeping for
@@ -354,6 +352,8 @@ public class DoctorService {
 
         List<PatientSummaryDTO> patientsList = new ArrayList<>();
 
+        List<LocalDate> visitDates = new ArrayList<>();
+
         for (Map.Entry<Long, List<Appointment>> entry : appointmentsByPatient.entrySet()) {
             List<Appointment> patientAppointments = entry.getValue();
 
@@ -376,6 +376,13 @@ public class DoctorService {
                     .findFirst()
                     .orElse("No prescription available");
 
+            // Collect visit dates
+            visitDates = patientAppointments.stream()
+                    .map(Appointment::getDate)
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
+
             // Create patient summary
             PatientSummaryDTO patientSummary = new PatientSummaryDTO(
                     patient.getId(),
@@ -387,7 +394,8 @@ public class DoctorService {
                     null, // profileImage - not available in current model
                     totalVisits,
                     lastVisitDate,
-                    lastPrescription.length() > 100 ? lastPrescription.substring(0, 100) + "..." : lastPrescription);
+                    lastPrescription,
+                    visitDates);
 
             patientsList.add(patientSummary);
         }
@@ -497,5 +505,9 @@ public class DoctorService {
 
     public void addMeetingLinkToAppointment(Long appointmentId, String meetingLink) {
         appointmentRepo.updateMeetingLink(appointmentId, meetingLink);
+    }
+
+    public void addPrescriptionToAppointment(Long appointmentId, String prescription) {
+        appointmentRepo.updatePrescription(appointmentId, prescription);
     }
 }

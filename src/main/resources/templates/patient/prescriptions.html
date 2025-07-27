@@ -24,6 +24,12 @@
             border-bottom-color: #3b82f6 !important;
             color: #3b82f6 !important;
         }
+
+        .medication-table th, .medication-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
     </style>
     <script>
         tailwind.config = {
@@ -105,7 +111,7 @@
                     <div class="flex-1 max-w-2xl">
                         <div class="relative">
                             <input type="text" id="prescriptionSearch"
-                                placeholder="Search by doctor name or prescription content..."
+                                placeholder="Search by doctor name or medication name..."
                                 class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent">
                             <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
                         </div>
@@ -185,10 +191,20 @@
                                     ID: <span th:text="'RX' + ${prescription.id}">RX001</span>
                                 </span>
                             </div>
-                            <p class="text-sm text-blue-700 mb-3" th:text="${#strings.length(prescription.prescription) > 150 ? #strings.substring(prescription.prescription, 0, 150) + '...' : prescription.prescription}">
-                                Prescription content preview...
-                            </p>
-                            <button class="text-blue-600 text-sm font-medium hover:text-blue-800 transition-colors"
+                            <div class="medication-preview" th:data-prescription="${prescription.prescription}">
+                                <table class="medication-table w-full text-sm text-blue-700">
+                                    <thead>
+                                        <tr>
+                                            <th>Medication</th>
+                                            <th>Dosage</th>
+                                            <th>Frequency</th>
+                                            <th>Duration</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            <button class="text-blue-600 text-sm font-medium hover:text-blue-800 transition-colors mt-3"
                                 th:onclick="'viewFullPrescription(' + ${prescription.id} + ')'">
                                 <i class="fas fa-eye mr-1"></i>View Full Prescription
                             </button>
@@ -260,10 +276,20 @@
                                     ID: <span th:text="'RX' + ${prescription.id}">RX001</span>
                                 </span>
                             </div>
-                            <p class="text-sm text-purple-700 mb-3" th:text="${#strings.length(prescription.prescription) > 150 ? #strings.substring(prescription.prescription, 0, 150) + '...' : prescription.prescription}">
-                                Prescription content preview...
-                            </p>
-                            <button class="text-purple-600 text-sm font-medium hover:text-purple-800 transition-colors"
+                            <div class="medication-preview" th:data-prescription="${prescription.prescription}">
+                                <table class="medication-table w-full text-sm text-purple-700">
+                                    <thead>
+                                        <tr>
+                                            <th>Medication</th>
+                                            <th>Dosage</th>
+                                            <th>Frequency</th>
+                                            <th>Duration</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            <button class="text-purple-600 text-sm font-medium hover:text-purple-800 transition-colors mt-3"
                                 th:onclick="'viewFullPrescription(' + ${prescription.id} + ')'">
                                 <i class="fas fa-eye mr-1"></i>View Full Prescription
                             </button>
@@ -377,32 +403,21 @@
 
                     <div id="fullPrescriptionContent" class="space-y-6">
                         <div class="border-l-4 border-primary pl-6">
-                            <h4 class="font-semibold text-gray-900 mb-3">
-                                <i class="fas fa-prescription text-primary mr-2"></i>Prescription Details
-                            </h4>
                             <div class="bg-white rounded-lg p-4 border border-gray-200">
-                                <p id="modalFullPrescription" class="text-sm text-gray-700 whitespace-pre-wrap">Full prescription content will be loaded here...</p>
+                                <table class="medication-table w-full text-sm text-gray-700">
+                                    <thead>
+                                        <tr>
+                                            <th>Medication</th>
+                                            <th>Dosage</th>
+                                            <th>Frequency</th>
+                                            <th>Duration</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modalFullPrescription"></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
-                <div class="text-sm text-gray-600">
-                    <i class="fas fa-shield-alt text-secondary mr-1"></i>
-                    This prescription is digitally verified and secure
-                </div>
-                <div class="flex space-x-3">
-                    <button onclick="sharePrescription(currentPrescriptionId)"
-                        class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-                        <i class="fas fa-share mr-2"></i>Share
-                    </button>
-                    <button onclick="printPrescription()"
-                        class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-                        <i class="fas fa-print mr-2"></i>Print
-                    </button>
                 </div>
             </div>
         </div>
@@ -412,6 +427,51 @@
         // Get prescription data from Thymeleaf
         const prescriptionsData = /*[[${prescriptionsList}]]*/ [];
         let currentPrescriptionId = null;
+
+        // Function to parse and render medication table
+        function renderMedicationTable(container, prescriptionJson) {
+            try {
+                const data = JSON.parse(prescriptionJson);
+                const tbody = container.querySelector('tbody');
+                tbody.innerHTML = ''; // Clear existing content
+
+                if (data.medications && Array.isArray(data.medications)) {
+                    data.medications.forEach(med => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${med.name || 'N/A'}</td>
+                            <td>${med.dosage || 'N/A'}</td>
+                            <td>${med.frequency || 'N/A'}</td>
+                            <td>${med.duration || 'N/A'}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="4" class="text-center">No medication data available</td>`;
+                    tbody.appendChild(row);
+                }
+            } catch (e) {
+                console.error('Error parsing prescription JSON:', e);
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="4" class="text-center">Error loading prescription data</td>`;
+                tbody.appendChild(row);
+            }
+        }
+
+        // Initialize medication tables for all prescription cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const totalPrescriptions = /*[[${totalPrescriptions}]]*/ 0;
+            if (totalPrescriptions === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+            }
+
+            // Render medication tables for all cards
+            document.querySelectorAll('.medication-preview').forEach(preview => {
+                const prescriptionJson = preview.getAttribute('data-prescription');
+                renderMedicationTable(preview, prescriptionJson);
+            });
+        });
 
         // Search and Filter Functionality
         const searchInput = document.getElementById('prescriptionSearch');
@@ -455,8 +515,19 @@
             prescriptionCards.forEach(card => {
                 const doctorName = card.dataset.doctor.toLowerCase();
                 const medicationText = card.dataset.medication.toLowerCase();
+                let matchesSearch = doctorName.includes(searchTerm);
 
-                const matchesSearch = doctorName.includes(searchTerm) || medicationText.includes(searchTerm);
+                // Check if any medication name matches the search term
+                try {
+                    const data = JSON.parse(medicationText);
+                    if (data.medications && Array.isArray(data.medications)) {
+                        matchesSearch = matchesSearch || data.medications.some(med => 
+                            med.name.toLowerCase().includes(searchTerm)
+                        );
+                    }
+                } catch (e) {
+                    console.error('Error parsing medication JSON for search:', e);
+                }
 
                 if (matchesSearch) {
                     card.style.display = 'block';
@@ -498,10 +569,6 @@
             filterPrescriptions('all');
         }
 
-        // Event listeners
-        searchInput.addEventListener('input', performSearch);
-        dateSort.addEventListener('change', sortPrescriptions);
-
         // Prescription Modal Functions
         function viewFullPrescription(prescriptionId) {
             currentPrescriptionId = prescriptionId;
@@ -521,7 +588,10 @@
             document.getElementById('modalPrescriptionId').textContent = 'RX' + prescription.id;
             document.getElementById('modalStatus').textContent = prescription.status;
             document.getElementById('modalDuration').textContent = prescription.durationMinutes + ' minutes';
-            document.getElementById('modalFullPrescription').textContent = prescription.prescription;
+            
+            // Render medication table in modal
+            const modalTable = document.getElementById('fullPrescriptionContent');
+            renderMedicationTable(modalTable, prescription.prescription);
 
             const modal = document.getElementById('prescriptionModal');
             modal.classList.remove('hidden');
@@ -579,15 +649,6 @@
                 }
             });
         }, 5000);
-
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check if there are no prescriptions and show empty state
-            const totalPrescriptions = /*[[${totalPrescriptions}]]*/ 0;
-            if (totalPrescriptions === 0) {
-                document.getElementById('emptyState').classList.remove('hidden');
-            }
-        });
     </script>
 </body>
 

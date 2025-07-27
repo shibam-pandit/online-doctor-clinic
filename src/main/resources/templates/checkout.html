@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Appointment Payment</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="font-sans bg-gray-50 flex items-center justify-center min-h-screen">
+    <div class="bg-white rounded-xl shadow-lg p-8 max-w-md w-full">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Processing Payment</h2>
+        <p class="text-gray-600 mb-6">Please complete the payment to confirm your appointment.</p>
+        <div id="paymentStatus" class="text-center text-gray-600">Initializing payment...</div>
+    </div>
+
+    <script th:inline="javascript">
+        var options = {
+            "key": /*[[${key}]]*/ "test_dummy_key",
+            "amount": /*[[${amount * 100}]]*/ 0,
+            "currency": "INR",
+            "name": "Online Doctor Clinic",
+            "description": "Appointment Booking Payment",
+            "handler": function (response) {
+                const params = new URLSearchParams({
+                    payment_id: response.razorpay_payment_id,
+                    doctorId: /*[[${doctorId}]]*/ 0,
+                    patientId: /*[[${patientId}]]*/ 0,
+                    date: /*[[${date}]]*/ "",
+                    slot: /*[[${slot}]]*/ "",
+                    durationMinutes: /*[[${durationMinutes}]]*/ 0,
+                    fee: /*[[${fee}]]*/ 0
+                });
+                window.location.href = "/patient/bookingSuccess?" + params.toString();
+            },
+            "prefill": {
+                "name": /*[[${custName}]]*/ "",
+                "email": /*[[${custEmail}]]*/ "",
+                "contact": /*[[${custContact}]]*/ ""
+            },
+            "theme": {
+                "color": "#3399cc"
+            }
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.on('payment.failed', function (response) {
+            document.getElementById('paymentStatus').innerHTML = 
+                '<span class="text-red-600">Payment failed. Please try again.</span>';
+            setTimeout(() => {
+                window.location.href = "/patient/appointments?error=Payment failed: " + response.error.description;
+            }, 3000);
+        });
+        rzp1.open();
+    </script>
+</body>
+</html>

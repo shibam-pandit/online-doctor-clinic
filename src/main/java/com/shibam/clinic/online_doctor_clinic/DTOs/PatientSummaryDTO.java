@@ -1,6 +1,7 @@
 package com.shibam.clinic.online_doctor_clinic.DTOs;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class PatientSummaryDTO {
     private Long id;
@@ -13,13 +14,14 @@ public class PatientSummaryDTO {
     private Integer totalVisits;
     private LocalDate lastVisitDate;
     private String lastPrescriptionSnippet;
+    private List<LocalDate> visitDates;
 
     // Constructors
     public PatientSummaryDTO() {
     }
 
     public PatientSummaryDTO(Long id, String name, String email, String phone, String gender, Integer age,
-            String profileImage, Integer totalVisits, LocalDate lastVisitDate, String lastPrescriptionSnippet) {
+            String profileImage, Integer totalVisits, LocalDate lastVisitDate, String lastPrescriptionSnippet, List<LocalDate> visitDates) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -30,6 +32,7 @@ public class PatientSummaryDTO {
         this.totalVisits = totalVisits;
         this.lastVisitDate = lastVisitDate;
         this.lastPrescriptionSnippet = lastPrescriptionSnippet;
+        this.visitDates = visitDates;
     }
 
     // Getters and Setters
@@ -111,5 +114,12 @@ public class PatientSummaryDTO {
 
     public void setLastPrescriptionSnippet(String lastPrescriptionSnippet) {
         this.lastPrescriptionSnippet = lastPrescriptionSnippet;
+    }
+
+    public List<LocalDate> getVisitDates() {
+        return visitDates;
+    }
+    public void setVisitDates(List<LocalDate> visitDates) {
+        this.visitDates = visitDates;
     }
 }

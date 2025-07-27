@@ -101,9 +101,9 @@
                         <div>
                             <p class="text-gray-600 text-sm font-medium">Rating</p>
                             <p class="text-3xl font-bold text-gray-900 mt-2">
-                                <span th:if="${averageRating > 0}"
-                                    th:text="${#numbers.formatDecimal(averageRating, 1, 'POINT')}">0.0</span>
-                                <span th:if="${averageRating == 0}">N/A</span>
+                                <span th:if="${averageRating != null and averageRating > 0}"
+                                    th:text="${#numbers.formatDecimal(averageRating, 1, 2, 'POINT')}">0.00</span>
+                                <span th:if="${averageRating == null or averageRating == 0}">N/A</span>
                             </p>
                             <p class="text-gray-500 text-sm mt-1">
                                 <i class="fas fa-star mr-1 text-yellow-400"></i>
@@ -164,8 +164,8 @@
                                             Consultation Type</p> -->
                                         <div class="flex flex-wrap items-center mt-3 gap-2">
                                             <span class="text-xs px-3 py-1 rounded-full font-medium"
-                                                  th:classappend="${appointment?.getStatus()?.toString() == 'CONFIRMED'} ? 'bg-green-100 text-green-800' : (${appointment?.getStatus()?.toString() == 'PENDING'} ? 'bg-yellow-100 text-yellow-800' : (${appointment?.getStatus()?.toString() == 'COMPLETED'} ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'))"
-                                                  th:text="${appointment?.getStatus()?.toString() ?: 'UNKNOWN'}">Status</span>
+                                                th:classappend="${appointment?.getStatus()?.toString() == 'CONFIRMED'} ? 'bg-green-100 text-green-800' : (${appointment?.getStatus()?.toString() == 'PENDING'} ? 'bg-yellow-100 text-yellow-800' : (${appointment?.getStatus()?.toString() == 'COMPLETED'} ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'))"
+                                                th:text="${appointment?.getStatus()?.toString() ?: 'UNKNOWN'}">Status</span>
 
                                             <button th:if="${appointment?.getStatus()?.toString() == 'CONFIRMED'}"
                                                 class="bg-primary text-white text-xs px-4 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md">

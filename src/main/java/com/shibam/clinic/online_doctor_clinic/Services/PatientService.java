@@ -6,10 +6,13 @@ import java.time.LocalTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.shibam.clinic.online_doctor_clinic.Models.Appointment;
 import com.shibam.clinic.online_doctor_clinic.Models.Doctor;
 import com.shibam.clinic.online_doctor_clinic.Models.Patient;
+import com.shibam.clinic.online_doctor_clinic.Models.Payment;
 import com.shibam.clinic.online_doctor_clinic.Repositories.AppointmentRepo;
 import com.shibam.clinic.online_doctor_clinic.Repositories.PatientRepo;
+import com.shibam.clinic.online_doctor_clinic.Repositories.PaymentRepo;
 
 @Service
 public class PatientService {
@@ -21,6 +24,9 @@ public class PatientService {
 
     @Autowired
     private DoctorService doctorService;
+
+    @Autowired
+    private PaymentRepo paymentRepo;
 
     public Patient findByEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
@@ -45,7 +51,7 @@ public class PatientService {
         }
     }
 
-    public void bookAppointment(Long doctorId, Long patientId, LocalDate date, LocalTime slot, int durationMinutes, double fee) {
+    public void bookAppointment(Long doctorId, Long patientId, LocalDate date, LocalTime slot, int durationMinutes, double fee, String paymentId) {
         try {
             Doctor doctor = doctorService.getDoctorById(doctorId);
             if (doctor == null) {
@@ -56,7 +62,23 @@ public class PatientService {
                 throw new RuntimeException("Patient not found with ID: " + patientId);
             }
 
-            appointmentRepo.bookAppointment(doctor, patient, date, slot, durationMinutes, fee);
+            Appointment appointment = new Appointment();
+            appointment.setDoctor(doctor);
+            appointment.setPatient(patient);
+            appointment.setDate(date);
+            appointment.setSlot(slot);
+            appointment.setDurationMinutes(durationMinutes);
+            appointment.setFee(fee);
+            appointment.setStatus(Appointment.AppointmentStatus.BOOKED);
+            appointment.setPaymentDone(true);
+            appointmentRepo.save(appointment);
+
+            Payment payment = new Payment();
+            payment.setAppointment(appointment);
+            payment.setAmount(fee);
+            payment.setPaymentGatewayId(paymentId);
+            payment.setRefunded(false);
+            paymentRepo.save(payment);
         } catch (Exception e) {
             throw new RuntimeException("Error booking appointment: " + e.getMessage());
         }

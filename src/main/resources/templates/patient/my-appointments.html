@@ -11,18 +11,43 @@
         .font-inter {
             font-family: 'Inter', sans-serif;
         }
-        
+
         .appointment-card {
             transition: all 0.3s ease;
         }
-        
+
         .appointment-card:hover {
             transform: translateY(-2px);
         }
-        
+
         .filter-tab.active {
             border-bottom-color: #3b82f6 !important;
             color: #3b82f6 !important;
+        }
+
+        .filter-tab.active .tab-number {
+            background-color: #3b82f6 !important;
+            color: white !important;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .star-rating input[type="radio"] {
+            display: none;
+        }
+
+        .star-rating label {
+            cursor: pointer;
+            color: #d1d5db;
+            font-size: 1.5rem;
+        }
+
+        .star-rating input[type="radio"]:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #f59e0b;
         }
     </style>
     <script>
@@ -63,19 +88,19 @@
                     <div class="hidden sm:flex items-center space-x-6 text-sm">
                         <div class="text-center">
                             <div class="text-lg font-bold text-primary"
-                                th:text="${upcomingCount != null ? upcomingCount : 0}">0</div>
+                                th:text="${upcomingCount != null ? upcomingCount : 0}">3</div>
                             <div class="text-gray-600">Upcoming</div>
                         </div>
                         <div class="text-center">
                             <div class="text-lg font-bold text-secondary"
-                                th:text="${completedCount != null ? completedCount : 0}">0</div>
+                                th:text="${completedCount != null ? completedCount : 0}">2</div>
                             <div class="text-gray-600">Completed</div>
                         </div>
                     </div>
 
                     <!-- Book New Appointment Button -->
                     <a href="/patient/book-appointment"
-                        class="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                        class="bg-primary text-white px-4 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
                         <i class="fas fa-plus mr-2"></i>Book New
                     </a>
                 </div>
@@ -113,25 +138,28 @@
                             class="filter-tab active border-b-2 border-primary text-primary py-4 px-1 text-sm font-medium"
                             onclick="filterAppointments('all')">
                             All <span class="ml-2 tab-number text-xs px-2 py-1 rounded-full bg-primary text-white"
-                                th:text="${totalAppointments != null ? totalAppointments : 0}">0</span>
+                                th:text="${totalAppointments != null ? totalAppointments : 0}">6</span>
                         </button>
                         <button id="upcomingTab"
                             class="filter-tab border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium"
                             onclick="filterAppointments('upcoming')">
-                            Upcoming <span class="ml-2 tab-number text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-700"
-                                th:text="${upcomingCount != null ? upcomingCount : 0}">0</span>
+                            Upcoming <span
+                                class="ml-2 tab-number text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-700"
+                                th:text="${upcomingCount != null ? upcomingCount : 0}">3</span>
                         </button>
                         <button id="completedTab"
                             class="filter-tab border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium"
                             onclick="filterAppointments('completed')">
-                            Completed <span class="ml-2 tab-number text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-700"
-                                th:text="${completedCount != null ? completedCount : 0}">0</span>
+                            Completed <span
+                                class="ml-2 tab-number text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-700"
+                                th:text="${completedCount != null ? completedCount : 0}">2</span>
                         </button>
                         <button id="cancelledTab"
                             class="filter-tab border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium"
                             onclick="filterAppointments('cancelled')">
-                            Cancelled <span class="ml-2 tab-number text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-700"
-                                th:text="${cancelledCount != null ? cancelledCount : 0}">0</span>
+                            Cancelled <span
+                                class="ml-2 tab-number text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-700"
+                                th:text="${cancelledCount != null ? cancelledCount : 0}">1</span>
                         </button>
                     </nav>
                 </div>
@@ -142,7 +170,8 @@
 
                 <!-- Dynamic Upcoming Appointments -->
                 <div th:each="appointment : ${upcomingAppointments}"
-                    class="appointment-card upcoming bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                    class="appointment-card upcoming bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    data-status="upcoming">
                     <div class="p-6">
                         <!-- Appointment Header -->
                         <div class="flex items-center justify-between mb-4">
@@ -152,9 +181,9 @@
                                     class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-900"
-                                        th:text="'Dr. ' + ${appointment.doctor.user.name}">Dr. Name</h3>
+                                        th:text="'Dr. ' + ${appointment.doctor.user.name}">Dr. Sarah Johnson</h3>
                                     <p class="text-sm text-primary font-medium"
-                                        th:text="${appointment.doctor.specialization}">Specialization</p>
+                                        th:text="${appointment.doctor.specialization}">Cardiology</p>
                                     <div class="flex items-center space-x-1 mt-1">
                                         <div class="flex space-x-1">
                                             <i class="fas fa-star text-yellow-400 text-xs"></i>
@@ -164,7 +193,7 @@
                                             <i class="fas fa-star text-yellow-400 text-xs"></i>
                                         </div>
                                         <span class="text-xs text-gray-600"
-                                            th:text="${appointment.doctor.averageRating != null ? appointment.doctor.averageRating : '5.0'}">5.0</span>
+                                            th:text="${appointment.doctor.averageRating != null ? appointment.doctor.averageRating : '5.0'}">4.8</span>
                                     </div>
                                 </div>
                             </div>
@@ -182,31 +211,33 @@
                                     <span class="text-blue-700 font-medium">Date:</span>
                                     <span class="text-blue-800 ml-2">
                                         <span th:if="${appointment.date.equals(T(java.time.LocalDate).now())}"
-                                            th:text="'Today, ' + ${#temporals.format(appointment.date, 'MMM dd')}"></span>
+                                            th:text="'Today, ' + ${#temporals.format(appointment.date, 'MMM dd')}">Today,
+                                            Jul 28</span>
                                         <span th:unless="${appointment.date.equals(T(java.time.LocalDate).now())}"
-                                            th:text="${#temporals.format(appointment.date, 'MMM dd, yyyy')}"></span>
+                                            th:text="${#temporals.format(appointment.date, 'MMM dd, yyyy')}">Jul 28,
+                                            2025</span>
                                     </span>
                                 </div>
                                 <div>
                                     <span class="text-blue-700 font-medium">Time:</span>
                                     <span class="text-blue-800 ml-2"
-                                        th:text="${#temporals.format(appointment.slot, 'HH:mm')}">Time</span>
+                                        th:text="${#temporals.format(appointment.slot, 'HH:mm')}">14:30</span>
                                 </div>
                                 <div>
                                     <span class="text-blue-700 font-medium">Duration:</span>
                                     <span class="text-blue-800 ml-2"
-                                        th:text="${appointment.durationMinutes} + ' minutes'">Duration</span>
+                                        th:text="${appointment.durationMinutes} + ' minutes'">30 minutes</span>
                                 </div>
                                 <div>
                                     <span class="text-blue-700 font-medium">Fee:</span>
-                                    <span class="text-blue-800 ml-2" th:text="'₹' + ${appointment.fee}">Fee</span>
+                                    <span class="text-blue-800 ml-2" th:text="'₹' + ${appointment.fee}">₹500</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Action Buttons -->
                         <div class="flex space-x-3">
-                            <a th:href="${appointment.meetingLink != null ? appointment.meetingLink : '#'}"
+                            <a th:href="${appointment.meetingLink != null ? 'https://meet.google.com/' + appointment.meetingLink : '#'}"
                                 th:class="${appointment.meetingLink != null ? 'flex-1 bg-primary text-white px-4 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors text-center' : 'flex-1 bg-gray-300 text-gray-600 px-4 py-3 rounded-lg font-medium cursor-not-allowed text-center'}"
                                 th:target="${appointment.meetingLink != null ? '_blank' : ''}"
                                 th:disabled="${appointment.meetingLink == null}">
@@ -228,7 +259,8 @@
 
                 <!-- Dynamic Completed Appointments -->
                 <div th:each="appointment : ${completedAppointmentsList}"
-                    class="appointment-card completed bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                    class="appointment-card completed bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    data-status="completed">
                     <div class="p-6">
                         <!-- Appointment Header -->
                         <div class="flex items-center justify-between mb-4">
@@ -238,9 +270,9 @@
                                     class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-900"
-                                        th:text="'Dr. ' + ${appointment.doctor.user.name}">Dr. Name</h3>
+                                        th:text="'Dr. ' + ${appointment.doctor.user.name}">Dr. Michael Chen</h3>
                                     <p class="text-sm text-primary font-medium"
-                                        th:text="${appointment.doctor.specialization}">Specialization</p>
+                                        th:text="${appointment.doctor.specialization}">Dermatology</p>
                                     <div class="flex items-center space-x-1 mt-1">
                                         <div class="flex space-x-1">
                                             <i class="fas fa-star text-yellow-400 text-xs"></i>
@@ -250,7 +282,7 @@
                                             <i class="fas fa-star text-yellow-400 text-xs"></i>
                                         </div>
                                         <span class="text-xs text-gray-600"
-                                            th:text="${appointment.doctor.averageRating != null ? appointment.doctor.averageRating : '5.0'}">5.0</span>
+                                            th:text="${appointment.doctor.averageRating != null ? appointment.doctor.averageRating : '5.0'}">4.9</span>
                                     </div>
                                 </div>
                             </div>
@@ -267,21 +299,22 @@
                                 <div>
                                     <span class="text-gray-700 font-medium">Date:</span>
                                     <span class="text-gray-800 ml-2"
-                                        th:text="${#temporals.format(appointment.date, 'MMM dd, yyyy')}">Date</span>
+                                        th:text="${#temporals.format(appointment.date, 'MMM dd, yyyy')}">Jul 20,
+                                        2025</span>
                                 </div>
                                 <div>
                                     <span class="text-gray-700 font-medium">Time:</span>
                                     <span class="text-gray-800 ml-2"
-                                        th:text="${#temporals.format(appointment.slot, 'HH:mm')}">Time</span>
+                                        th:text="${#temporals.format(appointment.slot, 'HH:mm')}">10:00</span>
                                 </div>
                                 <div>
                                     <span class="text-gray-700 font-medium">Duration:</span>
                                     <span class="text-gray-800 ml-2"
-                                        th:text="${appointment.durationMinutes} + ' minutes'">Duration</span>
+                                        th:text="${appointment.durationMinutes} + ' minutes'">45 minutes</span>
                                 </div>
                                 <div>
                                     <span class="text-gray-700 font-medium">Fee:</span>
-                                    <span class="text-gray-800 ml-2" th:text="'₹' + ${appointment.fee}">Fee</span>
+                                    <span class="text-gray-800 ml-2" th:text="'₹' + ${appointment.fee}">₹750</span>
                                 </div>
                             </div>
                         </div>
@@ -294,29 +327,36 @@
                                     <span class="text-sm font-medium text-green-800">Consultation Completed</span>
                                 </div>
                                 <span class="text-xs text-green-600 bg-green-200 px-2 py-1 rounded-full">
-                                    <span th:text="${#temporals.format(appointment.date, 'MMM dd')}">Date</span>
+                                    <span th:text="${#temporals.format(appointment.date, 'MMM dd')}">Jul 20</span>
                                 </span>
                             </div>
                         </div>
 
-                        <!-- Action Buttons -->
-                        <div class="flex space-x-3">
+                        <!-- Rating or Action Buttons -->
+                        <div class="flex space-x-3 items-center">
                             <a th:href="'/patient/book-slot/' + ${appointment.doctor.id}"
                                 class="flex-1 bg-secondary text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors text-center">
                                 <i class="fas fa-redo mr-2"></i>Book Again
                             </a>
-                            <button
-                                class="px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                                onclick="alert('Receipt download feature coming soon!')">
-                                <i class="fas fa-download"></i>
-                            </button>
+                            <div th:if="${appointment.rating == null}">
+                                <button th:onclick="'openRatingModal(' + ${appointment.id} + ')'"
+                                    class="px-4 py-3 border border-yellow-300 text-yellow-600 rounded-lg hover:bg-yellow-50 transition-colors">
+                                    <i class="fas fa-star mr-2"></i>Rating
+                                </button>
+                            </div>
+                            <div th:unless="${appointment.rating == null}"
+                                class="px-4 py-3 border border-gray-300 text-gray-700 rounded-lg flex items-center">
+                                <i class="fas fa-star text-yellow-400 mr-2"></i>
+                                <span th:text="'Rated: ' + ${appointment.rating}">Rated: 4</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Dynamic Cancelled Appointments -->
                 <div th:each="appointment : ${cancelledAppointmentsList}"
-                    class="appointment-card cancelled bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                    class="appointment-card cancelled bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    data-status="cancelled">
                     <div class="p-6">
                         <!-- Appointment Header -->
                         <div class="flex items-center justify-between mb-4">
@@ -326,9 +366,9 @@
                                     class="w-16 h-16 rounded-full object-cover border-2 border-gray-200 grayscale">
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-600"
-                                        th:text="'Dr. ' + ${appointment.doctor.user.name}">Dr. Name</h3>
+                                        th:text="'Dr. ' + ${appointment.doctor.user.name}">Dr. Lisa Rodriguez</h3>
                                     <p class="text-sm text-gray-500 font-medium"
-                                        th:text="${appointment.doctor.specialization}">Specialization</p>
+                                        th:text="${appointment.doctor.specialization}">Pediatrics</p>
                                 </div>
                             </div>
                             <div class="text-right">
@@ -344,22 +384,24 @@
                                 <div>
                                     <span class="text-red-700 font-medium">Date:</span>
                                     <span class="text-red-800 ml-2"
-                                        th:text="${#temporals.format(appointment.date, 'MMM dd, yyyy')}">Date</span>
+                                        th:text="${#temporals.format(appointment.date, 'MMM dd, yyyy')}">Jul 15,
+                                        2025</span>
                                 </div>
                                 <div>
                                     <span class="text-red-700 font-medium">Time:</span>
                                     <span class="text-red-800 ml-2"
-                                        th:text="${#temporals.format(appointment.slot, 'HH:mm')}">Time</span>
+                                        th:text="${#temporals.format(appointment.slot, 'HH:mm')}">16:00</span>
                                 </div>
                                 <div>
                                     <span class="text-red-700 font-medium">Status:</span>
                                     <span class="text-red-800 ml-2"
-                                        th:text="${appointment.status == T(com.shibam.clinic.online_doctor_clinic.Models.Appointment.AppointmentStatus).CANCELLED_BY_PATIENT ? 'Cancelled by You' : 'Cancelled by Doctor'}">Cancelled</span>
+                                        th:text="${appointment.status == T(com.shibam.clinic.online_doctor_clinic.Models.Appointment.AppointmentStatus).CANCELLED_BY_PATIENT ? 'Cancelled by You' : 'Cancelled by Doctor'}">Cancelled
+                                        by You</span>
                                 </div>
                                 <div>
                                     <span class="text-red-700 font-medium">Fee:</span>
                                     <span class="text-red-800 ml-2"
-                                        th:text="'₹' + ${appointment.fee} + ' (Refunded)'">Fee</span>
+                                        th:text="'₹' + ${appointment.fee} + ' (Refunded)'">₹400 (Refunded)</span>
                                 </div>
                             </div>
                         </div>
@@ -376,7 +418,8 @@
             </div>
 
             <!-- Empty State -->
-            <div id="emptyState" th:style="${totalAppointments == 0 ? '' : 'display: none;'}" class="text-center py-16">
+            <div id="emptyState" th:style="${totalAppointments == 0 ? '' : 'display: none;'}"
+                class="text-center py-16 hidden">
                 <i class="fas fa-calendar-times text-gray-300 text-6xl mb-4"></i>
                 <h3 class="text-xl font-medium text-gray-900 mb-2">No Appointments Found</h3>
                 <p class="text-gray-600 mb-6">You don't have any appointments yet.</p>
@@ -393,17 +436,63 @@
                     <i class="fas fa-plus mr-2"></i>Load More Appointments
                 </button>
             </div>
+
+            <!-- Rating Modal -->
+            <div id="ratingModal"
+                class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+                <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+                    <!-- Modal Header -->
+                    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-star text-accent text-xl"></i>
+                            <h2 class="text-xl font-semibold text-gray-900">Rate Appointment</h2>
+                        </div>
+                        <button onclick="closeRatingModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+
+                    <!-- Modal Content -->
+                    <div class="p-6">
+                        <form id="ratingForm" th:action="@{/patient/rate-appointment}" method="post">
+                            <input type="hidden" name="appointmentId" id="ratingAppointmentId">
+                            <div class="mb-4">
+                                <label for="rating" class="block text-sm font-medium text-gray-700 mb-2">Your Rating</label>
+                                <div class="star-rating flex justify-center space-x-2">
+                                    <input type="radio" name="rating" id="rating5" value="5" required>
+                                    <label for="rating5"><i class="fas fa-star"></i></label>
+                                    <input type="radio" name="rating" id="rating4" value="4">
+                                    <label for="rating4"><i class="fas fa-star"></i></label>
+                                    <input type="radio" name="rating" id="rating3" value="3">
+                                    <label for="rating3"><i class="fas fa-star"></i></label>
+                                    <input type="radio" name="rating" id="rating2" value="2">
+                                    <label for="rating2"><i class="fas fa-star"></i></label>
+                                    <input type="radio" name="rating" id="rating1" value="1">
+                                    <label for="rating1"><i class="fas fa-star"></i></label>
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit"
+                                    class="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-check mr-2"></i>Submit Rating
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
     <script>
-        // Filter functionality
+        // Filter functionality - Simple and direct approach
         function filterAppointments(status) {
-            const cards = document.querySelectorAll('.appointment-card');
+            console.log('Filtering by:', status);
+
             const tabs = document.querySelectorAll('.filter-tab');
             const emptyState = document.getElementById('emptyState');
 
-            // Update tab styles
+            // Reset all tabs to inactive state
             tabs.forEach(tab => {
                 tab.classList.remove('active', 'border-primary', 'text-primary');
                 tab.classList.add('border-transparent', 'text-gray-500');
@@ -414,6 +503,7 @@
                 }
             });
 
+            // Activate the clicked tab
             const activeTab = document.getElementById(status + 'Tab');
             if (activeTab) {
                 activeTab.classList.add('active', 'border-primary', 'text-primary');
@@ -425,26 +515,132 @@
                 }
             }
 
-            // Filter cards
-            let visibleCount = 0;
-            cards.forEach(card => {
-                if (status === 'all' || card.classList.contains(status)) {
-                    card.style.display = 'block';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
-                }
+            // Get all appointment cards
+            const upcomingCards = document.querySelectorAll('.appointment-card.upcoming');
+            const completedCards = document.querySelectorAll('.appointment-card.completed');
+            const cancelledCards = document.querySelectorAll('.appointment-card.cancelled');
+
+            // Hide all cards first
+            upcomingCards.forEach(card => {
+                card.style.display = 'none';
+                card.classList.add('hidden');
             });
+            completedCards.forEach(card => {
+                card.style.display = 'none';
+                card.classList.add('hidden');
+            });
+            cancelledCards.forEach(card => {
+                card.style.display = 'none';
+                card.classList.add('hidden');
+            });
+
+            let visibleCount = 0;
+
+            // Show cards based on filter
+            if (status === 'all') {
+                // Show all cards
+                upcomingCards.forEach(card => {
+                    card.style.display = 'block';
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                });
+                completedCards.forEach(card => {
+                    card.style.display = 'block';
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                });
+                cancelledCards.forEach(card => {
+                    card.style.display = 'block';
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                });
+            } else if (status === 'upcoming') {
+                // Show only upcoming cards
+                upcomingCards.forEach(card => {
+                    card.style.display = 'block';
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                });
+            } else if (status === 'completed') {
+                // Show only completed cards
+                completedCards.forEach(card => {
+                    card.style.display = 'block';
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                });
+            } else if (status === 'cancelled') {
+                // Show only cancelled cards
+                cancelledCards.forEach(card => {
+                    card.style.display = 'block';
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                });
+            }
+
+            console.log('Visible cards:', visibleCount);
 
             // Show/hide empty state
             if (visibleCount === 0) {
                 emptyState.style.display = 'block';
                 emptyState.classList.remove('hidden');
+
+                // Update empty state message based on filter
+                const emptyStateTitle = emptyState.querySelector('h3');
+                const emptyStateText = emptyState.querySelector('p');
+
+                if (status === 'upcoming') {
+                    emptyStateTitle.textContent = 'No Upcoming Appointments';
+                    emptyStateText.textContent = 'You don\'t have any upcoming appointments.';
+                } else if (status === 'completed') {
+                    emptyStateTitle.textContent = 'No Completed Appointments';
+                    emptyStateText.textContent = 'You haven\'t completed any appointments yet.';
+                } else if (status === 'cancelled') {
+                    emptyStateTitle.textContent = 'No Cancelled Appointments';
+                    emptyStateText.textContent = 'You don\'t have any cancelled appointments.';
+                } else {
+                    emptyStateTitle.textContent = 'No Appointments Found';
+                    emptyStateText.textContent = 'You don\'t have any appointments yet.';
+                }
             } else {
                 emptyState.style.display = 'none';
                 emptyState.classList.add('hidden');
             }
         }
+
+        // Rating Modal Functions
+        function openRatingModal(appointmentId) {
+            const modal = document.getElementById('ratingModal');
+            const form = document.getElementById('ratingForm');
+            const appointmentIdInput = document.getElementById('ratingAppointmentId');
+            appointmentIdInput.value = appointmentId;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Reset form to clear previous selections
+            form.reset();
+            const stars = document.querySelectorAll('.star-rating label i');
+            stars.forEach(star => star.classList.remove('text-accent'));
+        }
+
+        function closeRatingModal() {
+            const modal = document.getElementById('ratingModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('ratingModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeRatingModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeRatingModal();
+            }
+        });
 
         // Auto-dismiss alerts after 5 seconds
         setTimeout(() => {
@@ -458,9 +654,31 @@
         }, 5000);
 
         // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set default active tab
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('Page loaded, initializing filters');
+
+            // Set default active tab to 'all'
             filterAppointments('all');
+
+            const upcomingCards = document.querySelectorAll('.appointment-card.upcoming');
+            const completedCards = document.querySelectorAll('.appointment-card.completed');
+            const cancelledCards = document.querySelectorAll('.appointment-card.cancelled');
+
+            console.log('Found cards:', {
+                upcoming: upcomingCards.length,
+                completed: completedCards.length,
+                cancelled: cancelledCards.length
+            });
+        });
+
+        // Add click handlers for tabs
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('.filter-tab')) {
+                const tab = e.target.closest('.filter-tab');
+                const tabId = tab.id;
+                const status = tabId.replace('Tab', '');
+                filterAppointments(status);
+            }
         });
     </script>
 </body>

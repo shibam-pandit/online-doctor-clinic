@@ -319,4 +319,25 @@ public class DoctorController {
         model.addAttribute("doctor", doctor);
         return "doctor/settings";
     }
+
+    @PostMapping("/write-prescription")
+    public String writePrescription(@RequestParam("id") Long appointmentId, @RequestParam("prescription") String prescription, Model model) {
+        try {
+            // Validate prescription content
+            if (prescription == null || prescription.trim().isEmpty()) {
+                model.addAttribute("error", "Prescription cannot be empty.");
+                return "redirect:/doctor/appointments"; // Redirect back to appointments page with error message
+            }
+
+            // Write the prescription using the service
+            doctorService.addPrescriptionToAppointment(appointmentId, prescription);
+
+            model.addAttribute("success", "Prescription written successfully.");
+            return "redirect:/doctor/appointments"; // Redirect back to appointments page
+        } catch (Exception e) {
+            model.addAttribute("error", "Failed to write prescription. Please try again.");
+            e.printStackTrace(); // Log the error for debugging
+            return "redirect:/doctor/appointments"; 
+        }
+    }
 }

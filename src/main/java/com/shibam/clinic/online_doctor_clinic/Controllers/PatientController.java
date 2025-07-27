@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +37,9 @@ public class PatientController {
 
     @Autowired
     private AppointmentRepo appointmentRepo;
+
+    @Value("${razorpay.key.id}")
+    private String razorpayKey;
 
     @GetMapping({ "", "/" })
     public String patientHome(Principal principal, Model model) {
@@ -169,10 +173,52 @@ public class PatientController {
         return "patient/book-slot";
     }
 
+    // Modified confirm-appointment endpoint
     @PostMapping("/confirm-appointment")
-    public String confirmAppointment(Principal principal, Model model, @RequestParam Long doctorId,
-            @RequestParam Long patientId, @RequestParam LocalDate date, @RequestParam LocalTime slot,
-            @RequestParam int durationMinutes, @RequestParam Double fee) {
+    public String confirmAppointment(
+            Principal principal,
+            Model model,
+            @RequestParam Long doctorId,
+            @RequestParam Long patientId,
+            @RequestParam String date, // Changed to String to match form input
+            @RequestParam String slot, // Changed to String to match form input
+            @RequestParam int durationMinutes,
+            @RequestParam Double fee) {
+        String email = principal.getName();
+        Patient patient = patientService.findByEmail(email);
+        if (patient == null) {
+            model.addAttribute("error", "Patient not found");
+            return "error";
+        }
+
+        // Pass data to checkout page
+        model.addAttribute("key", razorpayKey);
+        model.addAttribute("amount", fee);
+        model.addAttribute("custName", patient.getUser().getName());
+        model.addAttribute("custEmail", patient.getUser().getEmail());
+        model.addAttribute("custContact", patient.getUser().getPhone());
+        model.addAttribute("doctorId", doctorId);
+        model.addAttribute("patientId", patientId);
+        model.addAttribute("date", date);
+        model.addAttribute("slot", slot);
+        model.addAttribute("durationMinutes", durationMinutes);
+        model.addAttribute("fee", fee);
+
+        return "checkout";
+    }
+
+    // New endpoint for payment success
+    @GetMapping("/bookingSuccess")
+    public String orderSuccess(
+            Principal principal,
+            Model model,
+            @RequestParam String payment_id,
+            @RequestParam Long doctorId,
+            @RequestParam Long patientId,
+            @RequestParam String date,
+            @RequestParam String slot,
+            @RequestParam int durationMinutes,
+            @RequestParam Double fee) {
         String email = principal.getName();
         Patient patient = patientService.findByEmail(email);
         if (patient == null) {
@@ -182,7 +228,15 @@ public class PatientController {
 
         try {
             // Book the appointment
-            patientService.bookAppointment(doctorId, patientId, date, slot, durationMinutes, fee);
+            patientService.bookAppointment(
+                doctorId,
+                patientId,
+                LocalDate.parse(date),
+                LocalTime.parse(slot),
+                durationMinutes,
+                fee, 
+                payment_id
+            );
             model.addAttribute("success", "Appointment booked successfully!");
         } catch (Exception e) {
             model.addAttribute("error", "Error booking appointment: " + e.getMessage());
@@ -354,4 +408,34 @@ public class PatientController {
         return "patient/settings";
     }
 
+    @PostMapping("/rate-appointment")
+    public String rateAppointment(@RequestParam Long appointmentId, @RequestParam Double rating,
+            Principal principal, Model model) {
+        String email = principal.getName();
+        Patient patient = patientService.findByEmail(email);
+        if (patient == null) {
+            model.addAttribute("error", "Patient not found");
+            return "error";
+        }
+
+        // Find the appointment
+        Appointment appointment = appointmentRepo.findById(appointmentId).orElse(null);
+        if (appointment == null) {
+            model.addAttribute("error", "Appointment not found");
+            return "redirect:/patient/appointments";
+        }
+
+        // Check if the appointment belongs to this patient
+        if (!appointment.getPatient().getUser().getId().equals(patient.getUser().getId())) {
+            model.addAttribute("error", "Unauthorized to rate this appointment");
+            return "redirect:/patient/appointments";
+        }
+
+        // Update the rating
+        appointment.setRating(rating);
+        appointmentRepo.save(appointment);
+
+        model.addAttribute("success", "Appointment rated successfully");
+        return "redirect:/patient/appointments";
+    }
 }

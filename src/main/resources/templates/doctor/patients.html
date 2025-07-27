@@ -23,7 +23,7 @@
                     <div class="hidden sm:flex items-center space-x-6 text-sm">
                         <div class="text-center">
                             <div class="text-lg font-bold text-blue-600" th:text="${totalPatients}">0</div>
-                            <div class="text-gray-600">Total Patients</div>
+                            <div class="text-gray-600">Total Visits</div>
                         </div>
                         <div class="text-center">
                             <div class="text-lg font-bold text-green-600" th:text="${newPatientsThisMonth}">0</div>
@@ -72,7 +72,9 @@
                     th:data-email="${patient.email}"
                     th:data-phone="${patient.phone}"
                     th:data-total-visits="${patient.totalVisits}"
-                    th:data-last-visit="${patient.lastVisitDate}">
+                    th:data-last-visit="${patient.lastVisitDate}"
+                    th:data-prescription="${patient.lastPrescriptionSnippet}"
+                    th:data-visit-dates="${patient.visitDates != null ? #strings.listJoin(patient.visitDates, ',') : ''}">
                     <div class="p-6">
                         <div class="flex items-center space-x-4 mb-4">
                             <div class="relative">
@@ -112,26 +114,16 @@
                                 <div class="text-xs text-gray-600">Last Visit</div>
                             </div>
                         </div>
-                        <div class="mb-4">
-                            <div class="flex items-center space-x-2 mb-2">
-                                <i class="fas fa-prescription-bottle-alt text-yellow-600 text-sm"></i>
-                                <span class="text-sm font-medium text-gray-700">Last Prescription</span>
-                            </div>
-                            <div class="bg-gray-50 rounded-lg p-3">
-                                <p class="text-sm text-gray-600 line-clamp-2"
-                                    th:text="${patient.lastPrescriptionSnippet ?: 'No prescription available'}">No prescription available</p>
-                            </div>
-                        </div>
                         <div class="flex space-x-2">
                             <button onclick="openPatientModal(this)"
                                 th:data-id="${patient.id}"
                                 class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm">
                                 <i class="fas fa-history mr-2"></i>View History
                             </button>
-                            <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                                <i class="fas fa-video"></i>
-                            </button>
-                            <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                            <button onclick="openPrescriptionModal(this)"
+                                th:data-id="${patient.id}"
+                                th:data-prescription="${patient.lastPrescriptionSnippet}"
+                                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                                 <i class="fas fa-prescription"></i>
                             </button>
                         </div>
@@ -169,7 +161,7 @@
                         </button>
                     </div>
                     <div id="modalContent" class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]"></div>
-                    <div class="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+                    <div class="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50 " style="display: none;">
                         <div class="flex space-x-3">
                             <button class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
                                 <i class="fas fa-prescription mr-2"></i>New Prescription
@@ -185,6 +177,26 @@
                                 <i class="fas fa-download mr-2"></i>Export History
                             </button>
                         </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prescription Modal -->
+            <div id="prescriptionModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+                <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+                    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                        <div class="flex items-center space-x-4">
+                            <h2 class="text-xl font-semibold text-gray-900">Prescription Details</h2>
+                        </div>
+                        <button onclick="closePrescriptionModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div id="prescriptionContent" class="p-6 overflow-y-auto max-h-[calc(80vh-120px)]"></div>
+                    <div class="flex justify-end p-6 border-t border-gray-200 bg-gray-50">
+                        <button onclick="closePrescriptionModal()" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                            Close
+                        </button>
                     </div>
                 </div>
             </div>
@@ -208,6 +220,8 @@
                 phone: card.dataset.phone || '',
                 totalVisits: parseInt(card.dataset.totalVisits) || 0,
                 lastVisit: card.dataset.lastVisit ? new Date(card.dataset.lastVisit) : null,
+                prescription: card.dataset.prescription || '',
+                visitDates: card.dataset.visitDates ? card.dataset.visitDates.split(',').map(date => new Date(date)) : [],
                 element: card
             }));
             applyFiltersAndRender(1);
@@ -293,7 +307,7 @@
         }
 
         // Open patient modal
-        async function openPatientModal(button) {
+        function openPatientModal(button) {
             const patientId = button.dataset.id;
             const patient = allPatients.find(p => p.id == patientId);
             const modal = document.getElementById('patientModal');
@@ -304,14 +318,14 @@
             const exportPatientId = document.getElementById('exportPatientId');
 
             try {
-                const response = await fetch(`/doctor/patients/${patientId}/history`);
-                if (!response.ok) throw new Error('Failed to fetch patient history');
-                const visitHistory = await response.json();
-
                 modalPatientImage.src = button.closest('.patient-card').querySelector('img').src;
                 modalPatientName.textContent = patient.name || 'Patient History';
                 modalPatientInfo.textContent = `${button.closest('.patient-card').querySelector('p').textContent}`;
                 exportPatientId.value = patientId;
+
+                const firstVisit = patient.visitDates && patient.visitDates.length > 0 
+                    ? patient.visitDates[0]
+                    : null;
 
                 modalContent.innerHTML = `
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -324,7 +338,7 @@
                             <div class="text-sm text-gray-600">Last Visit</div>
                         </div>
                         <div class="bg-yellow-50 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-bold text-yellow-600">${visitHistory.length > 0 ? new Date(visitHistory[visitHistory.length - 1].date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'N/A'}</div>
+                            <div class="text-2xl font-bold text-yellow-600">${firstVisit ? new Date(firstVisit).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'N/A'}</div>
                             <div class="text-sm text-gray-600">First Visit</div>
                         </div>
                     </div>
@@ -332,23 +346,13 @@
                         <h3 class="text-lg font-semibold text-gray-900 flex items-center">
                             <i class="fas fa-history text-blue-600 mr-2"></i>Visit History
                         </h3>
-                        ${visitHistory.length > 0 ? visitHistory.map(visit => `
+                        ${patient.visitDates && patient.visitDates.length > 0 ? patient.visitDates.map(date => `
                             <div class="relative pl-8 border-l-2 border-gray-200">
                                 <div class="absolute -left-2 top-0 w-4 h-4 bg-blue-600 rounded-full border-2 border-white"></div>
                                 <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                                     <div class="flex items-center justify-between mb-2">
-                                        <h4 class="font-medium text-gray-900">${visit.type || 'Consultation'}</h4>
-                                        <span class="text-sm text-gray-500">${visit.date ? new Date(visit.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'N/A'}</span>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="text-sm font-medium text-gray-700">Symptoms:</span>
-                                        <span class="text-sm text-gray-600">${visit.symptoms || 'N/A'}</span>
-                                    </div>
-                                    <div class="bg-gray-50 rounded-lg p-3">
-                                        <div class="text-sm font-medium text-gray-700 mb-2">Prescription:</div>
-                                        <div class="text-sm text-gray-600 space-y-1">
-                                            ${visit.prescription ? visit.prescription.map(p => `<div>• ${p}</div>`).join('') : '<div>No prescription</div>'}
-                                        </div>
+                                        <h4 class="font-medium text-gray-900">Visit</h4>
+                                        <span class="text-sm text-gray-500">${date ? new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'N/A'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -358,8 +362,55 @@
                 modal.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
             } catch (error) {
-                console.error('Error fetching patient history:', error);
+                console.error('Error rendering patient history:', error);
                 modalContent.innerHTML = '<p class="text-red-600">Failed to load history</p>';
+                modal.classList.remove('hidden');
+            }
+        }
+
+        // Open prescription modal
+        function openPrescriptionModal(button) {
+            const prescriptionString = button.dataset.prescription;
+            const modal = document.getElementById('prescriptionModal');
+            const prescriptionContent = document.getElementById('prescriptionContent');
+
+            try {
+                const parsed = prescriptionString ? JSON.parse(prescriptionString) : null;
+                prescriptionContent.innerHTML = `
+                    <div class="space-y-6">
+                        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-prescription-bottle-alt text-yellow-600 mr-2"></i>Last Prescription
+                        </h3>
+                        ${parsed && parsed !== 'No prescription available' ? `
+                            <div class="relative pl-8 border-l-2 border-gray-200">
+                                <div class="absolute -left-2 top-0 w-4 h-4 bg-yellow-600 rounded-full border-2 border-white"></div>
+                                <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                                    <div class="mb-3">
+                                        <span class="text-sm font-medium text-gray-700">Appointment ID:</span>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-lg p-3">
+                                        <div class="text-sm font-medium text-gray-700 mb-2">Medications:</div>
+                                        <div class="text-sm text-gray-600 space-y-2">
+                                            ${parsed.medications && parsed.medications.length > 0 ? parsed.medications.map(med => `
+                                                <div class="border-b border-gray-200 pb-2">
+                                                    <div><span class="font-medium">Name:</span> ${med.name || 'N/A'}</div>
+                                                    <div><span class="font-medium">Dosage:</span> ${med.dosage || 'N/A'}</div>
+                                                    <div><span class="font-medium">Frequency:</span> ${med.frequency || 'N/A'}</div>
+                                                    <div><span class="font-medium">Duration:</span> ${med.duration || 'N/A'}</div>
+                                                </div>
+                                            `).join('') : '<div>No medications prescribed</div>'}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : '<p class="text-gray-600">No prescription available</p>'}
+                    </div>
+                `;
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } catch (error) {
+                console.error('Error parsing prescription:', error);
+                prescriptionContent.innerHTML = '<p class="text-red-600">Failed to load prescription</p>';
                 modal.classList.remove('hidden');
             }
         }
@@ -371,13 +422,27 @@
             document.body.style.overflow = 'auto';
         }
 
+        // Close prescription modal
+        function closePrescriptionModal() {
+            const modal = document.getElementById('prescriptionModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
         // Event listeners
         document.getElementById('patientModal').addEventListener('click', function(e) {
             if (e.target === this) closePatientModal();
         });
 
+        document.getElementById('prescriptionModal').addEventListener('click', function(e) {
+            if (e.target === this) closePrescriptionModal();
+        });
+
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closePatientModal();
+            if (e.key === 'Escape') {
+                closePatientModal();
+                closePrescriptionModal();
+            }
         });
 
         document.getElementById('searchInput').addEventListener('input', function(e) {

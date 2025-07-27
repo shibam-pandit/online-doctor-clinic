@@ -2,7 +2,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="~{doctor/header :: head('Earnings - Doctor Dashboard')}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="font-inter antialiased bg-gray-50">
@@ -128,88 +127,6 @@
                 </div>
             </div>
 
-            <!-- Filters and Chart Section -->
-            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
-                <!-- Filters -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                        <i class="fas fa-filter text-primary mr-2"></i>Filters
-                    </h3>
-
-                    <div class="space-y-4">
-                        <!-- Date Range Filter Form -->
-                        <form method="get" action="/doctor/earnings" id="filterForm">
-                            <input type="hidden" name="page" value="0">
-
-                            <!-- Date Range -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input type="date" name="startDate" th:value="${startDate}"
-                                        class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
-                                    <input type="date" name="endDate" th:value="${endDate}"
-                                        class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
-                                </div>
-                            </div>
-
-                            <!-- View Toggle -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">View</label>
-                                <div class="flex bg-gray-100 rounded-lg p-1">
-                                    <button type="button"
-                                        class="flex-1 px-3 py-2 text-sm font-medium text-primary bg-white rounded-md shadow-sm transition-colors view-btn"
-                                        data-view="day">
-                                        Day
-                                    </button>
-                                    <button type="button"
-                                        class="flex-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-primary transition-colors view-btn"
-                                        data-view="week">
-                                        Week
-                                    </button>
-                                    <button type="button"
-                                        class="flex-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-primary transition-colors view-btn"
-                                        data-view="month">
-                                        Month
-                                    </button>
-                                </div>
-                                <input type="hidden" name="viewType" value="day" id="viewType">
-                            </div>
-
-                            <!-- Apply Filters Button -->
-                            <button type="submit"
-                                class="w-full bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                                <i class="fas fa-search mr-2"></i>Apply Filters
-                            </button>
-                        </form>
-
-                        <!-- Download CSV Button -->
-                        <a href="/doctor/earnings/download-csv"
-                            class="w-full block text-center border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-                            <i class="fas fa-file-csv mr-2"></i>Download CSV
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Earnings Chart -->
-                <div class="xl:col-span-2 bg-white rounded-xl shadow-lg p-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900">
-                            <i class="fas fa-chart-line text-primary mr-2"></i>Earnings Trend (Last 30 Days)
-                        </h3>
-                        <div class="flex items-center space-x-2 text-sm text-gray-600">
-                            <div class="flex items-center">
-                                <div class="w-3 h-3 bg-primary rounded-full mr-2"></div>
-                                <span>Earnings</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="relative h-80">
-                        <canvas id="earningsChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
             <!-- Earnings Table -->
             <div class="bg-white rounded-xl shadow-lg">
                 <div class="p-6 border-b border-gray-200">
@@ -240,7 +157,6 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
-                            <!-- Sample Data Row -->
                             <tr th:if="${appointmentsList != null and !appointmentsList.isEmpty()}"
                                 th:each="appointment : ${appointmentsList}" class="hover:bg-gray-50 transition-colors">
                                 <td class="py-4 px-6 text-gray-900"
@@ -248,10 +164,10 @@
                                     Mar 15, 2024</td>
                                 <td class="py-4 px-6">
                                     <div class="flex items-center space-x-3">
-                                        <img th:src="${appointment.patient.user.profileImage != null ? appointment.patient.user.profileImage : 'https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=100'}"
+                                        <img src="https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=100"
                                             alt="Patient" class="w-8 h-8 rounded-full object-cover">
                                         <span class="font-medium text-gray-900"
-                                            th:text="${appointment.patient.user.firstName + ' ' + appointment.patient.user.lastName}">Patient
+                                            th:text="${appointment.patient != null and appointment.patient.user != null ? appointment.patient.user.name : 'Patient Name'}">Patient
                                             Name</span>
                                     </div>
                                 </td>
@@ -272,12 +188,10 @@
                                         <i class="fas fa-clock mr-1"></i>Pending
                                     </span>
                                 </td>
-                                <td class="py-4 px-6 text-gray-600"
-                                    th:text="${appointment.paymentDone ? 'Paid' : 'Pending'}">Online
+                                <td class="py-4 px-6 text-gray-600">
+                                    Razorpay
                                 </td>
                             </tr>
-
-                            <!-- Dynamic data only - static rows removed -->
                         </tbody>
                     </table>
                 </div>
@@ -341,94 +255,6 @@
     </div>
 
     <script th:inline="javascript">
-        // Get dynamic data from backend
-        var chartLabels = /*[[${chartLabels}]]*/[];
-        var chartData = /*[[${chartData}]]*/[];
-
-        // Fallback data if backend doesn't provide chart data
-        if (!chartLabels || chartLabels.length === 0) {
-            chartLabels = ['No Data'];
-            chartData = [0];
-        }
-
-        // Initialize Chart with dynamic data
-        const ctx = document.getElementById('earningsChart').getContext('2d');
-        const earningsChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: chartLabels,
-                datasets: [{
-                    label: 'Daily Earnings',
-                    data: chartData,
-                    borderColor: '#2563EB',
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#2563EB',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function (value) {
-                                return '₹' + value;
-                            }
-                        },
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                elements: {
-                    point: {
-                        hoverBackgroundColor: '#2563EB'
-                    }
-                }
-            }
-        });
-
-        // View toggle functionality
-        const viewButtons = document.querySelectorAll('.view-btn');
-        const viewTypeInput = document.getElementById('viewType');
-
-        viewButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // Remove active state from all buttons
-                viewButtons.forEach(btn => {
-                    btn.classList.remove('text-primary', 'bg-white', 'shadow-sm');
-                    btn.classList.add('text-gray-600');
-                });
-
-                // Add active state to clicked button
-                button.classList.add('text-primary', 'bg-white', 'shadow-sm');
-                button.classList.remove('text-gray-600');
-
-                // Update hidden input value
-                viewTypeInput.value = button.getAttribute('data-view');
-
-                console.log('View changed to:', button.getAttribute('data-view'));
-            });
-        });
-
         // Auto-dismiss alerts after 5 seconds
         setTimeout(() => {
             const alerts = document.querySelectorAll('[class*="bg-green-50"], [class*="bg-red-50"]');

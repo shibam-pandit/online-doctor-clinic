@@ -1,7 +1,6 @@
 package com.shibam.clinic.online_doctor_clinic.Repositories;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,8 +11,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.shibam.clinic.online_doctor_clinic.Models.Appointment;
-import com.shibam.clinic.online_doctor_clinic.Models.Doctor;
-import com.shibam.clinic.online_doctor_clinic.Models.Patient;
 
 @Repository
 public interface AppointmentRepo extends JpaRepository<Appointment, Long> {
@@ -29,7 +26,10 @@ public interface AppointmentRepo extends JpaRepository<Appointment, Long> {
         @Query("SELECT AVG(a.rating) FROM Appointment a WHERE a.doctor.user.id = :doctorId AND a.rating IS NOT NULL")
         public Double getAverageRatingByDoctorId(Long doctorId);
 
-        @Query("SELECT a FROM Appointment a JOIN FETCH a.patient WHERE a.doctor.user.id = :doctorId")
+        @Query("SELECT a FROM Appointment a WHERE a.doctor.user.id = :doctorId AND a.status = 'BOOKED' ORDER BY a.date, a.slot")
+        public List<Appointment> findBookedAppointmentsByDoctorId(Long doctorId);
+
+        @Query("SELECT a FROM Appointment a JOIN FETCH a.patient WHERE a.doctor.user.id = :doctorId AND a.status = 'COMPLETED' ORDER BY a.date DESC")
         public List<Appointment> getAppointmentsWithPatientDetails(Long doctorId);
 
         @Query("SELECT a FROM Appointment a WHERE a.doctor.user.id = :doctorId AND a.date = :date AND a.status = 'BOOKED'")
@@ -85,19 +85,15 @@ public interface AppointmentRepo extends JpaRepository<Appointment, Long> {
         @Query("SELECT a FROM Appointment a JOIN FETCH a.doctor d JOIN FETCH d.user WHERE a.patient.user.id = :patientId")
         public List<Appointment> findByPatientId(Long patientId);
 
-        // Booking Appointment
-
-        @Modifying
-        @Transactional
-        @Query("INSERT INTO Appointment (doctor, patient, date, slot, durationMinutes, fee, status, paymentDone) " +
-                        "VALUES (:doctor, :patient, :date, :slot, :durationMinutes, :fee, 'BOOKED', false)")
-        public void bookAppointment(@Param("doctor") Doctor doctor, @Param("patient") Patient patient,
-                        @Param("date") LocalDate date, @Param("slot") LocalTime slot,
-                        @Param("durationMinutes") int durationMinutes, @Param("fee") double fee);
-
-
         @Modifying
         @Transactional
         @Query("UPDATE Appointment a SET a.meetingLink = :meetingLink WHERE a.id = :appointmentId")
-        public void updateMeetingLink(@Param("appointmentId") Long appointmentId, @Param("meetingLink") String meetingLink);
+        public void updateMeetingLink(@Param("appointmentId") Long appointmentId,
+                        @Param("meetingLink") String meetingLink);
+
+        @Modifying
+        @Transactional
+        @Query("UPDATE Appointment a SET a.prescription = :prescription WHERE a.id = :appointmentId")
+        public void updatePrescription(@Param("appointmentId") Long appointmentId,
+                        @Param("prescription") String prescription);
 }
