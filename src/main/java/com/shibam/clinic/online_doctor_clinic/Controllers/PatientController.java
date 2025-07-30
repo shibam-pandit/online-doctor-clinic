@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,8 +37,7 @@ public class PatientController {
     @Autowired
     private AppointmentRepo appointmentRepo;
 
-    @Value("${razorpay.key.id}")
-    private String razorpayKey;
+    private String razorpayKey = System.getenv("RAZORPAY_DUMMY_KEY");
 
     @GetMapping({ "", "/" })
     public String patientHome(Principal principal, Model model) {

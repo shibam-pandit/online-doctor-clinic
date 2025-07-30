@@ -1,9 +1,12 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <th:block th:replace="~{fragments/patient-header :: patient-header('Patient Dashboard - MediCare+')}" />
 
 <body class="font-inter antialiased bg-gray-50">
     <!-- Include Patient Sidebar Fragment -->
     <div
-        th:replace="~{fragments/patient-sidebar :: patient-sidebar('dashboard', ${patient.getUser().getName()}, ${patient.getId()})}">
+        th:replace="~{fragments/patient-sidebar :: patient-sidebar('dashboard', ${patient != null and patient.getUser() != null ? patient.getUser().getName() : 'Patient'}, ${patient != null ? patient.getId() : 'P001'}, ${patient.getUser().getProfilePictureUrl() != null ? patient.getUser().getProfilePictureUrl() : '/images/default-profile.png'})}">
     </div>
 
     <div class="flex min-h-screen">

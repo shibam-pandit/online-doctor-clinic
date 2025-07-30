@@ -3,7 +3,7 @@
 
 <body>
     <!-- Complete Patient Sidebar Fragment with all mobile view and script functionality -->
-    <th:block th:fragment="patient-sidebar(activeMenu, patientName, patientId)">
+    <th:block th:fragment="patient-sidebar(activeMenu, patientName, patientId, profilePictureUrl)">
         <!-- Mobile Menu Overlay -->
         <div id="mobileMenuOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
 
@@ -20,8 +20,8 @@
             <!-- Patient Profile Section -->
             <div class="p-6 border-b border-gray-200">
                 <div class="flex items-center space-x-3">
-                    <img src="https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=100"
-                        alt="Patient Profile" class="w-12 h-12 rounded-full object-cover">
+                    <img th:src="${profilePictureUrl != null ? profilePictureUrl : '/images/default-profile.png'}"
+                        alt="Patient Picture" class="w-12 h-12 rounded-full object-cover" />
                     <div>
                         <div th:fragment="patientProfile">
                             <h3 class="font-semibold text-gray-900 break-all" th:text="${patientName}"
@@ -67,7 +67,7 @@
                         Settings
                     </a>
                 </div>
-                
+
                 <!-- Logout Button -->
                 <div class="px-6 mt-8">
                     <form action="/logout" method="post" style="display: inline;">

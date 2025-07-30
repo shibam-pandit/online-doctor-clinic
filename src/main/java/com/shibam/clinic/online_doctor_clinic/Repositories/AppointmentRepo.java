@@ -29,6 +29,9 @@ public interface AppointmentRepo extends JpaRepository<Appointment, Long> {
         @Query("SELECT a FROM Appointment a WHERE a.doctor.user.id = :doctorId AND a.status = 'BOOKED' ORDER BY a.date, a.slot")
         public List<Appointment> findBookedAppointmentsByDoctorId(Long doctorId);
 
+        @Query("SELECT a FROM Appointment a JOIN FETCH a.patient WHERE a.doctor.user.id = :doctorId ORDER BY a.date DESC")
+        public List<Appointment> getAllAppointmentsByDoctorIdWithPatientDetails(Long doctorId);
+
         @Query("SELECT a FROM Appointment a JOIN FETCH a.patient WHERE a.doctor.user.id = :doctorId AND a.status = 'COMPLETED' ORDER BY a.date DESC")
         public List<Appointment> getAppointmentsWithPatientDetails(Long doctorId);
 

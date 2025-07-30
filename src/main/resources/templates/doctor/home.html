@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{doctor/header :: head('Dashboard - MediCare+')}">
+<head th:replace="~{fragments/doctor-header :: head('Dashboard - MediCare+')}">
 </head>
 
 <body class="font-inter antialiased bg-gray-50">
     <!-- Include Doctor Sidebar with activeMenu parameter -->
     <th:block
-        th:replace="~{fragments/doctor-sidebar :: doctor-sidebar('dashboard', ${doctor.getUser().getName()}, ${doctor.getSpecialization()})}">
+        th:replace="~{fragments/doctor-sidebar :: doctor-sidebar('dashboard', ${doctor.getUser().getName()}, ${doctor.getSpecialization()}, ${doctor != null and doctor.getUser() != null ? doctor.getUser().getProfilePictureUrl() : null})}">
     </th:block>
 
     <!-- Main Content Area -->

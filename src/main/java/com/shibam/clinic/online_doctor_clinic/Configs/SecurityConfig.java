@@ -3,6 +3,7 @@ package com.shibam.clinic.online_doctor_clinic.Configs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -49,9 +50,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/register", "/css/**", "/js/**", "/images/**", "/favicon.ico")
+                        // Explicitly allow GET and POST for registration and login
+                        .requestMatchers(HttpMethod.GET, "/", "/login", "/register", "/css/**", "/js/**", "/images/**", "/favicon.ico")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.POST, "/register", "/authenticate") // Changed /login to /authenticate to avoid conflict
                         .permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/doctor/wait").hasRole("DOCTOR")
@@ -60,12 +63,12 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
 
                 .formLogin(form -> form
-                        .loginPage("/login") // tell Spring to use YOUR login page
-                        .loginProcessingUrl("/login") // form action URL to handle login (POST)
-                        .usernameParameter("username") // specify that username field contains email
-                        .passwordParameter("password") // specify password parameter name
-                        .successHandler(authenticationSuccessHandler()) // Use custom success handler
-                        .failureUrl("/login?error=true") // where to go if login fails
+                        .loginPage("/login") // Your custom login page
+                        .loginProcessingUrl("/authenticate") // Changed from /login to avoid conflict with your GET /login
+                        .usernameParameter("username")
+                        .passwordParameter("password")
+                        .successHandler(authenticationSuccessHandler())
+                        .failureUrl("/login?error=true")
                         .permitAll())
 
                 .logout(logout -> logout
@@ -77,7 +80,11 @@ public class SecurityConfig {
 
                 .sessionManagement(session -> session
                         .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false));
+                        .maxSessionsPreventsLogin(false))
+
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/register")
+                );
 
         return http.build();
     }

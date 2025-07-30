@@ -11,21 +11,22 @@
         .font-inter {
             font-family: 'Inter', sans-serif;
         }
-        
+
         .prescription-card {
             transition: all 0.3s ease;
         }
-        
+
         .prescription-card:hover {
             transform: translateY(-2px);
         }
-        
+
         .filter-tab.active {
             border-bottom-color: #3b82f6 !important;
             color: #3b82f6 !important;
         }
 
-        .medication-table th, .medication-table td {
+        .medication-table th,
+        .medication-table td {
             padding: 8px;
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
@@ -50,7 +51,8 @@
 
 <body class="font-inter antialiased bg-gray-50">
     <!-- Include Patient Sidebar -->
-    <div th:replace="~{fragments/patient-sidebar :: patient-sidebar('prescriptions', ${patient != null and patient.getUser() != null ? patient.getUser().getName() : 'Patient'}, ${patient != null ? patient.getId() : 'P001'})}">
+    <div
+        th:replace="~{fragments/patient-sidebar :: patient-sidebar('prescriptions', ${patient != null and patient.getUser() != null ? patient.getUser().getName() : 'Patient'}, ${patient != null ? patient.getId() : 'P001'}, ${patient.getUser().getProfilePictureUrl() != null ? patient.getUser().getProfilePictureUrl() : '/images/default-profile.png'})}">
     </div>
 
     <!-- Main Content -->
@@ -136,17 +138,20 @@
                         <button id="allTab"
                             class="filter-tab active border-b-2 border-primary text-primary py-4 px-1 text-sm font-medium"
                             onclick="filterPrescriptions('all')">
-                            All <span class="ml-2 bg-primary text-white text-xs px-2 py-1 rounded-full" th:text="${totalPrescriptions}">0</span>
+                            All <span class="ml-2 bg-primary text-white text-xs px-2 py-1 rounded-full"
+                                th:text="${totalPrescriptions}">0</span>
                         </button>
                         <button id="recentTab"
                             class="filter-tab border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium"
                             onclick="filterPrescriptions('recent')">
-                            Recent (7 days) <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full" th:text="${recentPrescriptions}">0</span>
+                            Recent (7 days) <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full"
+                                th:text="${recentPrescriptions}">0</span>
                         </button>
                         <button id="olderTab"
                             class="filter-tab border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium"
                             onclick="filterPrescriptions('older')">
-                            Older <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full" th:text="${totalPrescriptions - recentPrescriptions}">0</span>
+                            Older <span class="ml-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full"
+                                th:text="${totalPrescriptions - recentPrescriptions}">0</span>
                         </button>
                     </nav>
                 </div>
@@ -157,27 +162,30 @@
                 <!-- Recent Prescription Cards -->
                 <div th:each="prescription : ${recentPrescriptionsList}"
                     class="prescription-card recent bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                    th:data-doctor="${prescription.doctor.user.name}" 
-                    th:data-medication="${prescription.prescription}"
+                    th:data-doctor="${prescription.doctor.user.name}" th:data-medication="${prescription.prescription}"
                     th:data-date="${prescription.date}">
                     <div class="p-6">
                         <!-- Prescription Header -->
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-4">
-                                <img src="https://images.pexels.com/photos/5407206/pexels-photo-5407206.jpeg?auto=compress&cs=tinysrgb&w=100"
+                                <img th:src="${prescription.doctor.user.profilePictureUrl != null ? prescription.doctor.user.profilePictureUrl : '/images/default-profile.png'}"
                                     th:alt="'Dr. ' + ${prescription.doctor.user.name}"
                                     class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900" th:text="'Dr. ' + ${prescription.doctor.user.name}">Dr. Name</h3>
-                                    <p class="text-sm text-primary font-medium" th:text="${prescription.doctor.specialization}">Specialization</p>
-                                    <p class="text-sm text-gray-600" th:text="${prescription.doctor.qualification}">Qualification</p>
+                                    <h3 class="text-lg font-semibold text-gray-900"
+                                        th:text="'Dr. ' + ${prescription.doctor.user.name}">Dr. Name</h3>
+                                    <p class="text-sm text-primary font-medium"
+                                        th:text="${prescription.doctor.specialization}">Specialization</p>
+                                    <p class="text-sm text-gray-600" th:text="${prescription.doctor.qualification}">
+                                        Qualification</p>
                                 </div>
                             </div>
                             <div class="text-right">
                                 <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
                                     <i class="fas fa-clock mr-1"></i>Recent
                                 </span>
-                                <p class="text-sm text-gray-600 mt-1" th:text="${#temporals.format(prescription.date, 'MMM dd, yyyy')}">Date</p>
+                                <p class="text-sm text-gray-600 mt-1"
+                                    th:text="${#temporals.format(prescription.date, 'MMM dd, yyyy')}">Date</p>
                             </div>
                         </div>
 
@@ -213,11 +221,13 @@
                         <!-- Appointment Summary -->
                         <div class="grid grid-cols-2 gap-4 mb-4">
                             <div class="text-center p-3 bg-yellow-50 rounded-lg">
-                                <div class="text-lg font-bold text-accent" th:text="${prescription.durationMinutes}">0</div>
+                                <div class="text-lg font-bold text-accent" th:text="${prescription.durationMinutes}">0
+                                </div>
                                 <div class="text-xs text-gray-600">Duration (min)</div>
                             </div>
                             <div class="text-center p-3 bg-green-50 rounded-lg">
-                                <div class="text-lg font-bold text-secondary" th:text="${prescription.status}">Status</div>
+                                <div class="text-lg font-bold text-secondary" th:text="${prescription.status}">Status
+                                </div>
                                 <div class="text-xs text-gray-600">Status</div>
                             </div>
                         </div>
@@ -242,27 +252,30 @@
                 <div th:each="prescription : ${prescriptionsList}"
                     th:if="${!#lists.contains(recentPrescriptionsList, prescription)}"
                     class="prescription-card older bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                    th:data-doctor="${prescription.doctor.user.name}" 
-                    th:data-medication="${prescription.prescription}"
+                    th:data-doctor="${prescription.doctor.user.name}" th:data-medication="${prescription.prescription}"
                     th:data-date="${prescription.date}">
                     <div class="p-6">
                         <!-- Prescription Header -->
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-4">
-                                <img src="https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg?auto=compress&cs=tinysrgb&w=100"
+                                <img th:src="${prescription.doctor.user.profilePictureUrl != null ? prescription.doctor.user.profilePictureUrl : '/images/default-profile.png'}"
                                     th:alt="'Dr. ' + ${prescription.doctor.user.name}"
                                     class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900" th:text="'Dr. ' + ${prescription.doctor.user.name}">Dr. Name</h3>
-                                    <p class="text-sm text-primary font-medium" th:text="${prescription.doctor.specialization}">Specialization</p>
-                                    <p class="text-sm text-gray-600" th:text="${prescription.doctor.qualification}">Qualification</p>
+                                    <h3 class="text-lg font-semibold text-gray-900"
+                                        th:text="'Dr. ' + ${prescription.doctor.user.name}">Dr. Name</h3>
+                                    <p class="text-sm text-primary font-medium"
+                                        th:text="${prescription.doctor.specialization}">Specialization</p>
+                                    <p class="text-sm text-gray-600" th:text="${prescription.doctor.qualification}">
+                                        Qualification</p>
                                 </div>
                             </div>
                             <div class="text-right">
                                 <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
                                     <i class="fas fa-history mr-1"></i>Older
                                 </span>
-                                <p class="text-sm text-gray-600 mt-1" th:text="${#temporals.format(prescription.date, 'MMM dd, yyyy')}">Date</p>
+                                <p class="text-sm text-gray-600 mt-1"
+                                    th:text="${#temporals.format(prescription.date, 'MMM dd, yyyy')}">Date</p>
                             </div>
                         </div>
 
@@ -289,7 +302,8 @@
                                     <tbody></tbody>
                                 </table>
                             </div>
-                            <button class="text-purple-600 text-sm font-medium hover:text-purple-800 transition-colors mt-3"
+                            <button
+                                class="text-purple-600 text-sm font-medium hover:text-purple-800 transition-colors mt-3"
                                 th:onclick="'viewFullPrescription(' + ${prescription.id} + ')'">
                                 <i class="fas fa-eye mr-1"></i>View Full Prescription
                             </button>
@@ -298,11 +312,13 @@
                         <!-- Appointment Summary -->
                         <div class="grid grid-cols-2 gap-4 mb-4">
                             <div class="text-center p-3 bg-yellow-50 rounded-lg">
-                                <div class="text-lg font-bold text-accent" th:text="${prescription.durationMinutes}">0</div>
+                                <div class="text-lg font-bold text-accent" th:text="${prescription.durationMinutes}">0
+                                </div>
                                 <div class="text-xs text-gray-600">Duration (min)</div>
                             </div>
                             <div class="text-center p-3 bg-green-50 rounded-lg">
-                                <div class="text-lg font-bold text-secondary" th:text="${prescription.status}">Status</div>
+                                <div class="text-lg font-bold text-secondary" th:text="${prescription.status}">Status
+                                </div>
                                 <div class="text-xs text-gray-600">Status</div>
                             </div>
                         </div>
@@ -325,11 +341,14 @@
             </div>
 
             <!-- Empty State -->
-            <div id="emptyState" class="hidden text-center py-16" th:classappend="${totalPrescriptions == 0 ? '' : 'hidden'}">
+            <div id="emptyState" class="hidden text-center py-16"
+                th:classappend="${totalPrescriptions == 0 ? '' : 'hidden'}">
                 <i class="fas fa-prescription-bottle-alt text-gray-300 text-6xl mb-4"></i>
                 <h3 class="text-xl font-medium text-gray-900 mb-2">No Prescriptions Found</h3>
-                <p class="text-gray-600 mb-6" th:if="${totalPrescriptions == 0}">You don't have any prescriptions yet. Book an appointment to get started.</p>
-                <p class="text-gray-600 mb-6" th:unless="${totalPrescriptions == 0}">No prescriptions match your search criteria.</p>
+                <p class="text-gray-600 mb-6" th:if="${totalPrescriptions == 0}">You don't have any prescriptions yet.
+                    Book an appointment to get started.</p>
+                <p class="text-gray-600 mb-6" th:unless="${totalPrescriptions == 0}">No prescriptions match your search
+                    criteria.</p>
                 <button onclick="clearFilters()" th:if="${totalPrescriptions > 0}"
                     class="bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
                     <i class="fas fa-refresh mr-2"></i>Clear Filters
@@ -338,7 +357,8 @@
 
             <!-- Load More Button (if needed for pagination) -->
             <div class="text-center mt-8" th:if="${totalPrescriptions > 10}">
-                <button class="bg-gray-100 text-gray-700 px-8 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                <button
+                    class="bg-gray-100 text-gray-700 px-8 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
                     <i class="fas fa-plus mr-2"></i>Load More Prescriptions
                 </button>
             </div>
@@ -371,8 +391,9 @@
                         </h3>
                         <div class="flex items-center space-x-4">
                             <img id="modalDoctorImage"
-                                src="https://images.pexels.com/photos/5407206/pexels-photo-5407206.jpeg?auto=compress&cs=tinysrgb&w=100"
-                                alt="Doctor" class="w-16 h-16 rounded-full object-cover">
+                                th:src="${prescription != null and prescription.doctor != null and prescription.doctor.user != null and prescription.doctor.user.profilePictureUrl != null ? prescription.doctor.user.profilePictureUrl : '/images/default-profile.png'}"
+                                th:alt="${prescription != null and prescription.doctor != null and prescription.doctor.user != null ? 'Dr. ' + prescription.doctor.user.name : 'Doctor'}"
+                                class="w-16 h-16 rounded-full object-cover">
                             <div>
                                 <h4 id="modalDoctorName" class="font-semibold text-gray-900">Dr. Name</h4>
                                 <p id="modalDoctorSpec" class="text-sm text-gray-600">Specialization</p>
@@ -387,10 +408,14 @@
                             <i class="fas fa-calendar-alt mr-2"></i>Prescription Information
                         </h3>
                         <div class="space-y-2 text-sm">
-                            <div><span class="font-medium">Date:</span> <span id="modalPrescriptionDate">Date</span></div>
-                            <div><span class="font-medium">Prescription ID:</span> <span id="modalPrescriptionId">ID</span></div>
-                            <div><span class="font-medium">Appointment Status:</span> <span id="modalStatus">Status</span></div>
-                            <div><span class="font-medium">Duration:</span> <span id="modalDuration">Duration</span></div>
+                            <div><span class="font-medium">Date:</span> <span id="modalPrescriptionDate">Date</span>
+                            </div>
+                            <div><span class="font-medium">Prescription ID:</span> <span
+                                    id="modalPrescriptionId">ID</span></div>
+                            <div><span class="font-medium">Appointment Status:</span> <span
+                                    id="modalStatus">Status</span></div>
+                            <div><span class="font-medium">Duration:</span> <span id="modalDuration">Duration</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -425,7 +450,7 @@
 
     <script th:inline="javascript">
         // Get prescription data from Thymeleaf
-        const prescriptionsData = /*[[${prescriptionsList}]]*/ [];
+        const prescriptionsData = /*[[${prescriptionsList}]]*/[];
         let currentPrescriptionId = null;
 
         // Function to parse and render medication table
@@ -460,7 +485,7 @@
         }
 
         // Initialize medication tables for all prescription cards
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const totalPrescriptions = /*[[${totalPrescriptions}]]*/ 0;
             if (totalPrescriptions === 0) {
                 document.getElementById('emptyState').classList.remove('hidden');
@@ -521,7 +546,7 @@
                 try {
                     const data = JSON.parse(medicationText);
                     if (data.medications && Array.isArray(data.medications)) {
-                        matchesSearch = matchesSearch || data.medications.some(med => 
+                        matchesSearch = matchesSearch || data.medications.some(med =>
                             med.name.toLowerCase().includes(searchTerm)
                         );
                     }
@@ -548,7 +573,7 @@
             cards.sort((a, b) => {
                 const dateA = new Date(a.dataset.date);
                 const dateB = new Date(b.dataset.date);
-                
+
                 return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
             });
 
@@ -572,7 +597,7 @@
         // Prescription Modal Functions
         function viewFullPrescription(prescriptionId) {
             currentPrescriptionId = prescriptionId;
-            
+
             // Find prescription data
             const prescription = prescriptionsData.find(p => p.id == prescriptionId);
             if (!prescription) {
@@ -588,7 +613,7 @@
             document.getElementById('modalPrescriptionId').textContent = 'RX' + prescription.id;
             document.getElementById('modalStatus').textContent = prescription.status;
             document.getElementById('modalDuration').textContent = prescription.durationMinutes + ' minutes';
-            
+
             // Render medication table in modal
             const modalTable = document.getElementById('fullPrescriptionContent');
             renderMedicationTable(modalTable, prescription.prescription);

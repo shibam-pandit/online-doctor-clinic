@@ -106,7 +106,7 @@ public class DoctorService {
     }
 
     public List<Appointment> findAllAppointmentsWithPatientDetails(Long doctorId) {
-        return appointmentRepo.getAppointmentsWithPatientDetails(doctorId);
+        return appointmentRepo.getAllAppointmentsByDoctorIdWithPatientDetails(doctorId);
     }
 
     public void addAvailability(Long doctorId, LocalDate date, LocalTime startTime, LocalTime endTime,

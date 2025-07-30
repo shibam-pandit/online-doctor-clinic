@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -52,6 +52,9 @@
                 </svg>
                 <span th:text="${error}"></span>
             </div>
+
+
+
             <!-- Header -->
             <div class="text-center">
                 <h1 class="text-3xl font-bold text-primary mb-2">MediCare+</h1>
@@ -59,7 +62,7 @@
             </div>
             <!-- Registration Form -->
             <div class="bg-white rounded-xl shadow-lg p-8">
-                <form class="space-y-6" id="registerForm" method="POST" action="/register">
+                <form class="space-y-6" id="registerForm" method="POST" th:action="@{/register}" enctype="multipart/form-data">
                     <!-- Role Selection -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-3">I am a</label>
@@ -77,12 +80,54 @@
                         </div>
                     </div>
 
+                    <!-- Profile Picture Upload -->
+                    <div>
+                        <label for="profilePicture" class="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-shrink-0">
+                                <img id="profilePreview" class="h-16 w-16 object-cover rounded-full border-2 border-gray-300" 
+                                     src="data:image/svg+xml,%3csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100' height='100' fill='%23f3f4f6'/%3e%3ctext x='50%25' y='50%25' font-size='14' text-anchor='middle' alignment-baseline='middle' font-family='system-ui, sans-serif' fill='%236b7280'%3ePhoto%3c/text%3e%3c/svg%3e" 
+                                     accept="image/*" aria-hidden="true"
+                                     th:alt="'Profile picture preview for ' + ${name}"  />
+                            </div>
+                            <div class="flex-1">
+                                <input type="file" id="profilePicture" name="profilePicture" accept="image/*"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary file:text-white hover:file:bg-blue-700" />
+                                <p class="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Name Field -->
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                         <input type="text" id="name" name="name" required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
                             placeholder="Enter your full name" aria-required="true" />
+                    </div>
+
+                    <!-- Age and Gender Row -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Age Field -->
+                        <div>
+                            <label for="age" class="block text-sm font-medium text-gray-700 mb-2">Age</label>
+                            <input type="number" id="age" name="age" required min="1" max="120"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+                                placeholder="Age" aria-required="true" />
+                        </div>
+
+                        <!-- Gender Field -->
+                        <div>
+                            <label for="gender" class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                            <select id="gender" name="gender" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors">
+                                <option value="">Select gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                                <option value="prefer-not-to-say">Prefer not to say</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Email Field -->
@@ -121,7 +166,7 @@
                                     class="block text-sm font-medium text-gray-700 mb-2">Qualification</label>
                                 <input type="text" id="qualification" name="qualification"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                                    placeholder="e.g., MBBS, MD, MS" required />
+                                    placeholder="e.g., MBBS, MD, MS" />
                             </div>
 
                             <!-- Specialization Field -->
@@ -152,7 +197,7 @@
                                     Experience</label>
                                 <input type="number" id="experience" name="experience" min="0" max="50"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                                    placeholder="Enter years of experience" required />
+                                    placeholder="Enter years of experience" />
                             </div>
                         </div>
                     </div>
@@ -240,6 +285,34 @@
             }
 
             e.target.value = value;
+        });
+
+        // Profile picture preview
+        document.getElementById('profilePicture').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('profilePreview');
+            
+            if (file) {
+                // Validate file size (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size should be less than 5MB');
+                    e.target.value = '';
+                    return;
+                }
+                
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select an image file');
+                    e.target.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
         });
     </script>
 </body>

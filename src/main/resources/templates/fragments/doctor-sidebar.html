@@ -3,7 +3,7 @@
 
 <body>
     <!-- Complete Doctor Sidebar Fragment with all mobile view and script functionality -->
-    <th:block th:fragment="doctor-sidebar(activeMenu, doctorName, doctorSpecialization)">
+    <th:block th:fragment="doctor-sidebar(activeMenu, doctorName, doctorSpecialization, profilePictureUrl)">
         <!-- Mobile Menu Overlay -->
         <div id="mobileMenuOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
 
@@ -20,8 +20,7 @@
             <!-- Doctor Profile Section -->
             <div class="p-6 border-b border-gray-200">
                 <div class="flex items-center space-x-3">
-                    <img src="https://images.pexels.com/photos/5407206/pexels-photo-5407206.jpeg?auto=compress&cs=tinysrgb&w=100"
-                        alt="Dr. Rajesh Kumar" class="w-12 h-12 rounded-full object-cover">
+                    <img th:src="${profilePictureUrl != null ? profilePictureUrl : '/images/default-profile.png'}" alt="Doctor Picture" class="w-12 h-12 rounded-full object-cover">
                     <div>
                         <div th:fragment="doctorProfile">
                             <h3 class="font-semibold text-gray-900" th:text="${doctorName}">Doctor Name</h3>

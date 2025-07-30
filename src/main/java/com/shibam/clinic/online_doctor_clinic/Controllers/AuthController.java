@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.shibam.clinic.online_doctor_clinic.Services.AuthService;
@@ -33,15 +34,18 @@ public class AuthController {
             @RequestParam(value = "qualification", required = false) String qualification,
             @RequestParam(value = "specialization", required = false) String specialization,
             @RequestParam(value = "experience", required = false) Integer experience,
+            @RequestParam(value = "profilePicture", required = false) MultipartFile profilePicture,
+            @RequestParam(value = "gender", required = false) String gender,
+            @RequestParam(value = "age", required = false) Integer age,
             RedirectAttributes redirectAttributes) {
             
         System.out.println("Registering user with role: " + role + ", name: " + name + ", email: " + email);
 
         try {
             if ("doctor".equals(role)) {
-                authService.registerDoctor(name, email, phone, password, qualification, specialization, experience);
+                authService.registerDoctor(name, email, phone, password, gender, age, profilePicture, qualification, specialization, experience);
             } else if ("patient".equals(role)) {
-                authService.registerPatient(name, email, phone, password);
+                authService.registerPatient(name, email, phone, password, gender, age, profilePicture);
             } else {
                 throw new IllegalArgumentException("Invalid role specified");
             }

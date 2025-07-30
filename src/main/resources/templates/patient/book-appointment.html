@@ -43,7 +43,7 @@
 <body class="font-inter antialiased bg-gray-50">
     <!-- Include Patient Sidebar -->
     <div
-        th:replace="~{fragments/patient-sidebar :: patient-sidebar('book-appointment', ${patient != null and patient.getUser() != null ? patient.getUser().getName() : 'Patient'}, ${patient != null ? patient.getId() : 'P001'})}">
+        th:replace="~{fragments/patient-sidebar :: patient-sidebar('book-appointment', ${patient != null and patient.getUser() != null ? patient.getUser().getName() : 'Patient'}, ${patient != null ? patient.getId() : 'P001'}, ${patient.getUser().getProfilePictureUrl() != null ? patient.getUser().getProfilePictureUrl() : '/images/default-profile.png'})}">
     </div>
 
     <!-- Main Content -->
@@ -163,9 +163,9 @@
                         <!-- Doctor Header -->
                         <div class="flex items-center space-x-3 sm:space-x-4 mb-4">
                             <div class="relative flex-shrink-0">
-                                <img th:src="'https://images.pexels.com/photos/5407206/pexels-photo-5407206.jpeg?auto=compress&cs=tinysrgb&w=200'"
+                                <img th:src="${doctor != null and doctor.getUser() != null ? doctor.getUser().getProfilePictureUrl() : '/images/default-profile.png'}"
                                     th:alt="${doctor != null and doctor.getUser() != null ? doctor.getUser().getName() : 'Doctor'}"
-                                    class="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-gray-200">
+                                    class="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-gray-200" />
                                 <div th:if="${doctor != null and doctor.isApproved()}"
                                     class="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-secondary rounded-full border-2 border-white flex items-center justify-center">
                                     <i class="fas fa-check text-white text-xs"></i>

@@ -70,7 +70,7 @@
 <body class="font-inter antialiased bg-gray-50">
     <!-- Include Patient Sidebar -->
     <div
-        th:replace="~{fragments/patient-sidebar :: patient-sidebar('appointments', ${patient != null and patient.getUser() != null ? patient.getUser().getName() : 'Patient'}, ${patient != null ? patient.getId() : 'P001'})}">
+        th:replace="~{fragments/patient-sidebar :: patient-sidebar('appointments', ${patient != null and patient.getUser() != null ? patient.getUser().getName() : 'Patient'}, ${patient != null ? patient.getId() : 'P001'}, ${patient.getUser().getProfilePictureUrl() != null ? patient.getUser().getProfilePictureUrl() : '/images/default-profile.png'})}">
     </div>
 
     <!-- Main Content -->
@@ -176,7 +176,8 @@
                         <!-- Appointment Header -->
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-4">
-                                <img src="https://images.pexels.com/photos/5407206/pexels-photo-5407206.jpeg?auto=compress&cs=tinysrgb&w=100"
+                                <img 
+                                    th:src="${appointment.doctor.user.profilePictureUrl != null ? appointment.doctor.user.profilePictureUrl : '/images/default-profile.png'}"
                                     th:alt="'Dr. ' + ${appointment.doctor.user.name}"
                                     class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
                                 <div>
@@ -265,7 +266,8 @@
                         <!-- Appointment Header -->
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-4">
-                                <img src="https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=100"
+                                <img 
+                                    th:src="${appointment.doctor.user.profilePictureUrl != null ? appointment.doctor.user.profilePictureUrl : '/images/default-profile.png'}"
                                     th:alt="'Dr. ' + ${appointment.doctor.user.name}"
                                     class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
                                 <div>
@@ -361,7 +363,8 @@
                         <!-- Appointment Header -->
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-4">
-                                <img src="https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg?auto=compress&cs=tinysrgb&w=100"
+                                <img 
+                                    th:src="${appointment.doctor.user.profilePictureUrl != null ? appointment.doctor.user.profilePictureUrl : '/images/default-profile.png'}"
                                     th:alt="'Dr. ' + ${appointment.doctor.user.name}"
                                     class="w-16 h-16 rounded-full object-cover border-2 border-gray-200 grayscale">
                                 <div>

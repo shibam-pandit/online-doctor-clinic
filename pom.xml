@@ -3,11 +3,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.3</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-parent</artifactId>
+			<version>3.5.4</version>
+			<relativePath/> <!-- lookup parent from repository -->
+		</parent>
 	<groupId>com.shibam.clinic</groupId>
 	<artifactId>online-doctor-clinic</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -78,6 +78,12 @@
     		<groupId>com.razorpay</groupId>
     		<artifactId>razorpay-java</artifactId>
     		<version>1.4.4</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44 -->
+		<dependency>
+			<groupId>com.cloudinary</groupId>
+			<artifactId>cloudinary-http44</artifactId>
+			<version>1.39.0</version>
 		</dependency>
 	</dependencies>
 

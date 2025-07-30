@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{doctor/header :: head('Patients - Doctor Dashboard')}">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<head th:replace="~{fragments/doctor-header :: head('Patients - Doctor Dashboard')}">
 </head>
+
 <body class="font-sans antialiased bg-gray-50">
     <!-- Sidebar -->
-    <th:block th:replace="~{fragments/doctor-sidebar :: doctor-sidebar('patients', ${doctor.getUser().getName()}, ${doctor.getSpecialization()})}"></th:block>
+    <th:block
+        th:replace="~{fragments/doctor-sidebar :: doctor-sidebar('patients', ${doctor.getUser().getName()}, ${doctor.getSpecialization()}, ${doctor != null and doctor.getUser() != null ? doctor.getUser().getProfilePictureUrl() : null})}">
+    </th:block>
 
     <!-- Main Content -->
     <div class="lg:pl-64">

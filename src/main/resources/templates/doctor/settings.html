@@ -1,38 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Settings - Doctor Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        'inter': ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: '#2563EB',
-                        secondary: '#10B981',
-                        accent: '#F59E0B',
-                    }
-                }
-            }
-        }
-    </script>
+<head th:replace="~{fragments/doctor-header :: head('Patients - Doctor Dashboard')}">
 </head>
 
 <body class="font-inter antialiased bg-gray-50">
     <!-- Include Doctor Sidebar with activeMenu parameter -->
     <th:block
-        th:replace="~{fragments/doctor-sidebar :: doctor-sidebar('settings', ${doctor != null ? doctor.getUser().getName() : 'Doctor'}, ${doctor != null ? doctor.getSpecialization() : 'Specialist'})}">
+        th:replace="~{fragments/doctor-sidebar :: doctor-sidebar('settings', ${doctor.getUser().getName()}, ${doctor.getSpecialization()}, ${doctor != null and doctor.getUser() != null ? doctor.getUser().getProfilePictureUrl() : null})}">
     </th:block>
 
     <!-- Main Content -->
@@ -64,7 +39,8 @@
                 <div class="flex flex-col sm:flex-row items-center sm:items-start space-y-6 sm:space-y-0 sm:space-x-8">
                     <!-- Profile Picture -->
                     <div class="relative">
-                        <img src="https://images.pexels.com/photos/5407206/pexels-photo-5407206.jpeg?auto=compress&cs=tinysrgb&w=200"
+                        <img
+                            th:src="@{${doctor != null and doctor.getUser() != null and doctor.getUser().getProfilePictureUrl() != null ? doctor.getUser().getProfilePictureUrl() : '/images/default-profile.png'}}"
                             alt="Doctor Profile"
                             class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg">
                         <div
@@ -85,14 +61,6 @@
                         <!-- Quick Stats -->
                         <div
                             class="flex flex-col sm:flex-row items-center sm:items-start space-y-2 sm:space-y-0 sm:space-x-6 text-sm text-gray-600">
-                            <div class="flex items-center space-x-2">
-                                <i class="fas fa-star text-yellow-400"></i>
-                                <span>4.9 Rating</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <i class="fas fa-users text-secondary"></i>
-                                <span>127+ Patients</span>
-                            </div>
                             <div class="flex items-center space-x-2">
                                 <i class="fas fa-calendar-check text-primary"></i>
                                 <span
@@ -162,7 +130,7 @@
                             </div>
                             <div class="flex-1">
                                 <label class="block text-sm font-medium text-gray-500 mb-1">Gender</label>
-                                <p class="text-lg font-medium text-gray-900">Not Available</p>
+                                <p class="text-lg font-medium text-gray-900" th:text="${doctor != null and doctor.getUser() != null ? doctor.getUser().getGender() : 'Not Available'}">Not Available</p>
                             </div>
                         </div>
 
@@ -172,8 +140,8 @@
                                 <i class="fas fa-birthday-cake text-indigo-600"></i>
                             </div>
                             <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-500 mb-1">Date of Birth</label>
-                                <p class="text-lg font-medium text-gray-900">Not Available</p>
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Age</label>
+                                <p class="text-lg font-medium text-gray-900" th:text="${doctor != null and doctor.getUser() != null ? doctor.getUser().getAge() : 'Not Available'}">Not Available</p>
                             </div>
                         </div>
                     </div>
@@ -236,28 +204,6 @@
                             <div class="flex-1">
                                 <label class="block text-sm font-medium text-gray-500 mb-1">Clinic/Hospital</label>
                                 <p class="text-lg font-medium text-gray-900">MediCare+ Online Clinic</p>
-                            </div>
-                        </div>
-
-                        <!-- Consultation Fee -->
-                        <div class="flex items-center space-x-4">
-                            <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-rupee-sign text-indigo-600"></i>
-                            </div>
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-500 mb-1">Consultation Fee</label>
-                                <p class="text-lg font-medium text-gray-900">₹500</p>
-                            </div>
-                        </div>
-
-                        <!-- Working Hours -->
-                        <div class="flex items-center space-x-4">
-                            <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-clock text-red-600"></i>
-                            </div>
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-500 mb-1">Working Hours</label>
-                                <p class="text-lg font-medium text-gray-900">9:00 AM - 6:00 PM</p>
                             </div>
                         </div>
                     </div>

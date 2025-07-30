@@ -25,6 +25,10 @@ public class User {
     private String password;
     private String phone;
 
+    private String profilePictureUrl;
+    private String gender;
+    private Integer age;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -85,6 +89,30 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public String getProfilePictureUrl() {
+        return profilePictureUrl;
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
     }
 
     public LocalDateTime getCreatedAt() {
