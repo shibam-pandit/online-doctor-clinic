@@ -389,9 +389,9 @@ public class DoctorService {
                     patient.getUser().getName(),
                     patient.getUser().getEmail(),
                     patient.getUser().getPhone(),
-                    "N/A", // gender - not available in current model
-                    null, // age - not available in current model
-                    null, // profileImage - not available in current model
+                    patient.getUser().getGender(),
+                    patient.getUser().getAge(),
+                    patient.getUser().getProfilePictureUrl(),
                     totalVisits,
                     lastVisitDate,
                     lastPrescription,

@@ -252,7 +252,9 @@
                                 <div class="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
                                     <div
                                         class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-user text-blue-600"></i>
+                                        <img 
+                                        th:src="${appointment.patient != null and appointment.patient.user != null ? appointment.patient.user.profilePictureUrl : 'https://thumbs.dreamstime.com/z/default-avatar-profile-icon-vector-social-media-user-image-182145777.jpg?ct=jpeg'}"
+                                        alt="Patient" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover" />
                                     </div>
                                     <div class="min-w-0 flex-1">
                                         <div class="font-medium text-gray-900 truncate"
@@ -305,10 +307,6 @@
                             class="bg-white text-primary px-3 sm:px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors text-center text-sm sm:text-base">
                             <i class="fas fa-calendar-alt mr-2"></i>View Appointments
                         </a>
-                        <button
-                            class="bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-lg font-medium hover:bg-blue-800 transition-colors text-sm sm:text-base">
-                            <i class="fas fa-download mr-2"></i>Export Schedule
-                        </button>
                     </div>
                 </div>
             </div>

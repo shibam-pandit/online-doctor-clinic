@@ -168,7 +168,7 @@
                         <!-- Prescription Header -->
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-4">
-                                <img th:src="${prescription.doctor.user.profilePictureUrl != null ? prescription.doctor.user.profilePictureUrl : '/images/default-profile.png'}"
+                                <img th:src="${prescription.doctor.user.profilePictureUrl != null ? prescription.doctor.user.profilePictureUrl : 'https://thumbs.dreamstime.com/z/default-avatar-profile-icon-vector-social-media-user-image-182145777.jpg?ct=jpeg'}"
                                     th:alt="'Dr. ' + ${prescription.doctor.user.name}"
                                     class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
                                 <div>
@@ -258,7 +258,7 @@
                         <!-- Prescription Header -->
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-4">
-                                <img th:src="${prescription.doctor.user.profilePictureUrl != null ? prescription.doctor.user.profilePictureUrl : '/images/default-profile.png'}"
+                                <img th:src="${prescription.doctor.user.profilePictureUrl != null ? prescription.doctor.user.profilePictureUrl : 'https://thumbs.dreamstime.com/z/default-avatar-profile-icon-vector-social-media-user-image-182145777.jpg?ct=jpeg'}"
                                     th:alt="'Dr. ' + ${prescription.doctor.user.name}"
                                     class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
                                 <div>
@@ -390,8 +390,7 @@
                             <i class="fas fa-user-md mr-2"></i>Doctor Information
                         </h3>
                         <div class="flex items-center space-x-4">
-                            <img id="modalDoctorImage"
-                                th:src="${prescription != null and prescription.doctor != null and prescription.doctor.user != null and prescription.doctor.user.profilePictureUrl != null ? prescription.doctor.user.profilePictureUrl : '/images/default-profile.png'}"
+                            <img id="modalDoctorPic"
                                 th:alt="${prescription != null and prescription.doctor != null and prescription.doctor.user != null ? 'Dr. ' + prescription.doctor.user.name : 'Doctor'}"
                                 class="w-16 h-16 rounded-full object-cover">
                             <div>
@@ -613,6 +612,10 @@
             document.getElementById('modalPrescriptionId').textContent = 'RX' + prescription.id;
             document.getElementById('modalStatus').textContent = prescription.status;
             document.getElementById('modalDuration').textContent = prescription.durationMinutes + ' minutes';
+
+            // Set doctor image src
+            document.getElementById('modalDoctorPic').src = prescription.doctor.user.profilePictureUrl || 'https://thumbs.dreamstime.com/z/default-avatar-profile-icon-vector-social-media-user-image-182145777.jpg?ct=jpeg';
+            document.getElementById('modalDoctorPic').alt = prescription.doctor.user.name ? ('Dr. ' + prescription.doctor.user.name) : 'Doctor';
 
             // Render medication table in modal
             const modalTable = document.getElementById('fullPrescriptionContent');

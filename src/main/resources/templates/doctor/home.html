@@ -20,8 +20,8 @@
                     class="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 rounded-xl p-6 sm:p-8 text-white shadow-lg">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div class="flex-1">
-                            <h1 class="text-2xl sm:text-3xl font-bold mb-2">Good Morning, Dr. <span
-                                    th:text="${doctor.getUser().getName()}">Doctor Name</span>! ☀️</h1>
+                            <h1 class="text-2xl sm:text-3xl font-bold mb-2">Good <span th:text="${greetTime}">morning</span>, Dr. <span
+                                    th:text="${doctor.getUser().getName()}">Doctor Name</span>!</h1>
                             <p class="text-blue-100 text-base sm:text-lg mb-4 sm:mb-0">
                                 You have <span class="font-semibold text-white"
                                     th:text="${#lists.size(todayAppointments)}">0</span>
@@ -147,7 +147,9 @@
                                     <div class="flex-shrink-0">
                                         <div
                                             class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                                            <i class="fas fa-user text-white text-lg"></i>
+                                            <img th:src="${appointment?.getPatient()?.getUser()?.getProfilePictureUrl() ?: 'https://thumbs.dreamstime.com/z/default-avatar-profile-icon-vector-social-media-user-image-182145777.jpg?ct=jpeg'}"
+                                                th:alt="${appointment?.getPatient()?.getUser()?.getName() ?: 'Unknown Patient'}"
+                                                class="w-10 h-10 rounded-full object-cover">
                                         </div>
                                     </div>
                                     <div class="ml-4 flex-1">

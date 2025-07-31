@@ -149,10 +149,6 @@
                             class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors">
                             <i class="fas fa-times mr-2"></i>Clear
                         </button>
-                        <button id="exportBtn"
-                            class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-                            <i class="fas fa-download mr-2"></i>Export
-                        </button>
                     </div>
                 </div>
             </div>
@@ -203,14 +199,16 @@
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-4">
                                     <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                                        <i class="fas fa-user text-blue-600"></i>
+                                        <img th:src="${appointment.patient != null and appointment.patient.user != null ? appointment.patient.user.profilePictureUrl : 'https://thumbs.dreamstime.com/z/default-avatar-profile-icon-vector-social-media-user-image-182145777.jpg?ct=jpeg'}"
+                                             th:alt="${appointment.patient != null and appointment.patient.user != null ? appointment.patient.user.name : 'Patient Name'}"
+                                             class="w-10 h-10 rounded-full object-cover" />
                                     </div>
                                     <div>
                                         <h4 class="font-semibold text-gray-900"
                                             th:text="${appointment.patient.user.name}">Patient Name</h4>
                                         <p class="text-sm text-gray-600">
                                             <span th:text="${appointment.patient.user.phone}">Phone</span> •
-                                            <span>ID: P</span><span th:text="${appointment.patient.id}">001</span>
+                                            <span>ID: P</span><span th:text="${appointment.patient.user.id}">001</span>
                                         </p>
                                         <p class="text-sm text-gray-500">
                                             <span>Fee: ₹</span><span th:text="${appointment.fee}">0</span>

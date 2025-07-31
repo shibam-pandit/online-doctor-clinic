@@ -21,14 +21,6 @@
                         <p class="text-sm text-gray-600">Track your consultation earnings and financial performance</p>
                     </div>
                 </div>
-
-                <div class="flex items-center space-x-4">
-                    <!-- Quick Actions -->
-                    <button
-                        class="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                        <i class="fas fa-download mr-2"></i>Download Report
-                    </button>
-                </div>
             </div>
         </header>
 
@@ -164,8 +156,10 @@
                                     Mar 15, 2024</td>
                                 <td class="py-4 px-6">
                                     <div class="flex items-center space-x-3">
-                                        <img src="https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg?auto=compress&cs=tinysrgb&w=100"
-                                            alt="Patient" class="w-8 h-8 rounded-full object-cover">
+                                        <img 
+                                            th:src="${appointment.patient != null and appointment.patient.user != null ? appointment.patient.user.profilePictureUrl : '/images/default-profile.png'}"
+                                            th:alt="${appointment.patient != null and appointment.patient.user != null ? appointment.patient.user.name : 'Patient Name'}"
+                                            class="w-8 h-8 rounded-full object-cover">
                                         <span class="font-medium text-gray-900"
                                             th:text="${appointment.patient != null and appointment.patient.user != null ? appointment.patient.user.name : 'Patient Name'}">Patient
                                             Name</span>

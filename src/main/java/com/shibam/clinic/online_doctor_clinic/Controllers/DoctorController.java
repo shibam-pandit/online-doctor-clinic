@@ -47,8 +47,22 @@ public class DoctorController {
         double monthlyIncome = doctorService.getMonthlyIncomeByDoctorId(doctorId);
         double averageRating = doctorService.getAverageRatingByDoctorId(doctorId);
 
+        // Determine greeting time based on current time
+        String greetTime;
+        LocalTime now = LocalTime.now();
+        if (now.isBefore(LocalTime.NOON)) {
+            greetTime = "morning";
+        } else if (now.isBefore(LocalTime.of(17, 0))) {
+            greetTime = "afternoon";
+        } else if (now.isBefore(LocalTime.of(20, 0))) {
+            greetTime = "evening";
+        } else {
+            greetTime = "night";
+        }
+
         // Add doctor details to the model
         model.addAttribute("doctor", doctor);
+        model.addAttribute("greetTime", greetTime);
         model.addAttribute("todayAppointments", todayAppointments);
         model.addAttribute("uniquePatientCount", uniquePatientCount);
         model.addAttribute("monthlyIncome", monthlyIncome);
