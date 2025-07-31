@@ -510,4 +510,8 @@ public class DoctorService {
     public void addPrescriptionToAppointment(Long appointmentId, String prescription) {
         appointmentRepo.updatePrescription(appointmentId, prescription);
     }
+
+    public void completeAppointment(Long appointmentId) {
+        appointmentRepo.completeAppointment(appointmentId);
+    }
 }

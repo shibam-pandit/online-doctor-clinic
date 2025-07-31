@@ -99,4 +99,9 @@ public interface AppointmentRepo extends JpaRepository<Appointment, Long> {
         @Query("UPDATE Appointment a SET a.prescription = :prescription WHERE a.id = :appointmentId")
         public void updatePrescription(@Param("appointmentId") Long appointmentId,
                         @Param("prescription") String prescription);
+
+        @Modifying
+        @Transactional
+        @Query("UPDATE Appointment a SET a.status = 'COMPLETED' WHERE a.id = :appointmentId")
+        public void completeAppointment(@Param("appointmentId") Long appointmentId);
 }

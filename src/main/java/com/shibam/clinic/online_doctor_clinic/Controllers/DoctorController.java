@@ -135,6 +135,27 @@ public class DoctorController {
         return "redirect:/doctor/appointments";
     }
 
+    @PostMapping("/appointments/complete/{id}")
+    public String completeAppointment(@PathVariable("id") Long appointmentId, Principal principal) {
+        String email = principal.getName();
+        Doctor doctor = doctorService.findByUserEmail(email);
+
+        System.out.println("Completing appointment for doctor: " + doctor.getUser().getEmail());
+
+        if (doctor == null || !doctor.isApproved()) {
+            return "redirect:/doctor/wait";
+        }
+
+        try {
+            doctorService.completeAppointment(appointmentId);
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the error for debugging
+            return "redirect:/doctor/appointments?error=true";
+        }
+
+        return "redirect:/doctor/appointments?success=true";
+    }
+
     @GetMapping("/availability")
     public String setAvailability(Principal principal, Model model,
             @RequestParam(value = "success", required = false) String success,

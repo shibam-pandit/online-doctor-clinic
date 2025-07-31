@@ -2,9 +2,20 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="~{fragments/doctor-header :: head('Appointments - Doctor Dashboard')}">
+    <style>
+        .start-meeting-btn:disabled {
+            background-color: #b3b3b3;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    </style>
 </head>
 
 <body class="font-inter antialiased bg-gray-50">
+    <!-- Hidden form for completing appointments -->
+    <form id="completeAppointmentForm" method="post" style="display:none;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    </form>
 
     <!-- Include Doctor Sidebar with activeMenu parameter -->
     <th:block
@@ -235,7 +246,10 @@
                                             th:if="${appointment.meetingLink != null && !#strings.isEmpty(appointment.meetingLink)}">
                                             <button
                                                 class="start-meeting-btn bg-primary text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-                                                th:data-meeting-link="${appointment.meetingLink}">
+                                                th:data-meeting-link="${appointment.meetingLink}"
+                                                th:data-id="${appointment.id}"
+                                                th:data-date="${#temporals.format(appointment.date, 'yyyy-MM-dd')}"
+                                                th:data-time="${#temporals.format(appointment.slot, 'hh:mm a')}">
                                                 <i class="fas fa-video mr-1"></i>Start
                                             </button>
                                             <button
@@ -566,6 +580,8 @@
 
         // Initialize appointments data and event listeners
         document.addEventListener('DOMContentLoaded', function () {
+            // Reference the hidden form for completing appointments
+            const completeForm = document.getElementById('completeAppointmentForm');
             // Collect all appointment data
             const appointmentCards = document.querySelectorAll('.appointment-card');
             allAppointments = Array.from(appointmentCards).map(card => ({
@@ -578,6 +594,50 @@
 
             filteredAppointments = [...allAppointments];
             updatePaginationInfo();
+
+            // Function to check if Start button should be enabled
+            function updateStartButtonState(button) {
+                const appointmentDate = button.dataset.date; // e.g., "2025-07-31"
+                const slotTimeStr = button.dataset.time; // e.g., "10:30 AM"
+                const todayDate = new Date().toISOString().split('T')[0];
+
+                let shouldDisable = false;
+                if (appointmentDate !== todayDate) {
+                    shouldDisable = true;
+                } else {
+                    // Parse slot time
+                    const [slotHourMin, slotPeriod] = slotTimeStr.split(' ');
+                    let [slotHour, slotMin] = slotHourMin.split(':').map(Number);
+                    if (slotPeriod === 'PM' && slotHour !== 12) slotHour += 12;
+                    if (slotPeriod === 'AM' && slotHour === 12) slotHour = 0;
+
+                    // Build slot datetime for today
+                    const slotDate = new Date();
+                    slotDate.setHours(slotHour, slotMin, 0, 0);
+
+                    // Subtract 5 minutes from slot time
+                    const slotMinus5 = new Date(slotDate.getTime() - 5 * 60 * 1000);
+                    const now = new Date();
+
+                    if (now < slotMinus5) {
+                        shouldDisable = true;
+                    }
+                }
+
+                button.disabled = shouldDisable;
+                if (shouldDisable) {
+                    button.style.backgroundColor = '#d1d5db'; // Tailwind gray-300
+                    button.style.cursor = 'not-allowed';
+                } else {
+                    button.style.backgroundColor = '';
+                    button.style.cursor = '';
+                }
+            }
+
+            // Update all Start buttons
+            document.querySelectorAll('.start-meeting-btn').forEach(button => {
+                updateStartButtonState(button);
+            });
 
             // Add event listeners for view appointment buttons
             document.addEventListener('click', function (e) {
@@ -598,9 +658,32 @@
 
                 if (e.target.closest('.start-meeting-btn')) {
                     const btn = e.target.closest('.start-meeting-btn');
+                    if (btn.disabled) return;
+                    const appointmentId = btn.dataset.id;
                     const meetingLink = btn.dataset.meetingLink;
+
+                    // Open Google Meet link if it exists
                     if (meetingLink) {
                         window.open('https://meet.google.com/' + meetingLink, '_blank');
+                    } else {
+                        console.warn('No meeting link found for appointment:', appointmentId);
+                    }
+
+                    // Submit form to complete appointment
+                    if (appointmentId) {
+                        try {
+                            // Set the form action using a plain JavaScript string
+                            completeForm.action = '/doctor/appointments/complete/' + appointmentId;
+                            completeForm.method = 'POST';
+                            console.log('Submitting form to:', completeForm.action);
+                            completeForm.submit();
+                        } catch (error) {
+                            console.error('Error submitting complete appointment form:', error);
+                            alert('Failed to complete appointment. Please try again.');
+                        }
+                    } else {
+                        console.error('No appointment ID found for start button');
+                        alert('Cannot complete appointment: Appointment ID is missing.');
                     }
                 }
 
@@ -616,82 +699,89 @@
                     openPrescriptionModal(appointmentId, patientName, patientId, date, time);
                 }
             });
-        });
 
-        // Mobile sidebar toggle
-        const openSidebar = document.getElementById('openSidebar');
-        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+            // Periodically update button states (every minute) to account for time passing
+            setInterval(() => {
+                document.querySelectorAll('.start-meeting-btn').forEach(button => {
+                    updateStartButtonState(button);
+                });
+            }, 60000);
 
-        if (openSidebar) {
-            openSidebar.addEventListener('click', () => {
-                const sidebar = document.getElementById('sidebar');
-                if (sidebar) {
-                    sidebar.classList.remove('-translate-x-full');
-                    if (mobileMenuOverlay) mobileMenuOverlay.classList.remove('hidden');
-                }
-            });
-        }
+            // Mobile sidebar toggle
+            const openSidebar = document.getElementById('openSidebar');
+            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
 
-        if (mobileMenuOverlay) {
-            mobileMenuOverlay.addEventListener('click', () => {
-                const sidebar = document.getElementById('sidebar');
-                if (sidebar) {
-                    sidebar.classList.add('-translate-x-full');
-                    mobileMenuOverlay.classList.add('hidden');
-                }
-            });
-        }
+            if (openSidebar) {
+                openSidebar.addEventListener('click', () => {
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar) {
+                        sidebar.classList.remove('-translate-x-full');
+                        if (mobileMenuOverlay) mobileMenuOverlay.classList.remove('hidden');
+                    }
+                });
+            }
 
-        // View toggle functionality
-        const tableViewBtn = document.getElementById('tableViewBtn');
-        const calendarViewBtn = document.getElementById('calendarViewBtn');
+            if (mobileMenuOverlay) {
+                mobileMenuOverlay.addEventListener('click', () => {
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar) {
+                        sidebar.classList.add('-translate-x-full');
+                        mobileMenuOverlay.classList.add('hidden');
+                    }
+                });
+            }
 
-        if (tableViewBtn && calendarViewBtn) {
-            tableViewBtn.addEventListener('click', () => {
-                tableViewBtn.classList.add('text-primary', 'bg-white', 'shadow-sm');
-                tableViewBtn.classList.remove('text-gray-600');
-                calendarViewBtn.classList.remove('text-primary', 'bg-white', 'shadow-sm');
-                calendarViewBtn.classList.add('text-gray-600');
-            });
+            // View toggle functionality
+            const tableViewBtn = document.getElementById('tableViewBtn');
+            const calendarViewBtn = document.getElementById('calendarViewBtn');
 
-            calendarViewBtn.addEventListener('click', () => {
-                calendarViewBtn.classList.add('text-primary', 'bg-white', 'shadow-sm');
-                calendarViewBtn.classList.remove('text-gray-600');
-                tableViewBtn.classList.remove('text-primary', 'bg-white', 'shadow-sm');
-                tableViewBtn.classList.add('text-gray-600');
-            });
-        }
-
-        // Tab functionality
-        const tabs = document.querySelectorAll('.tab-button');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabType = tab.dataset.tab;
-                currentTab = tabType;
-
-                // Remove active state from all tabs
-                tabs.forEach(t => {
-                    t.classList.remove('border-primary', 'text-primary');
-                    t.classList.add('border-transparent', 'text-gray-500');
+            if (tableViewBtn && calendarViewBtn) {
+                tableViewBtn.addEventListener('click', () => {
+                    tableViewBtn.classList.add('text-primary', 'bg-white', 'shadow-sm');
+                    tableViewBtn.classList.remove('text-gray-600');
+                    calendarViewBtn.classList.remove('text-primary', 'bg-white', 'shadow-sm');
+                    calendarViewBtn.classList.add('text-gray-600');
                 });
 
-                // Add active state to clicked tab
-                tab.classList.add('border-primary', 'text-primary');
-                tab.classList.remove('border-transparent', 'text-gray-500');
+                calendarViewBtn.addEventListener('click', () => {
+                    calendarViewBtn.classList.add('text-primary', 'bg-white', 'shadow-sm');
+                    calendarViewBtn.classList.remove('text-gray-600');
+                    tableViewBtn.classList.remove('text-primary', 'bg-white', 'shadow-sm');
+                    tableViewBtn.classList.add('text-gray-600');
+                });
+            }
 
-                // Apply filters
-                applyAllFilters();
+            // Tab functionality
+            const tabs = document.querySelectorAll('.tab-button');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabType = tab.dataset.tab;
+                    currentTab = tabType;
+
+                    // Remove active state from all tabs
+                    tabs.forEach(t => {
+                        t.classList.remove('border-primary', 'text-primary');
+                        t.classList.add('border-transparent', 'text-gray-500');
+                    });
+
+                    // Add active state to clicked tab
+                    tab.classList.add('border-primary', 'text-primary');
+                    tab.classList.remove('border-transparent', 'text-gray-500');
+
+                    // Apply filters
+                    applyAllFilters();
+                });
             });
+
+            // Filter functionality
+            const applyFiltersBtn = document.getElementById('applyFilters');
+            const clearFiltersBtn = document.getElementById('clearFilters');
+            const searchFilter = document.getElementById('searchFilter');
+
+            if (applyFiltersBtn) applyFiltersBtn.addEventListener('click', applyAllFilters);
+            if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', clearAllFilters);
+            if (searchFilter) searchFilter.addEventListener('input', applyAllFilters);
         });
-
-        // Filter functionality
-        const applyFiltersBtn = document.getElementById('applyFilters');
-        const clearFiltersBtn = document.getElementById('clearFilters');
-        const searchFilter = document.getElementById('searchFilter');
-
-        if (applyFiltersBtn) applyFiltersBtn.addEventListener('click', applyAllFilters);
-        if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', clearAllFilters);
-        if (searchFilter) searchFilter.addEventListener('input', applyAllFilters);
 
         function applyAllFilters() {
             const dateFilter = document.getElementById('dateFilter').value;
@@ -770,6 +860,7 @@
             const allTab = document.querySelector('[data-tab="all"]');
 
             // Reset tab styles
+            const tabs = document.querySelectorAll('.tab-button');
             tabs.forEach(t => {
                 t.classList.remove('border-primary', 'text-primary');
                 t.classList.add('border-transparent', 'text-gray-500');
@@ -1079,5 +1170,7 @@
                 window.open(currentMeetingLink, '_blank');
             }
         }
-
     </script>
+</body>
+
+</html>
