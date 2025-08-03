@@ -18,7 +18,7 @@
 
 ### 🎯 Real-World Use Cases
 
-- **Virtual Consultations** - Enable remote medical consultations with video conferencing integration
+- **Virtual Consultations** - Enable remote medical consultations with video conferencing using google meet
 - **Appointment Scheduling** - Intelligent booking system with availability management
 - **Prescription Management** - Digital prescription generation and patient history tracking
 - **Secure Payments** - Integrated Razorpay payment gateway for consultation fees
@@ -354,16 +354,31 @@ Please use the [issue tracker](https://github.com/shibam-pandit/online-doctor-cl
 <details>
 <summary><strong>📱 Application Screenshots</strong></summary>
 
-> 📸 **Coming Soon**: Screenshots will be added showcasing the patient dashboard, doctor interface, appointment booking flow, and admin panel.
-
-**Planned Screenshots:**
+**Screenshots:**
 - 🏠 Homepage & Landing
+
+  <img width="1353" height="642" alt="image" src="https://github.com/user-attachments/assets/49ec33ae-7ff7-4da2-963a-8b953663920c" />
+
 - 👤 Patient Dashboard
+
+  <img width="1093" height="519" alt="image" src="https://github.com/user-attachments/assets/785fe4ac-c1aa-4625-9c32-9aeaa5bb6d65" />
+
 - 👨‍⚕️ Doctor Dashboard
+
+  <img width="1093" height="518" alt="image" src="https://github.com/user-attachments/assets/4534299a-52b3-48a7-aa4b-01f0cfdd1852" />
+
 - 📅 Appointment Booking Flow
+
+  <img width="1093" height="440" alt="image" src="https://github.com/user-attachments/assets/95e8ae2b-790e-4b0e-82ac-89c572bc7ead" />
+
 - 💳 Payment Processing
+
+  <img width="1093" height="516" alt="image" src="https://github.com/user-attachments/assets/df150dd6-94cb-426a-94c0-58178bf6ddc9" />
+
 - ⚙️ Admin Panel
-- 📱 Mobile Responsive Views
+
+  <img width="1093" height="561" alt="image" src="https://github.com/user-attachments/assets/6563a5b2-8490-481c-b271-5eb57b2929dc" />
+
 
 </details>
 
